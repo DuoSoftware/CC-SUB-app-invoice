@@ -3400,7 +3400,7 @@
         $scope.selectedInvoice.discount=totDiscount;
         vm.selectedInvoice=$scope.selectedInvoice;
         vm.selectedInvoice.transactionType = invoice.transactionType;
-        $scope.showAdvancedInvoice(ev,vm.selectedInvoice);
+        //$scope.showAdvancedInvoice(ev,vm.selectedInvoice);
         invoice.isDialogLoading = false;
       }).error(function(data)        {
         console.log(data);
