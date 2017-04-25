@@ -1,0 +1,83 @@
+<meta name="updatedBy" content="Suvethan">
+<meta name="modifiedDate" content="22-12-2016">
+<meta name="version" content="6.0.0.3">
+<meta name="app" content="invoice">
+<meta name="view" content="compose-dialog-product.html">
+
+<md-dialog class="compose-dialog" aria-label="New Message">
+  <form class="md-inline-form" name="vm.editForm" id="quotNewProductForm" ng-submit="saveProduct()" novalidate>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <div layout="row" layout-align="start center">
+          <md-icon md-font-icon="icon-package-up"></md-icon> <h3>New Product Details</h3>
+        </div>
+        <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog">
+          <md-icon md-font-icon="icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content ms-scroll>
+      <div layout="row" layout-align="center center">
+        <md-input-container class="bottom" flex="40">
+          <label>Product Name</label>
+          <input ng-required="true" type="" name="productName" ng-pattern="" ng-maxlength="20" ng-model="content.product_name">
+          <div ng-messages="vm.editForm.productName.$error">
+            <div ng-message="maxlength">Product name must be between 3-20 characters</div>
+            <div ng-message="minlength">Product name must be between 3-20 characters</div>
+          </div>
+        </md-input-container>
+
+        <div flex="5"><!--Spacer --></div>
+
+        <md-input-container class="md-block" flex="40">
+          <label>Code</label>
+          <input ng-required="true" type="" name="productCode" ng-minlength="3" ng-maxlength="10" ng-blur="validateProduct(content.code)" ng-pattern="" ng-model="content.code">
+          <div ng-messages="vm.editForm.productCode.$error">
+            <div ng-message="maxlength">Product code must be between 3-10 characters</div>
+            <div ng-message="minlength">Product code must be between 3-10 characters</div>
+          </div>
+        </md-input-container>
+      </div>
+
+      <div layout="row" layout-align="center center">
+        <md-input-container class="md-block" flex="40">
+          <label>Price</label>
+          <input ng-required="true" minlength="null" max="1000000000000000000" md-maxlength="null" min="0" step="0.01"  type="number" name="Price"  ng-model="content.price_of_unit" valid-number decimal-point="content.decimalPoint">
+          <div ng-messages="vm.editForm.Price.$error">
+            <div ng-message="max">Price must be between 1-18 digits</div>
+            <div ng-message="min">Price must be between 1-18 digits</div>
+          </div>
+        </md-input-container>
+
+        <div flex="5"><!--Spacer --></div>
+
+        <div flex="40" layout="row">
+          <div layout="column" flex>
+            <md-input-container style="margin: 12px 0 0 0;">
+              <label>Tax</label>
+              <md-select ng-disabled="content.apply_tax != true" ng-required="content.apply_tax" ng-model="content.tax">
+                <md-option ng-repeat="value in taxGroup" value="{{value.taxgroupcode}}">
+                  {{value.taxgroupcode}}
+                </md-option>
+              </md-select>
+            </md-input-container>
+            <md-checkbox ng-model="content.apply_tax" name="noEndDateCheckBox" aria-label="No End date" class="md-primary dep-checkbox">Apply Tax</md-checkbox>
+          </div>
+        </div>
+      </div>
+
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row" layout-align="end center" md-whiteframe="2dp">
+      <div layout="row" layout-align="end center" flex>
+        <md-button ng-click="clearFields()" aria-label="Delete">
+          Clear
+        </md-button>
+        <md-button type="submit" ng-disabled="productSubmit" class="send-button md-accent md-raised" aria-label="Create Product">
+          Create
+        </md-button>
+      </div>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

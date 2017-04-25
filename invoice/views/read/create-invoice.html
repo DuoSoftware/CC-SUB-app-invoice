@@ -1,0 +1,134 @@
+<div id="invoice-read" class="compact page-layout blank" layout="row">
+  <div class="invoice-read-container">
+    <form name="editInvoice" ng-submit="submit()">
+
+      <!-- INVOICE -->
+      <div class="card md-whiteframe-8dp">
+
+        <div class="inv-read-header">
+          <div class="invoice-date"></div>
+
+          <div layout="row" layout-align="space-between stretch">
+            <div class="client">
+
+              <div class="invoice-number" layout="row" layout-align="start center">
+                <span class="title" flex="50">NAME : </span>
+                <span class="number"></span>
+              </div>
+
+              <div class="invoice-type" layout="row" layout-align="start center">
+                <span class="title" flex="50">INVOICE TYPE : </span>
+                <md-select flex="50" ng-required="true"  name="invoiceType" ng-model="content.invoiceType" ng-change="customValidation(content.invoiceType)"  style="width: 300px;">
+                  <md-option ng-repeat="types in invoicetypes" ng-value="types">{{types}}</md-option>
+                </md-select>
+              </div>
+
+              <div class="invoice-type" layout="row" layout-align="start center">
+                <span class="title" flex="50">CATEGORY : </span>
+                <md-select flex="50" ng-required="false" name="receivedStore" ng-model="content.category" ng-change="FilterUsers(content.category)"  style="width: 300px;">
+                  <md-option ng-repeat="value in categories" ng-value="value">{{value}}</md-option>
+                </md-select>
+              </div>
+
+              <div class="invoice-number" layout="row" layout-align="start center">
+                <span class="title" flex="45">INVOICE DATE : </span>
+                <md-datepicker flex="55" ng-model="content.invoiceDate" md-placeholder="Invoice Date"></md-datepicker>
+              </div>
+
+              <div class="due-date" layout="row" layout-align="start center">
+                <span class="title" flex="45">DUE DATE : </span>
+                <md-datepicker flex="55" ng-model="content.dueDate" md-placeholder="Due Date"></md-datepicker>
+              </div>
+
+            </div>
+
+            <div flex="5"></div>
+
+            <div class="issuer md-accent-bg" layout="row" layout-align="start center">
+              <div class="logo" layout="row" layout-align="center center">
+                <span>D</span>
+              </div>
+
+              <div class="info">
+                <div class="title">DuoWorld .inc</div>
+                <div class="address">No.413, Galled Rd, Colombo - 3, SriLanka</div>
+                <div class="phone">+94-112388445</div>
+                <div class="email">info@duoworld.com</div>
+                <div class="website">www.duoworld.com</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="inv-read-content">
+          <table class="simple invoice-table">
+            <thead>
+            <th>ITEM</th>
+            <th class="text-right">UNIT PRICE</th>
+            <th class="text-right">QUANTITY</th>
+            <th class="text-right">TOTAL</th>
+            </thead>
+            <tbody>
+            <tr ng-repeat="detail in vm.selectedInvoice.invoiceDetails">
+              <td>
+                <div class="title">
+                  {{detail.product_name}}
+                </div>
+              </td>
+              <td class="text-right">
+                {{detail.unitPrice | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}
+              </td>
+              <td class="text-right">
+                {{detail.gty}}
+              </td>
+              <td class="text-right">
+                {{detail.totalPrice | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}
+              </td>
+            </tr>
+            </tbody>
+          </table>
+
+
+          <table class="simple invoice-table-footer">
+            <tbody>
+            <tr class="subtotal">
+              <td>SUBTOTAL</td>
+              <td>{{vm.selectedInvoice.subTotal | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
+            </tr>
+            <tr class="additionalcharge">
+              <td>ADDITIONAL CHARGES</td>
+              <td>{{vm.selectedInvoice.additionalcharge | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
+            </tr>
+            <tr class="discount">
+              <td>DISCOUNT</td>
+              <td>
+                {{vm.selectedInvoice.discAmt | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
+            </tr>
+            <tr class="tax">
+              <td>TAX</td>
+              <td>{{vm.selectedInvoice.tax | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
+            </tr>
+            <tr class="promotion" ng-if="vm.selectedInvoice.promotionId">
+              <td>PROMOTION</td>
+              <td>{{vm.selectedInvoice.promotionId}}</td>
+            </tr>
+            <tr class="total">
+              <td>TOTAL</td>
+              <td>{{vm.selectedInvoice.invoiceAmount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+
+      </div>
+      <!-- / INVOICE -->
+
+      <!-- Use the following element to add breaks to your pages -->
+      <!-- This will make sure that the section after this element will be printed on a new page -->
+      <div class="page-break"></div>
+
+    </form>
+
+  </div>
+</div>

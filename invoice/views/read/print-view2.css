@@ -1,0 +1,210 @@
+.inv-outline {
+  font-family: Roboto;
+  font-size: 14px;
+  padding: 20px;
+}
+.flex{
+  flex: 1;
+}
+.inv-outline .inv-read-header .invoice-date {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.54);
+  margin-bottom: 32px;
+}
+.inv-outline .inv-read-header .client{
+  width: 50%;
+  display: inline-block;
+}
+.inv-outline .inv-read-header .client md-select {
+  margin: 10px 0;
+}
+.inv-outline .inv-read-header .client .invoice-number {
+  font-size: 14px;
+  padding-bottom: 2px;
+}
+.inv-outline .inv-read-header .client .invoice-number .title {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.54);
+}
+.inv-outline .inv-read-header .client .invoice-number .number {
+  padding-left: 0px !important;
+}
+.inv-outline .inv-read-header .client .invoice-type {
+  font-size: 18px;
+  padding-bottom: 2px;
+}
+.inv-outline .inv-read-header .client .invoice-type .title {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.54);
+}
+.inv-outline .inv-read-header .client .invoice-type .number {
+  padding-left: 6px;
+}
+.inv-outline .inv-read-header .client .due-date {
+  font-size: 14px;
+  font-weight: 500;
+  padding-bottom: 16px;
+}
+.inv-outline .inv-read-header .client .due-date .title {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.54);
+}
+.inv-outline .inv-read-header .client .due-date .date {
+  padding-left: 6px;
+}
+.inv-outline .inv-read-header .client .info {
+  color: rgba(0, 0, 0, 0.54);
+  line-height: 18px;
+  padding-right: 70px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+.inv-outline .inv-read-header .issuer {
+  color: #ffffff!important;
+  background-color: transparent;
+  width: 50%;
+  display: inline-block;
+}
+.inv-outline .inv-read-header .issuer .set-img {
+  width: 150px;
+  height: 150px;
+  position: relative;
+}
+.inv-outline .inv-read-header .issuer .set-img img {
+  width: 150px;
+  height: auto;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin: auto;
+}
+.inv-outline .inv-read-header .issuer .logo {
+  text-align: center;
+  color: #ffffff;
+  width: 96px;
+  height: 96px;
+  font-size: 72px;
+  border-right: 1px solid rgba(255, 255, 255, 0.7);
+}
+.inv-outline .inv-read-header .issuer .info {
+  font-size: 14px;
+  padding: 16px;
+  color: #000;
+}
+.inv-outline .inv-read-header .issuer .new-invoice-issuer .info {
+  padding: 40px 20px;
+}
+.inv-outline .inv-read-content .invoice-table {
+  width: 100%;
+  margin-top: 64px;
+  font-size: 14px !important;
+}
+.inv-outline .inv-read-content .invoice-table thead tr th {
+  text-align: left;
+  color: rgba(0, 0, 0, 0.28);
+  padding-bottom: 7px;
+  font-weight: normal;
+}
+.inv-outline .inv-read-content .invoice-table thead tr th:first-child {
+  padding-left: 8px;
+}
+.inv-outline .inv-read-content .invoice-table thead tr th:last-child {
+  padding-right: 8px;
+  text-align: right;
+}
+.inv-outline .inv-read-content .invoice-table{
+  text-align: left;
+}
+.inv-outline .inv-read-content .invoice-table tbody tr td:first-child {
+  padding-left: 8px;
+}
+.inv-outline .inv-read-content .invoice-table tbody tr td:last-child {
+  padding-right: 8px;
+  text-align: right;
+}
+.inv-outline .inv-read-content .invoice-table .title {
+  font-size: 14px;
+  font-weight: 500;
+}
+.inv-outline .inv-read-content .invoice-table .detail {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  max-width: 360px;
+}
+.inv-outline .inv-read-content .invoice-table-footer {
+  border-collapse: collapse;
+  margin: 32px 0 72px 0;
+  width: 100%;
+}
+.inv-outline .inv-read-content .invoice-table-footer tr:not(:last-child) {
+  background-color: rgba(0, 0, 0, 0.01);
+}
+.inv-outline .inv-read-content .invoice-table-footer tr td:first-child {
+  width: 400px;
+}
+.inv-outline .inv-read-content .invoice-table-footer tr td {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 400  ;
+  color: rgba(0, 0, 0, 0.54);
+  border-bottom: none;
+  padding: 4px 8px;
+}
+.inv-outline .inv-read-content .invoice-table-footer tr.promotion td {
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.12);
+  font-size: 16px;
+  font-weight: 300;
+  color: black;
+}
+.inv-outline .inv-read-content .invoice-table-footer tr.total td {
+  padding: 24px 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 27px !important;
+  font-weight: 300;
+  color: black;
+}
+.inv-outline .inv-read-footer{
+  position: relative;
+  bottom: 20px;
+}
+.inv-outline .inv-read-footer .note {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+.inv-outline .inv-read-footer .logo, .inv-outline .inv-read-footer .small-note {
+  -ms-flex: 0 1 auto;
+}
+.inv-outline .inv-read-footer .logo {
+
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  font-size: 17px;
+  font-weight: 500;
+  margin-right: 24px;
+  border-radius: 2px;
+  overflow: hidden;
+  display: inline-block;
+  text-align: center;
+  background-color: rgb(3,155,229);
+}
+.inv-outline .inv-read-footer .logo>div {
+  margin-top: 5px;
+  color: #fff;
+}
+.inv-outline .inv-read-footer .small-note {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.54);
+  line-height: 18px;
+  display: inline-block;
+  width: 92%;
+}

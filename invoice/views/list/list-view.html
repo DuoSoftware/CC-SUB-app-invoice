@@ -1,0 +1,55 @@
+<!-- INVOICE LIST ITEMS -->
+<div class="invoice-list-item" layout="row" layout-align="center center" flex ng-repeat="invoice in vm.invoices | filter:vm.search | filter: global.search"
+     md-ink-ripple
+     ng-click="vm.selectInvoice(invoice)"
+     ng-class="{'starred': invoice.starred, 'selected': vm.selectedInvoice === invoice, 'checked': vm.isChecked(invoice)}">
+
+  <div layout="row" layout-align="center center" flex>
+    <!--<md-checkbox class="no-label"-->
+    <!--ng-checked="vm.isChecked(invoice)"-->
+    <!--ng-click="vm.toggleCheck(invoice, $event)"-->
+    <!--aria-label="{{vm.isChecked(invoice)? 'Uncheck':'check'}}">-->
+    <!--</md-checkbox>-->
+
+    <div class="info" flex layout="row">
+      <div class="invoiceMainInfo" layout="column" layout-align="center start">
+        <span>{{invoice.invoiceNo}}</span>
+        <div class="invoiceType">
+          {{invoice.invoice_type}} invoice
+        </div>
+      </div>
+    </div>
+
+    <div flex class="client" layout="column" layout-align="center start">
+      {{invoice.client}}
+    </div>
+
+    <div flex class="client" layout="column" layout-align="center start">
+      <!--<div>{{invoice.invoiceDate | parseDate | date: 'dd'}} {{invoice.invoiceDate | parseDate | date: 'MMMM'}} {{invoice.invoiceDate | parseDate | date: 'yyyy'}}</div>-->
+      <span>{{invoice.invoiceDate | parseDate | date: 'dd'}} {{invoice.invoiceDate | parseDate | date: 'MMMM' | limitTo:3}} {{invoice.invoiceDate | parseDate | date: 'yyyy'}}</span>
+      <!--<span>{{invoice.invoiceDate | parseDate | date: 'MMMM' | limitTo:3}}</span>-->
+      <!--<span>{{invoice.invoiceDate | parseDate | date: 'yyyy'}}</span>-->
+    </div>
+
+    <div flex class="client" layout="column" layout-align="center end">
+      <span>{{invoice.invoiceAmount | isoCurrency:invoice.currency :decimalPoint}}</span>
+      <!-- <span class="totaldue"><i>{{}}</i></span> -->
+    </div>
+
+    <div flex="5"></div>
+
+    <div class="status" layout="column" layout-align="center end" flex="10">
+            <span class="pill partial" layout="row" layout-align="center center" ng-class="{'notpaid':invoice.invoiceStatus==='Not Paid','partially-paid':invoice.invoiceStatus==='Partially Paid', 'paid':invoice.invoiceStatus==='Paid','void' :invoice.invoiceStatus==='void'}">{{invoice.invoiceStatus}}</span>
+    </div>
+
+    <!-- <div layout="row" layout-align="space-between end">
+        <md-button class="md-icon-button" ng-click="vm.toggleStarred(product, $event)"
+                   aria-label="Toggle starred">
+            <md-icon ng-if="product.starred" md-font-icon="icon-star"
+                     class="amber-fg"></md-icon>
+            <md-icon ng-if="!product.starred" md-font-icon="icon-star-outline"></md-icon>
+        </md-button>
+    </div> -->
+  </div>
+</div>
+<!-- PRODUCT LIST ITEMS

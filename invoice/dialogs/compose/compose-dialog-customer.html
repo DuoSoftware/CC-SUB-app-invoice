@@ -1,0 +1,247 @@
+<meta name="updatedBy" content="GihanHerath">
+<meta name="modifiedDate" content="06-12-2016">
+<meta name="version" content="6.0.0.12">
+<meta name="app" content="inventory">
+<meta name="view" content="compose-dialog.html">
+
+<md-dialog class="compose-dialog" aria-label="New Message">
+  <form class="md-inline-form" name="vm.editForm" id="quotNewUserForm" ng-submit="submit()" novalidate>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <div layout="row" layout-align="start center">
+          <md-icon md-font-icon="icon-account-plus"></md-icon> <h3>New User Details</h3>
+        </div>
+        <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog">
+          <md-icon md-font-icon="icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content ms-scroll>
+
+      <div layout="row" layout-align="center center">
+        <md-input-container class="bottom" flex="40">
+          <label>Type</label>
+          <md-select ng-required="true" ng-model="contentuser.profile_type" ng-init="contentuser.profile_type='Individual'" ng-change="toggleType(contentuser.profile_type)">
+            <md-option value="Individual" id="individual123" name="rdocat">Individual</md-option>
+            <md-option value="Business" id="business123" name="rdocat">Business</md-option>
+          </md-select>
+        </md-input-container>
+
+        <div flex="5"></div>
+
+        <div layout="row" layout-align="start center" flex="40" class="state-capsule">
+          <div layout="row">
+            <span>Category</span>
+            <span>{{contentuser.category}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div layout="row" layout-align="center center" ng-show="contentuser.profile_type == 'Individual'">
+        <md-input-container flex="40">
+          <label>First Name</label>
+          <input ng-model="contentuser.first_name" ng-required="checkRequired" ng-minlength="3" ng-maxlength="35" name="first_name" type="text">
+          <div ng-messages="vm.editForm.first_name.$error">
+            <div ng-message="maxlength">First name cannot be longer than 35 characters</div>
+            <div ng-message="minlength">First name cannot be shorter than 3 characters</div>
+          </div>
+        </md-input-container>
+
+        <div flex="5"></div>
+
+        <md-input-container flex="40">
+          <label>Email</label>
+          <input ng-model="contentuser.email_addr" ng-required="checkRequired" ng-maxlength="50" name="individualEmail" ng-pattern="/^.+@.+\..+$/" type="text">
+          <div ng-messages="vm.editForm.individualEmail.$error">
+            <div ng-message="pattern">Invalid Email Address</div>
+            <div ng-message="maxlength">Email must be between 1-50 characters</div>
+          </div>
+        </md-input-container>
+      </div>
+
+      <div layout="row" layout-align="center center" ng-show="contentuser.profile_type == 'Individual'">
+        <md-input-container flex="40">
+          <label>Phone</label>
+          <input ng-model="contentuser.phone" ng-pattern="" ng-required="false" ng-maxlength="35" name="phone" type="text">
+          <div ng-messages="vm.editForm.phone.$error">
+            <div ng-message="maxlength">Phone number must be between 1-35 characters</div>
+          </div>
+        </md-input-container>
+
+        <div flex="5"></div>
+
+        <md-input-container flex="40">
+          <label>Address</label>
+          <input ng-model="contentuser.bill_addr" id="autocomplete" onFocus="geolocate()" placeholder="Enter your Address" ng-required="false" ng-maxlength="200" name="bill_addrIndi" type="text">
+          <div ng-messages="vm.editForm.bill_addrIndi.$error">
+            <div ng-message="maxlength">Address must be between 1-200 characters</div>
+          </div>
+          <input ng-model="contentuser.bill_city" id="locality" ng-hide="true" type="text">
+          <input ng-model="contentuser.bill_country" id="country" ng-hide="true" type="text">
+          <input ng-model="contentuser.bill_zip_post" id="postal_code" ng-hide="true" type="text">
+        </md-input-container>
+      </div>
+
+      <div layout="row" layout-align="center center" ng-show="contentuser.profile_type == 'Business'">
+        <md-input-container flex="40">
+          <label>Business Name</label>
+          <input ng-model="contentuser.business_name" ng-required="!checkRequired" ng-minlength="3" ng-maxlength="35" name="business_name" type="text">
+          <div ng-messages="vm.editForm.business_name.$error">
+            <div ng-message="maxlength">First name cannot be longer than 35 characters</div>
+            <div ng-message="minlength">First name cannot be shorter than 3 characters</div>
+          </div>
+        </md-input-container>
+
+        <div flex="5"></div>
+
+        <md-input-container flex="40">
+          <label>Email</label>
+          <input ng-model="contentuser.email_addr" ng-maxlength="50" name="individualEmail" ng-pattern="/^.+@.+\..+$/" ng-required="!checkRequired" type="text">
+          <div ng-messages="vm.editForm.individualEmail.$error">
+            <div ng-message="pattern">Invalid Email Address</div>
+            <div ng-message="maxlength">Email must be between 1-50 characters</div>
+          </div>
+        </md-input-container>
+      </div>
+
+      <div layout="row" layout-align="center center" ng-show="contentuser.profile_type == 'Business'">
+        <md-input-container flex="40">
+          <label>Contact Person Number</label>
+          <input ng-model="contentuser.business_contact_no" ng-pattern="" ng-required="false" ng-maxlength="35" name="business_contact_no" type="text">
+          <div ng-messages="vm.editForm.business_contact_no.$error">
+            <div ng-message="maxlength">Phone number must be between 1-35 characters</div>
+          </div>
+        </md-input-container>
+
+        <div flex="5"></div>
+
+        <md-input-container flex="40">
+          <label>Address</label>
+          <input ng-model="contentuser.bill_addr" id="autocomplete2" onFocus="geolocate2()" placeholder="Enter your Address" ng-required="false" ng-maxlength="200" name="bill_addrBusi" type="text">
+          <div ng-messages="vm.editForm.bill_addrBusi.$error">
+            <div ng-message="maxlength">Address must be between 1-200 characters</div>
+          </div>
+          <input ng-model="contentuser.bill_city" id="locality" ng-hide="true" type="text">
+          <input ng-model="contentuser.bill_country" id="country" ng-hide="true" type="text">
+          <input ng-model="contentuser.bill_zip_post" id="postal_code" ng-hide="true" type="text">
+        </md-input-container>
+      </div>
+
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row" layout-align="center center" md-whiteframe="2dp">
+      <div flex></div>
+      <div layout="row">
+        <md-button ng-click="clearNewUserDetails()" aria-label="Delete">Clear</md-button>
+        <md-button type="submit" ng-disabled="vm.submitted" class="send-button md-accent md-raised" aria-label="Create Profile">Create</md-button>
+      </div>
+    </md-dialog-actions>
+  </form>
+</md-dialog>
+
+<script>
+  var placeSearch, autocomplete,autocomplete2;
+  var componentForm = {
+    locality: 'long_name',
+    country: 'long_name',
+    postal_code: 'short_name'
+  };
+
+  function initAutocomplete() {
+    // Create the autocomplete object, restricting the search to geographical
+    // location types.
+    autocomplete = new google.maps.places.Autocomplete(
+      /** @type {!HTMLInputElement} */(document.getElementById('autocomplete')),
+      {types: ['geocode']});
+
+    // When the user selects an address from the dropdown, populate the address
+    // fields in the form.
+    autocomplete.addListener('place_changed', fillInAddress);
+
+    autocomplete2 = new google.maps.places.Autocomplete(
+      /** @type {!HTMLInputElement} */(document.getElementById('autocomplete2')),
+      {types: ['geocode']});
+
+    // When the user selects an address from the dropdown, populate the address
+    // fields in the form.
+    autocomplete2.addListener('place_changed', fillInAddress);
+
+  }
+
+  function fillInAddress() {
+    // Get the place details from the autocomplete object.
+    var place = autocomplete.getPlace();
+    //debugger;
+    for (var component in componentForm) {
+      document.getElementById(component).value = '';
+      //document.getElementById(component).disabled = false;
+    }
+
+    // Get each component of the address from the place details
+    // and fill the corresponding field on the form.
+    for (var i = 0; i < place.address_components.length; i++) {
+      var addressType = place.address_components[i].types[0];
+      if (componentForm[addressType]) {
+        var val = place.address_components[i][componentForm[addressType]];
+        document.getElementById(addressType).value = val;
+        document.getElementById(addressType).focus();
+      }
+      else if(addressType=='administrative_area_level_2')
+      {
+        var val = place.address_components[i]['long_name'];
+        document.getElementById('locality').value = val;
+        document.getElementById('locality').focus();
+      }
+    }
+  }
+
+  function clearaddress(){
+    if(document.getElementById('autocomplete').value==''){
+      for (var component in componentForm) {
+        document.getElementById(component).value = '';
+        //document.getElementById(component).disabled = false;
+      }
+    }
+  }
+
+  // Bias the autocomplete object to the user's geographical location,
+  // as supplied by the browser's 'navigator.geolocation' object.
+  function geolocate() {
+    if (navigator.geolocation) {
+      document.getElementById('autocomplete').focus();
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var geolocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        var circle = new google.maps.Circle({
+          center: geolocation,
+          radius: position.coords.accuracy
+        });
+        autocomplete.setBounds(circle.getBounds());
+      });
+    }
+  }
+
+  // Bias the autocomplete object to the user's geographical location,
+  // as supplied by the browser's 'navigator.geolocation' object.
+  function geolocate2() {
+    if (navigator.geolocation) {
+      document.getElementById('autocomplete2').focus();
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var geolocation2 = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        var circle2 = new google.maps.Circle({
+          center: geolocation2,
+          radius: position.coords.accuracy
+        });
+        autocomplete2.setBounds(circle2.getBounds());
+      });
+    }
+  }
+
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initAutocomplete" async defer></script>
