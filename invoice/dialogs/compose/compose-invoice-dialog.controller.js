@@ -89,7 +89,7 @@
 
     }
     loadAll();
-    
+
     var self = this;
     // list of `state` value/display objects
     //self.tenants        = loadAll();
@@ -335,36 +335,38 @@
 
 
 
-
+    $scope.subject = '';
 
     $scope.sendMail= function () {
       $scope.cc=[];
       $scope.to=[];
       for(var i=0;i<$scope.recipients.length;i++)
       {
-        $scope.to.push($scope.recipients[i].value.email);
+        $scope.to.push({  "name": $scope.recipients[i].display ,  "email": $scope.recipients[i].value.email});
       }
 
       for(var i=0;i<$scope.selectedUser.length;i++)
       {
-        $scope.cc.push($scope.selectedUser[i].value.email);
+        $scope.cc.push({  "name": $scope.recipients[i].display ,  "email": $scope.recipients[i].value.email});
       }
       var req={
-        "app" :"Invoice",
-        "html":base64Content,
-        "id":$scope.selectedInvoice.code,
-        "body":$scope.bodycontent,
-        "subject" :$scope.subject,
-        "to":$scope.to,
-        "cc":$scope.cc
+        "app": "Invoice",
+        "id": $scope.selectedInvoice.guInvID,
+        "to": $scope.to,//[{  "name": "Suvethan",  "email": "suvethan@duosoftware.com" }],
+        "from": [],
+        "cc": $scope.cc,//[{  "name": "Buddhika",  "email": "buddhika@duosoftware.com" }, {  "name": "Gihan",  "email": "gihan@duosoftware.com" }],
+        "bcc": [],
+        "body": $scope.bodycontent,
+        "subject": $scope.subject
       }
+
       $charge.document().sendMail(req).success(function(data) {
-        var parsedData=JSON.parse(data);
-        notifications.toast(parsedData.data.message, "success");
+        //var parsedData=JSON.parse(data);
+        notifications.toast(data.message, "success");
         closeDialog();
       }).error(function (data) {
-        var parsedData=JSON.parse(data);
-        notifications.toast(parsedData.data.message, "error");
+       // var parsedData=JSON.parse(data);
+        notifications.toast(data.message, "error");
         closeDialog();
       });
     }
