@@ -123,20 +123,20 @@
               <td class="font-14"style="color: #ababab">MISCELLANEOUS CHARGES</td>
               <td class="font-14" style="text-align: right;color: #ababab">{{vm.selectedInvoice.additionalcharge | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
             </tr>
-            <tr class="">
-              <td class="font-14" style="width: 50%;"></td>
-              <td class="font-14"style="color: #ababab">DISCOUNT</td>
-              <td style="text-align: right;color: #ababab">({{vm.selectedInvoice.discAmt | isoCurrency:vm.selectedInvoice.currency:decimalPoint}})</td></tr>
+            <!--<tr class="">-->
+              <!--<td class="font-14" style="width: 50%;"></td>-->
+              <!--<td class="font-14"style="color: #ababab">DISCOUNT</td>-->
+              <!--<td style="text-align: right;color: #ababab">({{vm.selectedInvoice.discAmt | isoCurrency:vm.selectedInvoice.currency:decimalPoint}})</td></tr>-->
             <tr class="tax">
               <td class="font-14" style="width: 50%;"></td>
               <td class="font-14"style="color: #ababab">TAX</td>
               <td class="font-14" style="text-align: right;color: #ababab">{{vm.selectedInvoice.tax | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
             </tr>
-            <!--<tr class="">-->
-              <!--<td class="font-14" style="width: 50%;"></td>-->
-              <!--<td class="font-14" style="color: #ababab">DISCOUNT</td>-->
-              <!--<td class="font-14" style="text-align: right;color: #ababab">({{vm.selectedInvoice.discount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}})</td>-->
-            <!--</tr>-->
+            <tr class="">
+              <td class="font-14" style="width: 50%;"></td>
+              <td class="font-14" style="color: #ababab">DISCOUNT</td>
+              <td class="font-14" style="text-align: right;color: #ababab">({{vm.selectedInvoice.discount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}})</td>
+            </tr>
             <tr class="total">
               <td class="font-14" style="width: 50%;"></td>
               <td class="font-27" style="font-weight: 300;">TOTAL</td>
