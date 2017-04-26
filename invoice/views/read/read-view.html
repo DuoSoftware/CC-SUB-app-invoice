@@ -132,11 +132,6 @@
               <td class="font-14"style="color: #ababab">TAX</td>
               <td class="font-14" style="text-align: right;color: #ababab">{{vm.selectedInvoice.tax | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
             </tr>
-            <tr class="">
-              <td class="font-14" style="width: 50%;"></td>
-              <td class="font-14" style="color: #ababab">DISCOUNT</td>
-              <td class="font-14" style="text-align: right;color: #ababab">({{vm.selectedInvoice.discount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}})</td>
-            </tr>
             <tr class="total">
               <td class="font-14" style="width: 50%;"></td>
               <td class="font-27" style="font-weight: 300;">TOTAL</td>
@@ -146,12 +141,12 @@
           </table>
         </div>
 
-        <div>
-          <div  layout-align="start center" flex>
-            <div  flex="30" style="color: rgba(0, 0, 0, 0.54);">NOTE</div>
-            <div>  {{vm.selectedInvoice.tag}}</div>
-          </div>
-        </div>
+        <!--<div>-->
+          <!--<div  layout-align="start center" flex>-->
+            <!--<div  flex="30" style="color: rgba(0, 0, 0, 0.54);">NOTE</div>-->
+            <!--<div>  {{vm.selectedInvoice.tag}}</div>-->
+          <!--</div>-->
+        <!--</div>-->
 
         <div style="height: 200px;"></div>
 
