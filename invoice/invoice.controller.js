@@ -3357,8 +3357,8 @@
               var exchangeRate=parseFloat(data[0].rate);
         $scope.selectedInvoice={};
         $scope.selectedInvoice = data[0];
-              //$scope.selectedInvoice.prefix=prefixLength!=0? parseInt(prefixLength.RecordFieldData):0;
-        //var invoiceNum=$filter('numberFixedLen')($scope.selectedInvoice.invoiceNo,$scope.lenPrefixInvoice);
+        $scope.selectedInvoice.guInvID=data[0].guInvID;
+        
         var invoiceNum=invoice.invoiceNo;
         $scope.selectedInvoice.invoiceNo=invoiceNum;
         $scope.selectedInvoice.bill_addr = data[0].bill_addr;

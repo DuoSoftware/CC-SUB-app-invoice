@@ -29,9 +29,26 @@
       //$scope.selectedUser = [selectedInvoice.person_name];
       $scope.selectedInvoice.email=$scope.selectedInvoice.email_addr;
       $scope.recipients.push({"display":selectedInvoice.person_name,"value":selectedInvoice});
-      $scope.bodycontent='<p>Dear '+ selectedInvoice.person_name +','+"</p><p></p>" +'<p>Thank You for your business.' +"</p>" +'<p>Your invoice '
-      +$scope.selectedInvoice.invoiceNo+' can be viewed, printed or downloaded as a PDF file from the link below.' + '</p>'
-        + '<p>We look forward to doing more business with you.</p>';
+
+      $scope.bodycontent = '';
+      if($scope.selectedInvoice.guInvID) {
+        var req = {
+          "app": "Invoice",
+          "id": $scope.selectedInvoice.guInvID //"678848B9-13FC-BDFB-BD01-0B6463CDE939";
+        }
+
+        $charge.document().getDefaultEmailBody(req).success(function (data) {
+          if(data.error === "00000") {
+            $scope.bodycontent = data.body;
+          }
+        }).error(function (data) {
+
+        });
+      }else {
+        $scope.bodycontent = '<p>Dear ' + selectedInvoice.person_name + ',' + "</p><p></p>" + '<p>Thank You for your business.' + "</p>" + '<p>Your invoice '
+          + $scope.selectedInvoice.invoiceNo + ' can be viewed, printed or downloaded as a PDF file from the link below.' + '</p>'
+          + '<p>We look forward to doing more business with you.</p>';
+      }
 
       $scope.subject='Invoice -' + $scope.selectedInvoice.invoiceNo + ' from Subscription';
 
