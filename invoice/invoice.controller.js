@@ -2,15 +2,6 @@
 {
   'use strict';
 
-//////////////////////////////////
-// App : Invoice
-// File : Invoice Controller
-// Owner  : Suvethan
-// Last changed date : 2016/11/04
-// Version : 6.0.0.5
-// Updated By : Suvethan
-/////////////////////////////////
-
   angular
     .module('app.invoice')
     .controller('InvoiceController', InvoiceController);
@@ -239,7 +230,7 @@
     $scope.invoicetypes = ['One Time', 'Installment', 'Recurring'];
     $scope.frequencies = ['Weekly', 'Monthly', 'Daily', 'Yearly'];
     $scope.categories=['Customer','Supplier','Dealer'];
-    $rootScope.companyLogo="";
+    $scope.companyLogo="";
     var isValid=false;
     $scope.content={};
     $scope.promotionObj={};
@@ -303,7 +294,7 @@
       $scope.content.companyPhone=data[2].RecordFieldData;
       $scope.content.companyEmail=data[3].RecordFieldData;
       $scope.content.companyLogo=data[4].RecordFieldData;
-      $rootScope.companyLogo=data[4].RecordFieldData;
+      $scope.companyLogo=(data[4].RecordFieldData=="")?"":data[4].RecordFieldData=="Array"?"":data[4].RecordFieldData;
     }).error(function(data) {
       $scope.CompanyProfile=[];
     })
@@ -3368,7 +3359,7 @@
         $scope.selectedInvoice = data[0];
               //$scope.selectedInvoice.prefix=prefixLength!=0? parseInt(prefixLength.RecordFieldData):0;
         //var invoiceNum=$filter('numberFixedLen')($scope.selectedInvoice.invoiceNo,$scope.lenPrefixInvoice);
-        var invoiceNum=$scope.selectedInvoice.invoiceNo;
+        var invoiceNum=invoice.invoiceNo;
         $scope.selectedInvoice.invoiceNo=invoiceNum;
         $scope.selectedInvoice.bill_addr = data[0].bill_addr;
         $scope.selectedInvoice.person_name = data[0].profile_type=="Individual"?data[0].first_name + " " + data[0].last_name:data[0].business_name;
@@ -3381,7 +3372,7 @@
         $scope.selectedInvoice.invoiceAmount=data[0].invoiceAmount*exchangeRate;
         $scope.selectedInvoice.tax=data[0].tax*exchangeRate;
         $scope.selectedInvoice.dueDate=moment(data[0].dueDate.toString()).format('LL');
-        $scope.selectedInvoice.logo=$rootScope.companyLogo;
+        $scope.selectedInvoice.logo=$scope.companyLogo;
         $scope.selectedInvoice.currency=data[0].currency;
         $scope.selectedInvoice.rate=exchangeRate;
         $scope.selectedInvoice.invoiceDetails=invoiceDetails;

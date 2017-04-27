@@ -32,12 +32,15 @@
       $scope.bodycontent='<p>Dear '+ selectedInvoice.person_name +','+"</p><p></p>" +'<p>Thank You for your business.' +"</p>" +'<p>Your invoice '
       +$scope.selectedInvoice.invoiceNo+' can be viewed, printed or downloaded as a PDF file from the link below.' + '</p>'
         + '<p>We look forward to doing more business with you.</p>';
+
+      $scope.subject='Invoice -' + $scope.selectedInvoice.invoiceNo + ' from Subscription';
+
       if(adminData!=null) {
         var tenantName=adminData.Name;
-        $scope.subject='Invoice -' + $scope.selectedInvoice.invoiceNo + ' from ' + tenantName;
         adminData.email = adminData.Email;
         $scope.selectedUser.push({"display": adminData.Username, "value": adminData})
       }
+
     }
 
     vm.autocompleteDemoRequireMatch = true;
@@ -335,7 +338,7 @@
 
 
 
-    $scope.subject = '';
+    //$scope.subject = '';
 
     $scope.sendMail= function () {
       $scope.cc=[];
