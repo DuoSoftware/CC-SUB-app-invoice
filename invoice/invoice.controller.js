@@ -287,27 +287,27 @@
     lenPrefix=dataInvoice1.RecordFieldData;
 
 
-    $charge.commondata().getDuobaseValuesByTableName("CTS_CompanyAttributes").success(function(data) {
+    $charge.settingsapp().getDuobaseValuesByTableName("CTS_CompanyAttributes").success(function(data) {
       $scope.CompanyProfile=data;
       $scope.content.companyName=data[0].RecordFieldData;
       $scope.content.companyAddress=data[1].RecordFieldData;
       $scope.content.companyPhone=data[2].RecordFieldData;
       $scope.content.companyEmail=data[3].RecordFieldData;
       $scope.content.companyLogo=data[4].RecordFieldData;
-      $scope.companyLogo=(data[4].RecordFieldData=="")?"":data[4].RecordFieldData=="Array"?"":data[4].RecordFieldData;
+      $scope.content.companyLogo=(data[4].RecordFieldData=="")?"":data[4].RecordFieldData=="Array"?"":data[4].RecordFieldData;
     }).error(function(data) {
       $scope.CompanyProfile=[];
     })
 
 
-    $charge.commondata().getDuobaseValuesByTableName("CTS_FooterAttributes").success(function(data) {
+    $charge.settingsapp().getDuobaseValuesByTableName("CTS_FooterAttributes").success(function(data) {
       $scope.FooterData=data;
       $scope.content.greeting=data[0].RecordFieldData;
       $scope.content.disclaimer=data[1].RecordFieldData!=""?atob(data[1].RecordFieldData):"";
     }).error(function(data) {
     })
 
-    $charge.commondata().getDuobaseValuesByTableName("CTS_QuotationAttributes").success(function(data) {
+    $charge.settingsapp().getDuobaseValuesByTableName("CTS_QuotationAttributes").success(function(data) {
       //
       prefixQuotation=data[0].RecordFieldData!=""?data[0].RecordFieldData:"";
       prefixQLength=data[1];
@@ -318,7 +318,7 @@
       lenQuotPrefix=0;
     })
 
-    $charge.commondata().getDuobaseValuesByTableName("CTS_InvoiceAttributes").success(function(data) {
+    $charge.settingsapp().getDuobaseValuesByTableName("CTS_InvoiceAttributes").success(function(data) {
       //
       vm.discountEnabled=data[2].RecordFieldData==""?true:data[2].RecordFieldData=="1"?false:true;
       vm.sendAutoMail=data[3].RecordFieldData==""?false:data[3].RecordFieldData=="1"?true:false;
@@ -2591,7 +2591,7 @@
 
     //11-07-2016
     $scope.prefferedCurrencies=[];
-    $charge.commondata().getDuobaseValuesByTableName("CTS_GeneralAttributes").success(function(data) {
+    $charge.settingsapp().getDuobaseValuesByTableName("CTS_GeneralAttributes").success(function(data) {
       //
       $rootScope.decimalPoint=parseInt(data[6].RecordFieldData);
       $rootScope.step=($rootScope.decimalPoint/$rootScope.decimalPoint)/Math.pow(10,$rootScope.decimalPoint);
@@ -3372,15 +3372,15 @@
         $scope.selectedInvoice.invoiceAmount=data[0].invoiceAmount*exchangeRate;
         $scope.selectedInvoice.tax=data[0].tax*exchangeRate;
         $scope.selectedInvoice.dueDate=moment(data[0].dueDate.toString()).format('LL');
-        $scope.selectedInvoice.logo=$scope.companyLogo;
+        $scope.selectedInvoice.logo=$scope.content.companyLogo;
         $scope.selectedInvoice.currency=data[0].currency;
         $scope.selectedInvoice.rate=exchangeRate;
         $scope.selectedInvoice.invoiceDetails=invoiceDetails;
-        $scope.selectedInvoice.companyName=$scope.companyName;
-        $scope.selectedInvoice.companyAddress=$scope.companyAddress;
-        $scope.selectedInvoice.companyPhone=$scope.companyPhone;
-        $scope.selectedInvoice.companyEmail=$scope.companyEmail;
-        $scope.selectedInvoice.companyLogo=$scope.companyLogo;
+        $scope.selectedInvoice.companyName=$scope.content.companyName;
+        $scope.selectedInvoice.companyAddress=$scope.content.companyAddress;
+        $scope.selectedInvoice.companyPhone=$scope.content.companyPhone;
+        $scope.selectedInvoice.companyEmail=$scope.content.companyEmail;
+        $scope.selectedInvoice.companyLogo=$scope.content.companyLogo;
         invoiceDetails.forEach(function(inv){
           inv.product_name= inv.product_name;
           inv.unitPrice= inv.unitPrice*exchangeRate;
