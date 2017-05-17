@@ -1,4 +1,4 @@
-<md-dialog class="compose-dialog mail-template" aria-label="New Message">
+<md-dialog class="prompt-dialog mail-template" aria-label="New Message">
   <form ng-cloak>
     <md-toolbar>
       <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
@@ -11,14 +11,14 @@
       </div>
     </md-toolbar>
 
-    <md-dialog-content ms-scroll>
+    <md-content ms-scroll class="p-16">
       <div class="email-header-block" layout="column">
         <div layout="row" class="header-field rel">
           <div layout="row" layout-align="center center" class="preloader-dot-auto" ng-show="isAutoTODisabled" >
             <img src="assets/images/142.gif" alt=""/>
           </div>
           <md-input-container flex="10" layout="row" layout-align="space-between center">
-            <div>TO</div>
+            <div class="fw-500 op-5">TO</div>
           </md-input-container>
           <span layout-align="end center" layout="row" flex="5" style="padding-right: 10px">:</span>
           <md-chips ng-model="recipients" name="recipient" readonly="vm.readonly"
@@ -51,7 +51,7 @@
             <img src="assets/images/142.gif" alt=""/>
           </div>
           <md-input-container flex="10" layout="column" layout-align="center start">
-            <div>CC</div>
+            <div class="fw-500 op-5">CC</div>
           </md-input-container>
           <span layout-align="end center" layout="row" flex="5" style="padding-right: 10px">:</span>
           <md-chips ng-model="selectedUser" md-autocomplete-snap
@@ -85,7 +85,7 @@
         </div>
         <div layout="row" class="header-field" flex>
           <md-input-container flex="10" layout="column" layout-align="center start" style="height: 52px">
-            <div>SUBJECT</div>
+            <div class="fw-500 op-5">SUBJECT</div>
           </md-input-container>
           <span layout-align="end center" layout="row" flex="5" style="padding-right: 10px;height: 52px">:</span>
           <md-input-container flex style="margin-top: 10px">
@@ -94,13 +94,13 @@
         </div>
       </div>
       <div text-angular ng-model="bodycontent" ta-toolbar="[['bold','italics','underline','strikeThrough'],['justifyLeft','justifyCenter','justifyRight','justifyFull'],['ul','ol'],['indent','outdent'],['quote'],['clear']]"></div>
-    </md-dialog-content>
+    </md-content>
 
-    <md-dialog-actions layout="row" layout-align="space-between center" md-whiteframe="2dp">
+    <md-dialog-actions layout="row" layout-align="space-between center" md-whiteframe="8dp" style="z-index: 1">
       <div flex layout="row" layout-align="start center">
-        <div layout="row" layout-align="center center">
-          <md-checkbox ng-model="addAttachment" class="md-primary attach-chk"><span ng-if="!addAttachment">Add Attachment</span></md-checkbox>
-          <div ng-if="addAttachment" layout="row" layout-align="center center">
+        <div layout="row" layout-align="start center">
+          <!--<md-checkbox ng-model="addAttachment" class="md-primary"><span ng-if="!addAttachment">Add Attachment</span></md-checkbox>-->
+          <div layout="row" layout-align="center center">
             <md-icon md-font-icon="icon-file-pdf md-warn" flex="5"></md-icon>
             <div flex>
               {{selectedInvoice.invoiceNo}}.pdf
