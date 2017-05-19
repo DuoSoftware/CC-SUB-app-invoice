@@ -5,7 +5,7 @@
 <div class="list-item" layout="row" layout-align="center center" flex ng-repeat="invoice in vm.invoices | filter:vm.search | filter: global.search"
      md-ink-ripple
      ng-click="vm.selectInvoice(invoice)"
-     ng-class="{'selected': vm.selectedInvoice === invoice && showInpageReadpane}">
+     ng-class="{'selected': vm.selectedInvoiceList === invoice && showInpageReadpane}">
 
     <div layout="row" layout-align="center center" flex>
 

@@ -209,11 +209,11 @@
                                  <div class="sub-header" style="padding: 10px;overflow: hidden;">
                                      <div class="left-content" style="width: 50%;float: left;">
                                          <div style="margin-bottom: 20px">
-                                             <div><span style="color: #aaa;">Invoice no: </span> <b> {{vm.selectedInvoice.invoiceNo}}</b></div>
-                                             <div><span style="color: #aaa;">Invoice type: </span> <b> {{vm.selectedInvoice.invoiceType}}</b></div>
-                                             <div><span style="color: #aaa;">Created date: </span> <b> {{vm.selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</b></div>
-                                             <div style="margin-bottom: 5px"><span style="color: #aaa;">Due date: </span> <b> {{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</b></div>
-                                             <div style="margin-bottom: 5px"><span style="color: #aaa;">Billing period: </span> <b> {{vm.selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</b></div>
+                                             <div><span style="color: #aaa;">Invoice no: </span> {{vm.selectedInvoice.invoiceNo}}</div>
+                                             <div><span style="color: #aaa;">Invoice type: </span> {{vm.selectedInvoice.invoiceType}}</div>
+                                             <div><span style="color: #aaa;">Created date: </span> {{vm.selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</div>
+                                             <div style="margin-bottom: 5px"><span style="color: #aaa;">Due date: </span> {{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>
+                                             <div style="margin-bottom: 5px"><span style="color: #aaa;">Billing period: </span> {{vm.selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>
                                          </div>
                                          <div>{{vm.selectedInvoice.person_name}}</div>
                                          <div>{{vm.selectedInvoice.bill_addr}}</div>

@@ -72,7 +72,7 @@
 		 */
 		function selectInvoice(invoice)
 		{
-			vm.selectedInvoice = invoice;
+			// vm.selectedInvoice = invoice;
 			vm.selectedInvoice=$scope.openInvoiceLst(invoice);
 			vm.showFilters=false;
 			$scope.showInpageReadpane = true;
@@ -3351,6 +3351,7 @@
 		$scope.openInvoiceLst = function(invoice)
 		{
 			$scope.isReadLoaded = false;
+			vm.selectedInvoiceList = invoice;
 			$charge.invoice().getByIdWithAllData(invoice.code).success(function(data) {
 				$scope.invProducts=[];
 				var invoiceDetails=data[0].invoiceDetails;
