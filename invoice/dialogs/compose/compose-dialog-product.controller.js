@@ -73,7 +73,7 @@
           var req = $scope.content;
           //debugger;
           $charge.product().store(req).success(function (data) {
-            debugger;
+            // debugger;
             if (data.id) {
               $scope.productSubmit=false;
               notifications.toast("Record Inserted, Product Code " + req.code, "success");
@@ -166,7 +166,7 @@
     $charge.tax().allgroups(skipGrp,takeGrp,"asc").success(function(data) {
       //debugger;
       skipGrp += takeGrp;
-      console.log(data);
+      // console.log(data);
       //if($scope.loading) {
       // returned data contains an array of 2 sentences
       for (var i = 0; i < data.length; i++) {
@@ -183,7 +183,7 @@
       $charge.tax().allgroups(skipGrp,takeGrp,"asc").success(function(data) {
         //debugger;
         skipGrp += takeGrp;
-        console.log(data);
+        // console.log(data);
         //if($scope.loading) {
         // returned data contains an array of 2 sentences
         for (var i = 0; i < data.length; i++) {

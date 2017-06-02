@@ -1589,7 +1589,7 @@
 		$scope.setAmount=function(product,index)
 		{
 
-			console.log(product);
+			// console.log(product);
 			var amt=product.product.price_of_unit;
 			var prod_name=product.product;
 			$scope.content.amount=amt;
@@ -3404,7 +3404,7 @@
 				invoice.isDialogLoading = false;
 				$scope.isReadLoaded = true;
 			}).error(function(data)        {
-				console.log(data);
+				// console.log(data);
 				$scope.spinnerInvoice=false;
 				$scope.isReadLoaded = true;
 			});

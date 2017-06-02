@@ -22,7 +22,7 @@
     function loadAll() {
 
       $charge.profile().all(skipprofiles,takeprofiles,'asc').success(function(data){
-        console.log(data);
+        // console.log(data);
         skipprofiles+=takeprofiles;
         for (var i = 0; i < data.length; i++) {
           var obj=data[i];
@@ -77,7 +77,7 @@
 
     function querySearch (query) {
 
-      debugger;
+      // debugger;
       //Custom Filter
       var results=[];
       var len=0;
@@ -111,7 +111,7 @@
     //var autoElem = angular.element('#invoice-auto');
     $scope.searchMre=false;
     $scope.loadProfileByKeyword= function (keyword) {
-      debugger;
+      // debugger;
       if(!$scope.searchMre) {
         //debugger;
         if ($scope.profilelist.length == 9) {

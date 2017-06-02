@@ -19,7 +19,7 @@
     <div ng-switch-when="default" class="center" layout="column" flex>
         <!-- CONTENT HEADER- V NAV-->
         <div layout="column" layout-align="start start">
-            <div class="v-header" layout="row" flex fill-width>
+            <div class="v-header" layout="column" flex fill-width>
                 <div class="title" layout="column" layout-align="center start">
                     <div class="logo" layout="row" layout-align="start center">
                         <span class="logo-icon">
@@ -28,17 +28,16 @@
                         <span class="logo-text">Invoice</span>
                     </div>
                 </div>
-                <div class="search-wrapper md-whiteframe-4dp animate-fade-in-out" layout="row" layout-align="start center" flex="50">
+                <div class="search-wrapper md-whiteframe-4dp animate-fade-in-out" layout="row" layout-align="start center" flex>
                     <md-button class="md-icon-button sidenav-toggle" ng-click="vm.toggleSidenav('main-sidenav')" hide-gt-md aria-label="Toggle Sidenav">
                         <md-icon class="icon" md-font-icon="icon-menu"></md-icon>
                     </md-button>
 
                     <div class="search" flex layout="row" layout-align="start center">
                         <md-icon md-font-icon="icon-magnify" class="icon s24"></md-icon>
-                        <input flex ng-model="vm.search" type="text" ng-keypress="searchKeyPress($event,vm.search,vm.search.length)" ng-change="loadByKeywordPlan(vm.search,3)" placeholder="Search for Plans">
+                        <input flex ng-model="vm.search" type="text" ng-keypress="searchKeyPress($event,vm.search,vm.search.length)" ng-change="loadByKeywordPlan(vm.search,3)" placeholder="Search for invoices">
                     </div>
                 </div>
-                <div flex></div>
                 <!--<md-button class="md-raised main-app-create" layout="row" layout-align="center center" aria-label="compose" ng-disabled="vm.activePlanPaneIndex == 1" ng-click="toggleEdit()" ng-if="!inpageReadPaneEdit"><span class="fs-18 mr-10 fc-accent">+</span> NEW-->
                 <!--</md-button>-->
             </div>
@@ -66,7 +65,7 @@
         <!--</div>-->
         <!-- / CONTENT HEADER -->
 
-        <div layout="row" style="height:100%">
+        <div layout="row" flex>
             <!-- CONTENT CARD -->
             <div class="content-card" layout="column" ng-class="{'flex-30':showInpageReadpane}" flex>
                 <div class="toolbar list-header" layout="row" layout-align="space-between center">

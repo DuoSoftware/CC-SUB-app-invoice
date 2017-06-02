@@ -71,7 +71,7 @@
     $scope.checkRequired=true;
 
     $scope.toggleType = function(type) {
-      debugger;
+      // debugger;
       if(type=='Individual')
       {
         $scope.contentuser.business_name="";
@@ -94,7 +94,7 @@
 
     $scope.submit = function()
     {
-      debugger;
+      // debugger;
       vm.submitted=true;
       if(vm.editForm.$valid == false)
       {
@@ -149,7 +149,7 @@
       }
 
 
-      //debugger;
+      // debugger;
     }
 
     $scope.submitContinue = function() {
@@ -188,7 +188,7 @@
 
       //debugger;
       $charge.profile().store(userObj).success(function(data) {
-        debugger;
+        // debugger;
         if(data.error!="00000")
         {
           if(data.error=="Cannot proceed, Profile count has reached!")
@@ -203,17 +203,17 @@
           //closeDialog();
         }
         else if(data.id) {
-          console.log(data);
+          // console.log(data);
           notifications.toast("Successfully Created User!","success");
           $scope.contentuser.profileId=data.id;
           vm.submitted=false;
 
-          debugger;
+          // debugger;
           $mdDialog.hide($scope.contentuser);
         }
       }).error(function(data) {
         //debugger;
-        console.log(data);
+        // console.log(data);
         vm.submitted=false;
       })
     };

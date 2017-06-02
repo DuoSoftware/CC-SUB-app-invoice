@@ -325,7 +325,7 @@
     }
 
     function transformChip(chip) {
-      debugger;
+      // debugger;
       // If it is an object, it's already a known chip
       if (angular.isObject(chip)) {
         return chip;
