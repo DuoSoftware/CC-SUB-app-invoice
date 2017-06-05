@@ -3941,6 +3941,7 @@
 				{
 					$scope.showId = status;
 					$scope.showCust = false;
+					$scope.showEmail = false;
 					$scope.showDate = false;
 					$scope.showAmount = false;
 					$scope.showStat = false;
@@ -3949,6 +3950,16 @@
 				{
 					$scope.showId = false;
 					$scope.showCust = status;
+					$scope.showEmail = false;
+					$scope.showDate = false;
+					$scope.showAmount = false;
+					$scope.showStat = false;
+				}
+				if(property=='Email')
+				{
+					$scope.showId = false;
+					$scope.showCust = false;
+					$scope.showEmail = status;
 					$scope.showDate = false;
 					$scope.showAmount = false;
 					$scope.showStat = false;
@@ -3957,6 +3968,7 @@
 				{
 					$scope.showId = false;
 					$scope.showCust = false;
+					$scope.showEmail = false;
 					$scope.showDate = status;
 					$scope.showAmount = false;
 					$scope.showStat = false;
@@ -3965,6 +3977,7 @@
 				{
 					$scope.showId = false;
 					$scope.showCust = false;
+					$scope.showEmail = false;
 					$scope.showDate = false;
 					$scope.showAmount = status;
 					$scope.showStat = false;
@@ -3973,6 +3986,7 @@
 				{
 					$scope.showId = false;
 					$scope.showCust = false;
+					$scope.showEmail = false;
 					$scope.showDate = false;
 					$scope.showAmount = false;
 					$scope.showStat = status;

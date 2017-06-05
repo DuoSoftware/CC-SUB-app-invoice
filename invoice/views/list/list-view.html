@@ -9,7 +9,7 @@
 
     <div layout="row" layout-align="center center" flex>
 
-        <div class="dual-info" layout="column" layout-align="center start" flex="30" style="max-width: 275px">
+        <div class="dual-info" layout="column" layout-align="center start" flex>
             <span>{{invoice.invoiceNo}}</span>
             <div class="dual-info-sub">
                 {{invoice.invoice_type}}
@@ -18,6 +18,10 @@
 
         <div flex layout="column" layout-align="center start" ng-if="!showInpageReadpane">
             {{invoice.first_name}} {{invoice.last_name}}
+        </div>
+
+        <div flex layout="column" layout-align="center start" ng-if="!showInpageReadpane">
+            {{invoice.email}}
         </div>
 
         <div flex layout="column" layout-align="center start" ng-if="!showInpageReadpane">
