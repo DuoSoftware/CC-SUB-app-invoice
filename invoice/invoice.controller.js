@@ -3979,5 +3979,12 @@
 				}
 			}
 		};
+
+		//Email templates
+		$charge.settingsapp().getDuobaseFieldsByTableNameAndFieldName("CTS_EmailTemplates", "TemplateUrl").success(function (data) {
+			$scope.currentTemplateView=data[0][0].RecordFieldData.split('/')[data[0][0].RecordFieldData.split('/').length-1].split('.')[0];
+		}).error(function (data) {
+			$scope.currentTemplateView = null;
+		});
 	}
 })();
