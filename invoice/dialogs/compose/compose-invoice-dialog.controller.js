@@ -21,6 +21,7 @@
     $scope.recipients=[];
     $scope.selectedUser = [];
     //$scope.focusedItemName='';
+    $scope.hideSendButton = false;
 
     // If replying
     if ( angular.isDefined(selectedInvoice) )
@@ -39,12 +40,15 @@
 
         $charge.document().getDefaultEmailBody(req).success(function (data) {
           if(data.error === "00000") {
-            $scope.bodycontent = data.body;
+            $scope.bodycontent = data.body.body;
+            $scope.hideSendButton = true;
           }
         }).error(function (data) {
-
+          $scope.hideSendButton = false;
         });
       }else {
+        $scope.hideSendButton = true;
+
         $scope.bodycontent = '<p>Dear ' + selectedInvoice.person_name + ',' + "</p><p></p>" + '<p>Thank You for your business.' + "</p>" + '<p>Your invoice '
           + $scope.selectedInvoice.invoiceNo + ' can be viewed, printed or downloaded as a PDF file from the link below.' + '</p>'
           + '<p>We look forward to doing more business with you.</p>';
@@ -356,8 +360,8 @@
 
 
     //$scope.subject = '';
-
     $scope.sendMail= function () {
+      $scope.hideSendButton = false;
       $scope.cc=[];
       $scope.to=[];
       for(var i=0;i<$scope.recipients.length;i++)
@@ -367,7 +371,7 @@
 
       for(var i=0;i<$scope.selectedUser.length;i++)
       {
-        $scope.cc.push({  "name": $scope.recipients[i].display ,  "email": $scope.recipients[i].value.email});
+        $scope.cc.push({  "name": $scope.selectedUser[i].display ,  "email": $scope.selectedUser[i].value.email});
       }
       var req={
         "app": "Invoice",
@@ -383,9 +387,11 @@
       $charge.document().sendMail(req).success(function(data) {
         //var parsedData=JSON.parse(data);
         notifications.toast(data.message, "success");
+        $scope.hideSendButton = true;
         closeDialog();
       }).error(function (data) {
        // var parsedData=JSON.parse(data);
+        $scope.hideSendButton = true;
         notifications.toast(data.message, "error");
         closeDialog();
       });
