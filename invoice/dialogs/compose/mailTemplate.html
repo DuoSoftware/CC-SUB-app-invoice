@@ -113,7 +113,7 @@
         <md-button ng-click="closeDialog()">
           Cancel
         </md-button>
-        <md-button class="md-raised md-accent" ng-click="sendMail()">
+        <md-button ng-disabled="!hideSendButton" class="md-raised md-accent" ng-click="sendMail()">
           Send
         </md-button>
       </div>
