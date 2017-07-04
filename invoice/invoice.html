@@ -200,7 +200,7 @@
                             <md-icon md-font-icon="icon-bookmark {{vm.selectedInvoice.invoiceStatus | lowercase}}"></md-icon>
                             <span class="state-flag-text {{vm.selectedInvoice.invoiceStatus | lowercase}}">{{vm.selectedInvoice.invoiceStatus}}</span>
                         </div>
-                        <div id="print-content" style="border: solid 1px #ddd;min-height: 800px;">
+                        <div id="print-content" style="border: solid 1px #ddd;min-height: 800px;position:relative;">
                             <div ng-if="currentTemplateView == 'emailTemplate1'">
                                 <div class="template-header bg-blue-g" style="height: 100px;background: #05a3ec;background:linear-gradient(45deg, #05a3ec,#006696);color: #fff;padding: 10px;">
                                     <div class="left-content" style="width: 30%;float: left;">
@@ -442,7 +442,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="template-footer" style="width: 100%;margin-top: 40px;padding: 10px;position:relative;bottom: 0;">
+                            <div class="template-footer" style="width: 100%;margin-top: 40px;padding: 10px;position:absolute;bottom: 0;">
                                 <div style="margin: 5px 0;font-size: 12px">{{vm.selectedInvoice.greeting}}</div>
                                 <div style="font-size: 12px;color: #aaa;padding-top: 5px;border-top: solid 1px #eee">
                                     {{vm.selectedInvoice.disclaimer}}
