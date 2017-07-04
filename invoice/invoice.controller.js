@@ -3066,6 +3066,10 @@
 					data[i]['invoiceAmount']=data[i].invoiceAmount*data[i].rate;
 					data[i]['client'] = data[i].profile_type=="Individual"?data[i].first_name:data[i].business_name;
 
+					// $scope.customerGUIds.push({
+					// 	'id':
+					// })
+
 					//if(data[i].paidAmount==0) {
 					//  invoice.status = 'Not paid';
 					//  invoice.StatusColor = "orange";
@@ -3996,9 +4000,15 @@
 
 		//Email templates
 		$charge.settingsapp().getDuobaseFieldsByTableNameAndFieldName("CTS_EmailTemplates", "TemplateUrl").success(function (data) {
-			$scope.currentTemplateView=data[0][0].RecordFieldData.split('/')[data[0][0].RecordFieldData.split('/').length-1].split('.')[0];
+			if(data[0][0].RecordFieldData == null || data[0][0].RecordFieldData == ''){
+				$scope.currentTemplateView='emailTemplate1';
+			}else{
+				$scope.currentTemplateView=data[0][0].RecordFieldData.split('/')[data[0][0].RecordFieldData.split('/').length-1].split('.')[0];
+			}
 		}).error(function (data) {
-			$scope.currentTemplateView = null;
+			$scope.currentTemplateView='emailTemplate1';
 		});
+
+
 	}
 })();
