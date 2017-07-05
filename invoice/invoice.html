@@ -244,7 +244,8 @@
                                         </div>
                                         <div class="inner-left" style="margin-bottom: 10px">
                                             <div style="display:inline-block;width: 100px;color: #aaa;margin-bottom: 2px">Billing period</div>
-                                            <div style="display:inline-block;">{{vm.selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>
+                                            <div style="display:inline-block;">{{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>
+                                            <!--<div style="display:inline-block;">{{vm.selectedInvoice.period}}</div>-->
                                         </div>
                                     </div>
                                 </div>

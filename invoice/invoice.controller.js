@@ -2301,198 +2301,198 @@
 		}
 		//var skipPromo= 0,takePromo=100;
 		$scope.promotionList=[];
-		$scope.loadPublicPromotions= function (skipPromo,takePromo) {
-			$charge.promotion().getPublicPromotion(skipPromo,takePromo,'asc',1).success(function (data) {
-				for(var i=0;i<data.length;i++) {
-					$scope.promotionList.push(data[i]);
-				}
-				skipPromo+=takePromo;
-				//
-				$scope.loadPublicPromotions(skipPromo,takePromo);
-			}).error(function () {
-
-			})
-		}
-		$scope.loadPublicPromotions(0,100);
-
-		//$scope.promoLists=[];
-		$scope.isPromoFreeze=false;
-		$scope.chkPromo=function(index)
-		{
-			$scope.promoLists=[];
-			if($scope.content.profile!=null) {
-				var promocode = vm.searchPromo;
-
-				//
-				var arrayCount;
-				isValid = false;
-				//$scope.content.PromoAmt=0;
-				if (promocode == "" || promocode == undefined) {
-					isValid = true;
-					$scope.content.gupromotionid = "";
-					if (index != undefined || index != "") {
-						$scope.content.PromoAmt = 0;
-						//$scope.rows[index].promotion = 0;
-						for(var i=0;i<$scope.rows.length;i++)
-						{
-							$scope.rows[i].promotion = 0;
-						}
-					}
-				}
-				else {
-					$scope.isPromoFreeze=true;
-					$scope.content.PromoAmt = 0;
-					$charge.promotion().getPromotionByCodeAndAccount(promocode, $scope.content.profile.profileId).success(function (data) {
-						$scope.validPromo = true;
-						isValid = true;
-						//$scope.content.PromoAmt=0;
-						$scope.content.gupromotionid = data[0].gupromotionid;
-
-						if($scope.promoLists.length==0) {
-							$scope.promotionObj = data;
-							$scope.promoLists=data;
-						}
-						var promoObjLen = $scope.promotionObj.length;
-						var rowsLen = $scope.rows.length;
-						if (promoObjLen >= rowsLen)
-							arrayCount = promoObjLen;
-						else if (promoObjLen < rowsLen)
-							arrayCount = rowsLen;
-						for (var i = 0; i < rowsLen; i++) {
-							var productObj = $scope.rows[i].product;
-							if(productObj!=null || productObj !=undefined) {
-								var promotionObj = $filter('filter')($scope.promotionObj, {guproductId: productObj.productId})[0];
-								//if(data[0].promoall==true)
-								//{
-								//  promotionObj.amount=data[0].amount;
-								//}
-
-								//
-								if (promotionObj != null || promotionObj != undefined) {
-									if (promotionObj.type == "2") {
-										$scope.content.PromoAmt += parseFloat(promotionObj.amount*$scope.rows[i].qty);
-										$scope.rows[i].promotion = parseFloat(promotionObj.amount*$scope.rows[i].qty);
-									}
-									else if (promotionObj.type == "1") {
-										$scope.content.PromoAmt += parseFloat((promotionObj.amount / 100) * productObj.price_of_unit);
-										$scope.rows[i].promotion = parseFloat((promotionObj.amount / 100) * productObj.price_of_unit);
-									}
-								}
-								else {
-									var promoObj = $filter('filter')($scope.promotionObj, {guproductId: -999})[0];
-									if (promoObj != undefined) {
-										if (promoObj.type == "2") {
-											$scope.content.PromoAmt += parseFloat(promoObj.amount*$scope.rows[i].qty);
-											$scope.rows[i].promotion = parseFloat(promoObj.amount*$scope.rows[i].qty);
-										}
-										else if (promoObj.type == "1") {
-											$scope.content.PromoAmt += parseFloat((promoObj.amount / 100) * productObj.price_of_unit);
-											$scope.rows[i].promotion = parseFloat((promoObj.amount / 100) * productObj.price_of_unit);
-										}
-									}
-									else {
-										$scope.content.PromoAmt += 0;
-										$scope.rows[i].promotion = 0;
-									}
-								}
-							}
-							else
-							{
-								notifications.toast('Product is not selected', "error");
-								self.searchPromo = null;
-							}
-
-						}
-						$scope.isPromoFreeze=false;
-					}).error(function (data) {
-						//
-						if(data.error!=undefined)
-							notifications.toast(data.error, "error");
-						else
-							notifications.toast('Invalid promotion code', "error");
-						self.searchPromo = null;
-						$scope.content.PromoAmt += 0;
-						for (var i = 0; i < $scope.rows.length; i++) {
-							$scope.rows[i].promotion = 0;
-						}
-
-						$scope.isPromoFreeze=false;
-					})
-				}
-			}
-			else
-			{
-				notifications.toast('Profile name is not selected.', "error");
-				self.searchPromo = null;
-				$scope.isPromoFreeze=false;
-			}
-		}
-
-		$scope.chkClaimedPromo= function () {
-			$scope.content.PromoAmt = 0;
-			for(var i=0;i<$scope.rows.length;i++) {
-				var productObj = $scope.rows[i].product;
-				if(productObj!=null || productObj !=undefined) {
-					var promotionObj = $filter('filter')($scope.promoLists, {guproductId: productObj.productId})[0];
-					//if($scope.promoLists[0].promoall==true)
-					//{
-					//  promotionObj.amount=data[0].amount;
-					//}
-
-					//
-					if (promotionObj != null || promotionObj != undefined) {
-						if (promotionObj.type == "2") {
-							$scope.content.PromoAmt += parseFloat(promotionObj.amount*$scope.rows[i].qty);
-							$scope.rows[i].promotion = parseFloat(promotionObj.amount*$scope.rows[i].qty);
-						}
-						else if (promotionObj.type == "1") {
-							$scope.content.PromoAmt += parseFloat((promotionObj.amount / 100) * productObj.price_of_unit);
-							$scope.rows[i].promotion = parseFloat((promotionObj.amount / 100) * productObj.price_of_unit);
-						}
-					}
-					else {
-
-						var promoObj = $filter('filter')($scope.promotionObj, {guproductId: -999})[0];
-						if (promoObj != undefined) {
-							if (promoObj.type == "2") {
-								$scope.content.PromoAmt += parseFloat(promoObj.amount*$scope.rows[i].qty);
-								$scope.rows[i].promotion = parseFloat(promoObj.amount*$scope.rows[i].qty);
-							}
-							else if (promoObj.type == "1") {
-								$scope.content.PromoAmt += parseFloat((promoObj.amount / 100) * productObj.price_of_unit);
-								$scope.rows[i].promotion = parseFloat((promoObj.amount / 100) * productObj.price_of_unit);
-							}
-						}
-						else {
-							$scope.content.PromoAmt += 0;
-							$scope.rows[i].promotion = 0;
-						}
-					}
-				}
-			}
-		}
+		//$scope.loadPublicPromotions= function (skipPromo,takePromo) {
+		//	$charge.promotion().getPublicPromotion(skipPromo,takePromo,'asc',1).success(function (data) {
+		//		for(var i=0;i<data.length;i++) {
+		//			$scope.promotionList.push(data[i]);
+		//		}
+		//		skipPromo+=takePromo;
+		//		//
+		//		$scope.loadPublicPromotions(skipPromo,takePromo);
+		//	}).error(function () {
+        //
+		//	})
+		//}
+		//$scope.loadPublicPromotions(0,100);
+        //
+		////$scope.promoLists=[];
+		//$scope.isPromoFreeze=false;
+		//$scope.chkPromo=function(index)
+		//{
+		//	$scope.promoLists=[];
+		//	if($scope.content.profile!=null) {
+		//		var promocode = vm.searchPromo;
+        //
+		//		//
+		//		var arrayCount;
+		//		isValid = false;
+		//		//$scope.content.PromoAmt=0;
+		//		if (promocode == "" || promocode == undefined) {
+		//			isValid = true;
+		//			$scope.content.gupromotionid = "";
+		//			if (index != undefined || index != "") {
+		//				$scope.content.PromoAmt = 0;
+		//				//$scope.rows[index].promotion = 0;
+		//				for(var i=0;i<$scope.rows.length;i++)
+		//				{
+		//					$scope.rows[i].promotion = 0;
+		//				}
+		//			}
+		//		}
+		//		else {
+		//			$scope.isPromoFreeze=true;
+		//			$scope.content.PromoAmt = 0;
+		//			$charge.promotion().getPromotionByCodeAndAccount(promocode, $scope.content.profile.profileId).success(function (data) {
+		//				$scope.validPromo = true;
+		//				isValid = true;
+		//				//$scope.content.PromoAmt=0;
+		//				$scope.content.gupromotionid = data[0].gupromotionid;
+        //
+		//				if($scope.promoLists.length==0) {
+		//					$scope.promotionObj = data;
+		//					$scope.promoLists=data;
+		//				}
+		//				var promoObjLen = $scope.promotionObj.length;
+		//				var rowsLen = $scope.rows.length;
+		//				if (promoObjLen >= rowsLen)
+		//					arrayCount = promoObjLen;
+		//				else if (promoObjLen < rowsLen)
+		//					arrayCount = rowsLen;
+		//				for (var i = 0; i < rowsLen; i++) {
+		//					var productObj = $scope.rows[i].product;
+		//					if(productObj!=null || productObj !=undefined) {
+		//						var promotionObj = $filter('filter')($scope.promotionObj, {guproductId: productObj.productId})[0];
+		//						//if(data[0].promoall==true)
+		//						//{
+		//						//  promotionObj.amount=data[0].amount;
+		//						//}
+        //
+		//						//
+		//						if (promotionObj != null || promotionObj != undefined) {
+		//							if (promotionObj.type == "2") {
+		//								$scope.content.PromoAmt += parseFloat(promotionObj.amount*$scope.rows[i].qty);
+		//								$scope.rows[i].promotion = parseFloat(promotionObj.amount*$scope.rows[i].qty);
+		//							}
+		//							else if (promotionObj.type == "1") {
+		//								$scope.content.PromoAmt += parseFloat((promotionObj.amount / 100) * productObj.price_of_unit);
+		//								$scope.rows[i].promotion = parseFloat((promotionObj.amount / 100) * productObj.price_of_unit);
+		//							}
+		//						}
+		//						else {
+		//							var promoObj = $filter('filter')($scope.promotionObj, {guproductId: -999})[0];
+		//							if (promoObj != undefined) {
+		//								if (promoObj.type == "2") {
+		//									$scope.content.PromoAmt += parseFloat(promoObj.amount*$scope.rows[i].qty);
+		//									$scope.rows[i].promotion = parseFloat(promoObj.amount*$scope.rows[i].qty);
+		//								}
+		//								else if (promoObj.type == "1") {
+		//									$scope.content.PromoAmt += parseFloat((promoObj.amount / 100) * productObj.price_of_unit);
+		//									$scope.rows[i].promotion = parseFloat((promoObj.amount / 100) * productObj.price_of_unit);
+		//								}
+		//							}
+		//							else {
+		//								$scope.content.PromoAmt += 0;
+		//								$scope.rows[i].promotion = 0;
+		//							}
+		//						}
+		//					}
+		//					else
+		//					{
+		//						notifications.toast('Product is not selected', "error");
+		//						self.searchPromo = null;
+		//					}
+        //
+		//				}
+		//				$scope.isPromoFreeze=false;
+		//			}).error(function (data) {
+		//				//
+		//				if(data.error!=undefined)
+		//					notifications.toast(data.error, "error");
+		//				else
+		//					notifications.toast('Invalid promotion code', "error");
+		//				self.searchPromo = null;
+		//				$scope.content.PromoAmt += 0;
+		//				for (var i = 0; i < $scope.rows.length; i++) {
+		//					$scope.rows[i].promotion = 0;
+		//				}
+        //
+		//				$scope.isPromoFreeze=false;
+		//			})
+		//		}
+		//	}
+		//	else
+		//	{
+		//		notifications.toast('Profile name is not selected.', "error");
+		//		self.searchPromo = null;
+		//		$scope.isPromoFreeze=false;
+		//	}
+		//}
+        //
+		//$scope.chkClaimedPromo= function () {
+		//	$scope.content.PromoAmt = 0;
+		//	for(var i=0;i<$scope.rows.length;i++) {
+		//		var productObj = $scope.rows[i].product;
+		//		if(productObj!=null || productObj !=undefined) {
+		//			var promotionObj = $filter('filter')($scope.promoLists, {guproductId: productObj.productId})[0];
+		//			//if($scope.promoLists[0].promoall==true)
+		//			//{
+		//			//  promotionObj.amount=data[0].amount;
+		//			//}
+        //
+		//			//
+		//			if (promotionObj != null || promotionObj != undefined) {
+		//				if (promotionObj.type == "2") {
+		//					$scope.content.PromoAmt += parseFloat(promotionObj.amount*$scope.rows[i].qty);
+		//					$scope.rows[i].promotion = parseFloat(promotionObj.amount*$scope.rows[i].qty);
+		//				}
+		//				else if (promotionObj.type == "1") {
+		//					$scope.content.PromoAmt += parseFloat((promotionObj.amount / 100) * productObj.price_of_unit);
+		//					$scope.rows[i].promotion = parseFloat((promotionObj.amount / 100) * productObj.price_of_unit);
+		//				}
+		//			}
+		//			else {
+        //
+		//				var promoObj = $filter('filter')($scope.promotionObj, {guproductId: -999})[0];
+		//				if (promoObj != undefined) {
+		//					if (promoObj.type == "2") {
+		//						$scope.content.PromoAmt += parseFloat(promoObj.amount*$scope.rows[i].qty);
+		//						$scope.rows[i].promotion = parseFloat(promoObj.amount*$scope.rows[i].qty);
+		//					}
+		//					else if (promoObj.type == "1") {
+		//						$scope.content.PromoAmt += parseFloat((promoObj.amount / 100) * productObj.price_of_unit);
+		//						$scope.rows[i].promotion = parseFloat((promoObj.amount / 100) * productObj.price_of_unit);
+		//					}
+		//				}
+		//				else {
+		//					$scope.content.PromoAmt += 0;
+		//					$scope.rows[i].promotion = 0;
+		//				}
+		//			}
+		//		}
+		//	}
+		//}
 
 
 		var self = this;
-		self.selectedPromotion  = null;
-		self.searchPromo    = null;
-		//
-		$scope.queryPromotion =function(query) {
-			var results=[];
-			//
-			for (var i = 0; i<$scope.promotionList.length; ++i){
-				//if($scope.filteredQuotation[i].invoiceNo!=null) {
-				if ($scope.promotionList[i].promotioncode.startsWith(query)) {
-					results.push($scope.promotionList[i]);
-				}
-				else if ($scope.promotionList[i].promotioncode.toLowerCase().startsWith(query.toLowerCase())) {
-					results.push($scope.promotionList[i]);
-				}
-				// }
-			}
-			//
-			return results;
-		}
+		//self.selectedPromotion  = null;
+		//self.searchPromo    = null;
+		////
+		//$scope.queryPromotion =function(query) {
+		//	var results=[];
+		//	//
+		//	for (var i = 0; i<$scope.promotionList.length; ++i){
+		//		//if($scope.filteredQuotation[i].invoiceNo!=null) {
+		//		if ($scope.promotionList[i].promotioncode.startsWith(query)) {
+		//			results.push($scope.promotionList[i]);
+		//		}
+		//		else if ($scope.promotionList[i].promotioncode.toLowerCase().startsWith(query.toLowerCase())) {
+		//			results.push($scope.promotionList[i]);
+		//		}
+		//		// }
+		//	}
+		//	//
+		//	return results;
+		//}
 
 		$scope.customValidation=function(ev)
 		{
@@ -3371,6 +3371,11 @@
 				$scope.selectedInvoice={};
 				$scope.selectedInvoice = data[0];
 				$scope.selectedInvoice.guInvID=data[0].guInvID;
+
+        var array =  $scope.selectedInvoice.period.split(',');
+        $scope.selectedInvoice.periodStartDate =  array[0];
+        $scope.selectedInvoice.periodEndDate =  array[1];
+
 
 				var invoiceNum=invoice.invoiceNo;
 				$scope.selectedInvoice.invoiceNo=invoiceNum;
