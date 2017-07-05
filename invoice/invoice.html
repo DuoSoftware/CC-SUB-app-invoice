@@ -291,7 +291,7 @@
                                         </div>
                                         <div class="inner-left" style="margin-bottom: 10px">
                                             <div style="width: 100px;display: inline-block;color: #aaa;margin-bottom: 2px">Billing period</div>
-                                            <div style="display:inline-block;">{{vm.selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>
+                                          <div style="display:inline-block;">{{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -333,7 +333,7 @@
                                             <div><span style="color: #aaa;">Due date: </span>  {{selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>
                                         </div>
                                         <div class="inner-left" style="margin-bottom: 10px">
-                                            <div><span style="color: #aaa;">Billing period: </span>  {{vm.selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>
+                                            <div><span style="color: #aaa;">Billing period: </span>  {{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -349,7 +349,7 @@
                                             <div><span style="color: #aaa;">Invoice type: </span>  {{vm.selectedInvoice.invoiceType}}</div>
                                             <div><span style="color: #aaa;">Created date: </span>  {{selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</div>
                                             <div style="margin-bottom: 5px"><span style="color: #aaa;">Due date: </span>  {{selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>
-                                            <div style="margin-bottom: 5px"><span style="color: #aaa;">Billing period: </span>  {{vm.selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>
+                                            <div style="margin-bottom: 5px"><span style="color: #aaa;">Billing period: </span>  {{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>
                                         </div>
                                         <div>{{vm.selectedInvoice.person_name}}</div>
                                         <div>{{vm.selectedInvoice.bill_addr}}</div>
