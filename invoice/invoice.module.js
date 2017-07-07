@@ -16,7 +16,7 @@
         .filter('numberFixedLen',numberFixedLength);
 
     /** @ngInject */
-    function config($stateProvider, msNavigationServiceProvider, mesentitlementProvider)
+    function config($stateProvider, msNavigationServiceProvider, mesentitlementProvider, $location)
     {
 
         mesentitlementProvider.setStateCheck("invoice");
