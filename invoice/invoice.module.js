@@ -16,7 +16,7 @@
         .filter('numberFixedLen',numberFixedLength);
 
     /** @ngInject */
-    function config($stateProvider, msNavigationServiceProvider, mesentitlementProvider, $location)
+    function config($stateProvider, msNavigationServiceProvider, mesentitlementProvider)
     {
 
         mesentitlementProvider.setStateCheck("invoice");
@@ -31,7 +31,7 @@
                     }
                 },
                 resolve: {
-                    security: ['$q','mesentitlement','$timeout','$rootScope','$state', function($q,mesentitlement,$timeout,$rootScope,$state){
+                    security: ['$q','mesentitlement','$timeout','$rootScope','$state','$location', function($q,mesentitlement,$timeout,$rootScope,$state, $location){
                         var entitledStatesReturn = mesentitlement.stateDepResolver('invoice');
 
                         if(entitledStatesReturn !== true){
