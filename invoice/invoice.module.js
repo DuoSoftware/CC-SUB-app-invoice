@@ -1,9 +1,9 @@
 //////////////////////////////////////
 // App : Invoice
 // Owner  : Ishara Gunathilaka
-// Last changed date : 2017/07/05
-// Version : 6.1.0.9
-// Modified By : Ishara
+// Last changed date : 2017/07/07
+// Version : 6.1.0.10
+// Modified By : Kasun
 /////////////////////////////////
 (function ()
 {
@@ -18,14 +18,6 @@
     /** @ngInject */
     function config($stateProvider, msNavigationServiceProvider, mesentitlementProvider)
     {
-
-        ////////////////////////////////
-        // App : Invoice
-        // Owner  : Suvethan
-        // Last changed date : 2017/02/07
-        // Version : 6.0.0.51
-        // Updated BY: Kasun
-        /////////////////////////////////
 
         mesentitlementProvider.setStateCheck("invoice");
 
@@ -45,6 +37,12 @@
                         if(entitledStatesReturn !== true){
                               return $q.reject("unauthorized");
                         }
+
+						if(!$rootScope.isSetBase){
+							$timeout(function(){
+								$location.path('/guide');
+							});
+						}
                         // else
                         // {
                         //   //debugger;
