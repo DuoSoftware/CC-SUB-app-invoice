@@ -1,8 +1,8 @@
-//////////////////////////////////////
+//////////////////////////////////
 // App : Invoice
 // Owner  : Ishara Gunathilaka
-// Last changed date : 2017/07/07
-// Version : 6.1.0.10
+// Last changed date : 2017/07/10
+// Version : 6.1.0.11
 // Modified By : Kasun
 /////////////////////////////////
 (function ()
@@ -32,17 +32,23 @@
                 },
                 resolve: {
                     security: ['$q','mesentitlement','$timeout','$rootScope','$state','$location', function($q,mesentitlement,$timeout,$rootScope,$state, $location){
-                        var entitledStatesReturn = mesentitlement.stateDepResolver('invoice');
+                        return $q(function(resolve, reject) {
+              $timeout(function() {
+                if ($rootScope.isBaseSet2) {
+                  resolve(function () {
+                    var entitledStatesReturn = mesentitlement.stateDepResolver('invoice');
 
-                        if(entitledStatesReturn !== true){
-                              return $q.reject("unauthorized");
-                        }
+                    mesentitlementProvider.setStateCheck("invoice");
 
-						if(!$rootScope.isSetBase){
-							$timeout(function(){
-								$location.path('/guide');
-							});
-						}
+                    if(entitledStatesReturn !== true){
+                      return $q.reject("unauthorized");
+                    }
+                  });
+                } else {
+                  return $location.path('/guide');
+                }
+              });
+            });
                         // else
                         // {
                         //   //debugger;
