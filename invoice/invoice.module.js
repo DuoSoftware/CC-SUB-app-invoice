@@ -40,11 +40,24 @@
                 },
                 resolve: {
                     security: ['$q','mesentitlement','$timeout','$rootScope','$state', function($q,mesentitlement,$timeout,$rootScope,$state){
-                        var entitledStatesReturn = mesentitlement.stateDepResolver('invoice');
+                        return $q(function(resolve, reject) {
+                          $timeout(function() {
+                            if ($rootScope.isBaseSet2) {
+                              resolve(function () {
+                                var entitledStatesReturn = mesentitlement.stateDepResolver('invoice');
 
-                        if(entitledStatesReturn !== true){
-                              return $q.reject("unauthorized");
-                        }
+                                mesentitlementProvider.setStateCheck("invoice");
+
+                                if(entitledStatesReturn !== true){
+                                  return $q.reject("unauthorized");
+                                }
+                              });
+                            } else {
+                              return $location.path('/guide');
+                            }
+                          });
+                        });
+                      
                         // else
                         // {
                         //   //debugger;
