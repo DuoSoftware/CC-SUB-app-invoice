@@ -39,7 +39,7 @@
                     }
                 },
                 resolve: {
-                    security: ['$q','mesentitlement','$timeout','$rootScope','$state', function($q,mesentitlement,$timeout,$rootScope,$state){
+                    security: ['$q','mesentitlement','$timeout','$rootScope','$state','$location', function($q,mesentitlement,$timeout,$rootScope,$location,$state){
                         return $q(function(resolve, reject) {
                           $timeout(function() {
                             if ($rootScope.isBaseSet2) {
