@@ -1,9 +1,9 @@
-//////////////////////////////////
+//////////////////////////////////////
 // App : Invoice
 // Owner  : Ishara Gunathilaka
-// Last changed date : 2017/07/10
-// Version : 6.1.0.11
-// Modified By : Kasun
+// Last changed date : 2017/07/14
+// Version : 6.1.0.12
+// Modified By : Suvethan
 /////////////////////////////////
 (function ()
 {
@@ -19,6 +19,14 @@
     function config($stateProvider, msNavigationServiceProvider, mesentitlementProvider)
     {
 
+        ////////////////////////////////
+        // App : Invoice
+        // Owner  : Suvethan
+        // Last changed date : 2017/02/07
+        // Version : 6.0.0.51
+        // Updated BY: Kasun
+        /////////////////////////////////
+
         mesentitlementProvider.setStateCheck("invoice");
 
         $stateProvider
@@ -31,24 +39,25 @@
                     }
                 },
                 resolve: {
-                    security: ['$q','mesentitlement','$timeout','$rootScope','$state','$location', function($q,mesentitlement,$timeout,$rootScope,$state, $location){
+					security: ['$q','mesentitlement','$timeout','$rootScope','$state','$location', function($q,mesentitlement,$timeout,$rootScope,$state, $location){
                         return $q(function(resolve, reject) {
-              $timeout(function() {
-                if ($rootScope.isBaseSet2) {
-                  resolve(function () {
-                    var entitledStatesReturn = mesentitlement.stateDepResolver('invoice');
+                          $timeout(function() {
+                            if ($rootScope.isBaseSet2) {
+                              resolve(function () {
+                                var entitledStatesReturn = mesentitlement.stateDepResolver('invoice');
 
-                    mesentitlementProvider.setStateCheck("invoice");
+                                mesentitlementProvider.setStateCheck("invoice");
 
-                    if(entitledStatesReturn !== true){
-                      return $q.reject("unauthorized");
-                    }
-                  });
-                } else {
-                  return $location.path('/guide');
-                }
-              });
-            });
+                                if(entitledStatesReturn !== true){
+                                  return $q.reject("unauthorized");
+                                }
+                              });
+                            } else {
+                              return $location.path('/guide');
+                            }
+                          });
+                        });
+
                         // else
                         // {
                         //   //debugger;

@@ -1,181 +1,261 @@
-<md-progress-circular ng-hide="isReadLoaded" style="position:absolute;top:0;bottom:0;left:0;right:0;margin:auto;opacity: 0.3;z-index: 9999"></md-progress-circular>
-<div id="invoice-read" class="compact page-layout blank" layout="row" flex>
-  <meta name="updatedBy" content="Kasun">
-  <meta name="modifiedDate" content="4-11-2016">
-  <meta name="version" content="6.0.0.1">
-  <meta name="app" content="invoice">
-  <meta name="view" content="read-view">
-  <div class="invoice-read-container" flex>
-
-    <!-- INVOICE -->
-    <div class="card md-whiteframe-8dp" layout="column" layout-align="center center">
-
-      <div class="inv-outline" md-whiteframe="4dp" ng-class="{'page-setup-cover':isReadLoaded==false}" layout="column">
-        <div class="inv-read-header">
-          <div class="invoice-date">{{vm.selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</div>
-
-          <div layout="row" layout-align="space-between stretch" class="client-info" style="display: flex;">
-            <div class="client" flex style="float: left;">
-              <div class="invoice-number" layout="row" layout-align="start center" felx>
-                <span class="title" flex="30" style="color: rgba(0, 0, 0, 0.54);">INVOICE NO </span>
-                <span class="number">:  {{vm.selectedInvoice.invoiceNo}}</span>
-                <!--<span class="number">{{vm.selectedInvoice.invoiceNo}} - {{vm.selectedInvoice.code}}</span>-->
-              </div>
-
-              <div class="invoice-number" layout="row" layout-align="start center" felx>
-                <span class="title" flex="30" style="color: rgba(0, 0, 0, 0.54);">INVOICE TYPE</span>
-                <span class="number">: {{vm.selectedInvoice.invoiceType}}</span>
-              </div>
-
-
-              <div class="invoice-number" layout="row" layout-align="start center" flex>
-                <span class="title" flex="30" style="color: rgba(0, 0, 0, 0.54);">DUE DATE</span>
-                <span class="date">: {{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</span>
-              </div>
-
-              <div class="due-date" layout="row" layout-align="start center">
-                <span class="title" flex="30">STATUS </span>
-                <span style="color: green" ng-if="vm.selectedInvoice.invoiceStatus=='Paid'">: {{vm.selectedInvoice.invoiceStatus}}</span>
-                <span style="color: orange" ng-if="vm.selectedInvoice.invoiceStatus=='Not Paid'">: {{vm.selectedInvoice.invoiceStatus}}</span>
-                <span style="color: skyblue" ng-if="vm.selectedInvoice.invoiceStatus=='Partially Paid'">: {{vm.selectedInvoice.invoiceStatus}}</span>
-                <span style="color: #BD362F" ng-if="vm.selectedInvoice.invoiceStatus=='void'">: {{vm.selectedInvoice.invoiceStatus}}</span>
-              </div>
-
-              <div class="info">
-                <div class="title">{{vm.selectedInvoice.person_name}}</div>
-                <div class="address">{{vm.selectedInvoice.bill_addr}}</div>
-                <div class="phone">{{vm.selectedInvoice.phone}}</div>
-                <div class="email">{{vm.selectedInvoice.email_addr}}</div>
-                <!--<div class="website">www.yamu.lk</div>-->
-              </div>
+<form id="invoiceForm" name="vm.editInvoiceForm" ng-submit="submit()" novalidate>
+    <!--CREATE NEW INVOICE _ CARDED=================================================-->
+    <md-card flex class="input-block-gen">
+        <md-card-title>
+            <div layout="row" layout-align="start center">
+                <md-icon md-font-icon="icon-cog"></md-icon> <h3>General details</h3>
+            </div>
+        </md-card-title>
+        <md-card-content>
+            <div layout="row">
+                <md-autocomplete flex="30"
+                                 ng-required="true"
+                                 md-select-on-match
+                                 ng-keypress="enter($event)"
+                                 ng-disabled="ctrl.isDisabled"
+                                 md-input-name="acName"
+                                 md-no-cache="ctrl.noCache"
+                                 md-selected-item="vm.editInvoice.profile"
+                                 md-search-text="ctrl.searchProfile"
+                                 md-selected-item-change="GetAddr(vm.editInvoice.profile,0)"
+                                 md-items="item in queryProfile(ctrl.searchProfile)"
+                                 md-item-text="item.profilename"
+                                 md-floating-label="Customer"
+                                 md-min-length="" style="height: 55px;">
+                    <md-not-found>No items.</md-not-found>
+                    <md-item-template>
+                        <span md-highlight-text="ctrl.searchText">{{item.profilename+" "+item.othername}}</span>
+                    </md-item-template>
+                </md-autocomplete>
+                <span>{{vm.editInvoice.bill_addr}}</span>
             </div>
 
-            <div class="issuer" style="float: left;padding: 10px 0;" ng-class="{ 'md-accent-bg': selectedInvoice.companyLogo == ''}" layout="row" layout-align="start center">
-              <table>
-                <tr>
-                  <td>
-                    <div class="set-logo-wrap" ng-if="selectedInvoice.companyLogo != ''">
-                      <div class="set-img">
-                        <img style="width: 150px;height: auto;position: absolute;top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  margin: auto;" ng-src="{{selectedInvoice.companyLogo}}" alt="" />
-                      </div>
-                    </div>
-                    <div class="logo" layout="row" layout-align="center center" ng-if="selectedInvoice.companyLogo == ''" style="font-family: Roboto;border-right: solid 1px #fff;color: #fff;">
-                      <span style="font-size: 72px">{{selectedInvoice.companyName| limitTo:1}}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="info" ng-class="{ 'fontblack': selectedInvoice.companyLogo == ''}" style="font-family: Roboto;max-width: 330px;">
-                      <div class="">{{selectedInvoice.companyName}}</div>
-                      <div class="address">{{selectedInvoice.companyAddress}}</div>
-                      <div class="phone">{{selectedInvoice.companyPhone}}</div>
-                      <div class="email">{{selectedInvoice.companyEmail}}</div>
-                    </div>
-                  </td>
-                </tr>
-              </table>
+            <div layout="row">
+                <md-input-container flex="30">
+                    <label>Start Date</label>
+                    <md-datepicker ng-model="vm.editInvoice.invoiceDate" md-placeholder="Start date" >
+                    </md-datepicker>
+                </md-input-container>
+                <div flex="5"></div>
+                <md-input-container flex="30">
+                    <label>Due Date</label>
+                    <md-datepicker ng-model="vm.editInvoice.dueDate" md-placeholder="Due date" >
+                    </md-datepicker>
+                </md-input-container>
             </div>
-          </div>
-        </div>
 
-        <div class="inv-read-content">
-          <table class="simple invoice-table" style="border-collapse: collapse">
-            <thead>
-            <th style="font-size: 14px;color: #bbbbbb;border-bottom: solid 1px #cccccc;">PLAN</th>
-            <th class="text-right" style="font-size: 14px;color: #bbbbbb;border-bottom: solid 1px #cccccc;text-align: right">UNIT PRICE</th>
-            <th class="text-right" style="font-size: 14px;color: #bbbbbb;border-bottom: solid 1px #cccccc;text-align: right">QUANTITY</th>
-            <th class="text-right" style="font-size: 14px;color: #bbbbbb;border-bottom: solid 1px #cccccc;text-align: right">DISCOUNT</th>
-            <th class="text-right font-14" style="text-align: right;color: #bbbbbb;border-bottom: solid 1px #cccccc;text-align: right">TOTAL</th>
-            </thead>
-            <tbody>
-            <tr ng-repeat="detail in vm.selectedInvoice.invoiceDetails" class="font-14">
-              <td class="font-14">
-                {{detail.code}} ({{detail.createddate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}})
-              </td>
-              <td class="text-right font-14" style="text-align: right">
-                {{detail.unitPrice | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}
-              </td>
-              <td class="text-right font-14" style="text-align: right">
-                {{detail.gty}}
-              </td>
-              <td class="text-right font-14" style="text-align: right">
-                {{detail.discount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}
-              </td>
-              <td class="text-right font-14" style="text-align: right">
-                {{detail.totalPrice | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}
-              </td>
-            </tr>
-            </tbody>
-          </table>
+        </md-card-content>
+    </md-card>
+    <md-card flex class="input-block-gen">
+        <md-card-title>
+            <div layout="row" layout-align="start center">
+                <md-icon md-font-icon="icon-credit-card-multiple"></md-icon> <h3>Billing details</h3>
+            </div>
+        </md-card-title>
+        <md-card-content>
+            <div class="prod-row-wrap">
+                <div layout="row" ng-repeat="row in rows" class="highlight-blue solid p-5 add-item-row">
+                    <md-autocomplete flex="30" required class="mb-0" layout="row" layout-align="start center"
+                                     md-input-id="{{row.productId}}"
+                                     ng-required="false"
+                                     ng-keydown="toggleSearchMre(rows,$event,$index,vm.searchText[$index],'true')"
+                                     md-select-on-match
+                                     ng-keypress="enter($event)"
+                                     ng-disabled="row.isAutoDisabled"
+                                     md-input-name="productRowAuto"
+                                     md-no-cache="vm.noCache"
+                                     md-selected-item="row.product"
+                                     md-selected-item-change="validateProduct(row.product,$index,row)"
+                                     md-search-text="vm.searchText[$index]"
+                                     md-floating-label="Product"
+                                     md-items="prod in querySearch(vm.searchText[$index],$index)"
+                                     md-item-text="prod.code">
+                        <md-not-found>
+                            <!--No items.-->
+                            <!--<md-button ng-hide="$scope.searchMre"-->
+                            <!--style="line-height: 20px;font-size: 12px"-->
+                            <!--ng-click="getNextProducts(vm.searchText,rows,$parent.$index);" type="button">Search More-->
+                            <!--</md-button>-->
+                            <label ng-show="last">No items.</label>
+                        </md-not-found>
+                        <md-item-template>
+                            <span md-highlight-text="vm.searchText">{{prod.code}}</span>
+                        </md-item-template>
+                        <div class="errors" ng-messages="vm.editInvoice.productRowAuto.$error">
+                            <!--<div ng-message="required">Product is required</div>-->
+                            <div ng-message="invalidInput" ng-if="!vm.editInvoice.productRowAuto.$error.required">Please select a valid product</div>
+                        </div>
+                    </md-autocomplete>
+                    <div flex="5"></div>
+                    <md-input-container class="mb-0" flex="30">
+                        <label>Quantity</label>
+                        <input name="InvoiceProdQty" id="{{row.qtyId}}" ng-required="true" ng-pattern="/^-?[0-9][^\.]*$/" type="number" min="1" ng-blur="calcQty(row,$index)" ng-model="row.qty">
+                        <div ng-messages="vm.editInvoice.InvoiceProdQty.$error">
+                            <div ng-message="pattern">Quantity of Unit is invalid</div>
+                        </div>
+                    </md-input-container>
+                    <div flex="5"></div>
+                    <md-input-container class="mb-0" flex="30" layout="row">
+                        <div flex="5" layout="column" class="billingFrqCurrency pb-20" layout-align="center start">
+                            {{0| isoCurrency: BaseCurrency:0}}
+                        </div>
+                        <md-input-container class="m-0" flex>
+                            <label>Amount</label>
+                            <input ng-disabled="vm.searchText[$index]=='' || row.product!=null" type="" ng-model="row.rowAmtDisplay">
+                        </md-input-container>
+                    </md-input-container>
+                    <!--<div flex="5"></div>-->
+                    <!--<div flex="30" layout="column" layout-align="center start">-->
+                    <!--<md-input-container fill-width class="mt-40" id="invProdQty7" ng-if="slab.autoTermination==false">-->
+                    <!--<label>Additional charge per unit</label>-->
+                    <!--<input type="number" ng-required="true" min="1" ng-model="slab.costPerUnitAdd">-->
+                    <!--</md-input-container>-->
+                    <!--<md-checkbox ng-model="slab.autoTermination" aria-label="Auto Terminate" class="md-primary dep-checkbox" ng-class="{'offset-top':!slab.autoTermination}">Auto terminate</md-checkbox>-->
+                    <!--</div>-->
+                    <div class="w-5"></div>
+                    <div layout="column" layout-align="center center" class="v-rule-gray">
+                        <md-button ng-click="removerow($index);" class="md-icon-button md-warn mr-12"><md-icon md-font-icon="icon-close-circle"></md-icon><md-tooltip>Remove row</md-tooltip> </md-button>
+                    </div>
+                </div>
+                <!--<div layout-gt-sm="row" ng-repeat="row in rows" class="add-item-row">-->
+                    <!--<div flex="30" class="rel">-->
+                        <!--<md-autocomplete flex required-->
+                                         <!--md-input-id="{{row.productId}}"-->
+                                         <!--ng-required="true"-->
+                                         <!--ng-keydown="toggleSearchMre(rows,$event,$index,vm.searchText[$index],'true')"-->
+                                         <!--md-select-on-match-->
+                                         <!--ng-keypress="enter($event)"-->
+                                         <!--ng-disabled="row.isAutoDisabled"-->
+                                         <!--md-input-name="productRowAuto"-->
+                                         <!--md-no-cache="vm.noCache"-->
+                                         <!--md-selected-item="row.product"-->
+                                         <!--md-selected-item-change="validateProduct(row.product,$index,row)"-->
+                                         <!--md-search-text="vm.searchText[$index]"-->
+                                         <!--md-floating-label="Product"-->
+                                         <!--md-items="prod in querySearch(vm.searchText[$index],$index)"-->
+                                         <!--md-item-text="prod.code"-->
+                                         <!--autocomplete-validator>-->
+                            <!--<md-not-found>-->
+                                <!--&lt;!&ndash;No items.&ndash;&gt;-->
+                                <!--&lt;!&ndash;<md-button ng-hide="$scope.searchMre"&ndash;&gt;-->
+                                <!--&lt;!&ndash;style="line-height: 20px;font-size: 12px"&ndash;&gt;-->
+                                <!--&lt;!&ndash;ng-click="getNextProducts(vm.searchText,rows,$parent.$index);" type="button">Search More&ndash;&gt;-->
+                                <!--&lt;!&ndash;</md-button>&ndash;&gt;-->
+                                <!--<label ng-show="last">No items.</label>-->
+                            <!--</md-not-found>-->
+                            <!--<md-item-template>-->
+                                <!--<span md-highlight-text="vm.searchText">{{prod.code}}</span>-->
+                            <!--</md-item-template>-->
+                            <!--<div class="errors" ng-messages="vm.editInvoice.productRowAuto.$error">-->
+                                <!--&lt;!&ndash;<div ng-message="required">Product is required</div>&ndash;&gt;-->
+                                <!--<div ng-message="invalidInput" ng-if="!vm.editInvoice.productRowAuto.$error.required">Please select a valid product</div>-->
+                            <!--</div>-->
+                        <!--</md-autocomplete>-->
+                    <!--</div>-->
+                    <!--<div flex="5"></div>-->
+                    <!--<div flex>-->
+                        <!--<md-input-container class="md-block">-->
+                            <!--<label>Quantity</label>-->
+                            <!--<input name="InvoiceProdQty" id="{{row.qtyId}}" ng-required="true" ng-pattern="/^-?[0-9][^\.]*$/" type="number" min="1" ng-blur="calcQty(row,$index)" ng-model="row.qty">-->
+                            <!--<div ng-messages="vm.editInvoice.InvoiceProdQty.$error">-->
+                                <!--<div ng-message="pattern">Quantity of Unit is invalid</div>-->
+                            <!--</div>-->
+                        <!--</md-input-container>-->
+                    <!--</div>-->
+                    <!--<div flex="5"></div>-->
+                    <!--<div flex layout="row">-->
+                        <!--<div flex="5" layout="column" class="billingFrqCurrency" layout-align="center start">-->
+                            <!--{{0| isoCurrency: BaseCurrency:0}}-->
+                        <!--</div>-->
+                        <!--<md-input-container class="md-block" flex-gt-sm>-->
+                            <!--<label>Amount</label>-->
+                            <!--<input disabled type="" ng-model="row.rowAmtDisplay">-->
+                        <!--</md-input-container>-->
+                    <!--</div>-->
 
-          <table class="invoice-table-footer">
-            <tbody>
-            <tr class="subtotal">
-              <td class="font-14" style="width: 50%;"></td>
-              <td class="font-14" style="color: #ababab">SUBTOTAL</td>
-              <td class="font-14" style="text-align: right;color: #ababab">{{vm.selectedInvoice.subTotal | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
-            </tr>
-            <tr class="additionalcharge">
-              <td class="font-14" style="width: 50%;"></td>
-              <td class="font-14"style="color: #ababab" ng-if="vm.selectedInvoice.additionalcharge <= 0">MISCELLANEOUS CHARGES</td>
-              <td class="font-14"style="color: #ababab"  ng-if="vm.selectedInvoice.additionalcharge > 0">MISCELLANEOUS CHARGES <br/>{{vm.selectedInvoice.tag}}</td>
-              <td class="font-14" style="text-align: right;color: #ababab">{{vm.selectedInvoice.additionalcharge | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
-            </tr>
-            <!--<tr class="">-->
-              <!--<td class="font-14" style="width: 50%;"></td>-->
-              <!--<td class="font-14"style="color: #ababab">DISCOUNT</td>-->
-              <!--<td style="text-align: right;color: #ababab">({{vm.selectedInvoice.discAmt | isoCurrency:vm.selectedInvoice.currency:decimalPoint}})</td></tr>-->
-            <tr class="tax">
-              <td class="font-14" style="width: 50%;"></td>
-              <td class="font-14"style="color: #ababab">TAX</td>
-              <td class="font-14" style="text-align: right;color: #ababab">{{vm.selectedInvoice.tax | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
-            </tr>
-            <tr class="">
-              <td class="font-14" style="width: 50%;"></td>
-              <td class="font-14" style="color: #ababab">DISCOUNT</td>
-              <td class="font-14" style="text-align: right;color: #ababab">({{vm.selectedInvoice.discount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}})</td>
-            </tr>
-            <tr class="total">
-              <td class="font-14" style="width: 50%;"></td>
-              <td class="font-27" style="font-weight: 300;">TOTAL</td>
-              <td class="font-27" style="text-align: right;font-weight: 300">{{vm.selectedInvoice.invoiceAmount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
+                    <!--<div layout="column" layout-align="center center">-->
+                        <!--<md-button ng-click="removerow($index);" class="md-icon-button md-warn"><md-icon md-font-icon="icon-close-circle"></md-icon><md-tooltip>Remove row</md-tooltip> </md-button>-->
+                    <!--</div>-->
 
-        <!--<div>-->
-          <!--<div  layout-align="start center" flex>-->
-            <!--<div  flex="30" style="color: rgba(0, 0, 0, 0.54);">NOTE</div>-->
-            <!--<div>  {{vm.selectedInvoice.tag}}</div>-->
-          <!--</div>-->
-        <!--</div>-->
+                <!--</div>-->
+            </div>
 
-        <div style="height: 200px;"></div>
-
-        <div flex></div>
-
-        <div class="inv-read-footer">
-          <div class="note">{{vm.selectedInvoice.greeting}}</div>
-          <div layout="row" layout-align="start start" style="display: flex;">
-            <!--<div class="logo md-accent-bg" layout="row" layout-align="center center" style="float: left;">-->
-              <!--<div>{{vm.selectedInvoice.companyName| limitTo:1}}</div>-->
+            <div layout="row" layout-align="end center">
+                <md-button ng-click="addrow($event)" class="md-icon-button add-row-ico mr-10" layout="row">
+                    <md-icon md-font-icon="icon-plus-circle md-accent"></md-icon>
+                    <md-tooltip>Add another row</md-tooltip>
+                </md-button>
+            </div>
+            <div layout="row" class="p-5">
+                <div flex="70"></div>
+                <div layout="row" layout-align="start center" flex="30">
+                    <div flex="5" layout="column" class="billingFrqCurrency pb-20" layout-align="center start">
+                        {{0| isoCurrency: BaseCurrency:0}}
+                    </div>
+                    <md-input-container flex>
+                        <label>Discount</label>
+                        <input ng-required="false" type="number" name="discount" min="1" max="100000000000000000" ng-model="vm.editInvoice.discount" style="text-align: right">
+                        <div ng-messages="vm.editInvoice.discount.$error">
+                            <div ng-message="max">Discount must be between 1-18 digits</div>
+                            <div ng-message="min">Discount must be between 1-18 digits</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="w-55"></div>
+            </div>
+            <div>
+                <div layout="row" class="p-5">
+                    <div flex></div>
+                    <div layout="column" class="solid-highlight-gray p-10" flex="30">
+                        <div layout="row" layout-align="start center" fill-width>
+                            <div flex="5" layout="column" class="billingFrqCurrency pb-20" layout-align="center start">
+                                {{0| isoCurrency: BaseCurrency:0}}
+                            </div>
+                            <md-input-container flex>
+                                <label>Miscellaneous charges</label>
+                                <input type="number" ng-required="false" min="0" max="100000000000000000" name="additionalcharge"  ng-model="vm.editInvoice.additionalcharge" style="text-align: right">
+                                <div ng-messages="vm.editInvoice.additionalcharge.$error">
+                                    <div ng-message="max">Additional Charges must be between 1-18 digits</div>
+                                    <div ng-message="min">Additional Charges must be between 1-18 digits</div>
+                                </div>
+                            </md-input-container>
+                        </div>
+                        <md-input-container fill-width>
+                            <label>Remarks</label>
+                            <input type="text" ng-required="false" min="1" ng-maxlength="300" md-maxlength="300" name="remarks" ng-model="vm.editInvoice.remarks">
+                            <div ng-messages="vm.editInvoice.remarks.$error">
+                                <div ng-message="maxlength">Remarks must be between 1-300 characters</div>
+                            </div>
+                        </md-input-container>
+                    </div>
+                    <div class="w-55"></div>
+                </div>
+            </div>
+            <div layout="row" class="p-5">
+                <div flex></div>
+                <div layout="row" layout-align="end center" flex="30">
+                    <h2 class="font-accent">Total : {{vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount | isoCurrency: BaseCurrency:0}}</h2>
+                </div>
+                <div class="w-55"></div>
+            </div>
+            <!--<div layout="row" style="margin-bottom: 10px">-->
+                <!--<div flex="30">-->
+                    <!--<md-input-container class="md-block">-->
+                        <!--<label>Payment collection method</label>-->
+                        <!--&lt;!&ndash;<input type="text" ng-required="true" min="1" ng-model="row.unitUom">&ndash;&gt;-->
+                        <!--<md-select ng-required="true" flex ng-model="vm.editInvoice.paymentOption">-->
+                            <!--<md-option value="Online">Online</md-option>-->
+                            <!--<md-option value="Offline">Offline</md-option>-->
+                        <!--</md-select>-->
+                    <!--</md-input-container>-->
+                <!--</div>-->
+                <!--<div flex="5"></div>-->
             <!--</div>-->
-            <div class="small-note">
-              {{vm.selectedInvoice.disclaimer}}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- / INVOICE -->
+        </md-card-content>
+    </md-card>
 
-    <!-- Use the following element to add breaks to your pages -->
-    <!-- This will make sure that the section after this element will be printed on a new page -->
-    <div class="page-break"></div>
 
-  </div>
-</div>
+
+
+    <!--CREATE NEW INVOICE _ CARDED=================================================-->
+</form>
