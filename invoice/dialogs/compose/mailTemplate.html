@@ -93,6 +93,9 @@
           </md-input-container>
         </div>
       </div>
+        <div class="preloader" style="height: 50%;left: 0" ng-if="!hideSendButton">
+            <md-progress-circular></md-progress-circular>
+        </div>
       <div text-angular ng-model="bodycontent" ta-toolbar="[['bold','italics','underline','strikeThrough'],['justifyLeft','justifyCenter','justifyRight','justifyFull'],['ul','ol'],['indent','outdent'],['quote'],['clear']]"></div>
     </md-content>
 
