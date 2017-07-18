@@ -407,7 +407,7 @@
                                     <div style="color: #aaa;width: 20%;float: left" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">
                                         Promotion
                                     </div>
-                                    <div style="color: #aaa;width: 20%;float: left;text-align: right">
+                                    <div style="color: #aaa;float: left;text-align: right" ng-style="vm.selectedInvoice.invoiceType.toLowerCase() == 'manual' ? {'width':'40%'} : {'width':'20%'}">
                                         Total
                                     </div>
                                 </div>
@@ -423,7 +423,7 @@
                                     <div style="float: left;color: #aaa;width: 20%" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">
                                         {{detail.discount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}
                                     </div>
-                                    <div style="float: left;color: #aaa;width: 20%;text-align: right">
+                                    <div style="float: left;color: #aaa;text-align: right" ng-style="vm.selectedInvoice.invoiceType.toLowerCase() == 'manual' ? {'width':'40%'} : {'width':'20%'}">
                                         {{detail.totalPrice | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}
                                     </div>
                                 </div>

@@ -1,9 +1,9 @@
 //////////////////////////////////////
 // App : Invoice
 // Owner  : Ishara Gunathilaka
-// Last changed date : 2017/07/14
+// Last changed date : 2017/07/18
 // Version : 6.1.0.12
-// Modified By : Suvethan
+// Modified By : Kasun
 /////////////////////////////////
 (function ()
 {
@@ -18,14 +18,6 @@
     /** @ngInject */
     function config($stateProvider, msNavigationServiceProvider, mesentitlementProvider)
     {
-
-        ////////////////////////////////
-        // App : Invoice
-        // Owner  : Suvethan
-        // Last changed date : 2017/02/07
-        // Version : 6.0.0.51
-        // Updated BY: Kasun
-        /////////////////////////////////
 
         mesentitlementProvider.setStateCheck("invoice");
 
@@ -57,7 +49,7 @@
                             }
                           });
                         });
-
+                      
                         // else
                         // {
                         //   //debugger;

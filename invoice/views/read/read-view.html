@@ -95,15 +95,15 @@
                         </div>
                     </md-input-container>
                     <div flex="5"></div>
-                    <md-input-container class="mb-0" flex="30" layout="row">
-                        <div flex="5" layout="column" class="billingFrqCurrency pb-20" layout-align="center start">
+                    <div class="mb-0" flex="30" layout="row">
+                        <div flex="5" layout="column" class="billingFrqCurrency" layout-align="center start">
                             {{0| isoCurrency: BaseCurrency:0}}
                         </div>
-                        <md-input-container class="m-0" flex>
+                        <md-input-container class="m-0" flex style="height: 60px;top: 17px;">
                             <label>Amount</label>
-                            <input ng-disabled="vm.searchText[$index]=='' || row.product!=null" type="" ng-model="row.rowAmtDisplay">
+                            <input ng-disabled="vm.searchText[$index]=='' || row.product!=null" type="number" ng-model="row.rowAmtDisplay" class="text-right">
                         </md-input-container>
-                    </md-input-container>
+                    </div>
                     <!--<div flex="5"></div>-->
                     <!--<div flex="30" layout="column" layout-align="center start">-->
                     <!--<md-input-container fill-width class="mt-40" id="invProdQty7" ng-if="slab.autoTermination==false">-->
