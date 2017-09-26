@@ -30,7 +30,11 @@
     //////////
     ////////////
     /////////////
-    $scope.issubscriptionappuse = false // if subscription module uses this is true else false
+    $scope.issubscriptionappuse = true; // if subscription module uses this is true else false
+    if(true)  // TODO : need to check whether invoice module or subscription
+    {
+      $scope.issubscriptionappuse = false;
+    }
     /////////////
     ///////////
     //////
