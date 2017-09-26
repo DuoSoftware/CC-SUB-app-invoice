@@ -31,17 +31,61 @@
             </div>
 
             <div layout="row">
+
+              <md-input-container flex="15">
+                <md-select ng-required="true" flex ng-model="vm.editInvoice.invoiceOccurence">
+                  <md-option value="One Time" selected>One Time</md-option>
+                  <md-option value="Recurring">Recurring</md-option>
+                  <md-option value="Installment">Installment</md-option>
+                </md-select>
+              </md-input-container>
+
+              <div class="w-20"></div>
+
+              <md-input-container flex="15" ng-if="vm.editInvoice.invoiceOccurence === 'Installment'">
+                <label>Occurrence</label>
+                <input ng-required="true" type="number" min="1" max="100000000000000000" name="frequency" ng-model="vm.editInvoice.occurence" ng-init="vm.editInvoice.occurence" style="text-align: right">
+                <div ng-messages="vm.editInvoice.occurence.$error">
+                  <div ng-message="max">Occurrence must be between 1-18 digits</div>
+                  <div ng-message="min">Occurrence must be between 1-18 digits</div>
+                </div>
+              </md-input-container>
+
+              <div class="w-20"></div>
+
+              <md-input-container flex="15">
+                <md-select ng-required="true" flex ng-model="vm.editInvoice.invoiceingPeriod">
+                  <md-option value="Days" selected>Days</md-option>
+                  <md-option value="Months">Months</md-option>
+                  <md-option value="Years">Years</md-option>
+                </md-select>
+              </md-input-container>
+
+              <div class="w-20"></div>
+
+              <md-input-container flex="15">
+                <label>Invoice Interval</label>
+                <input ng-required="true" type="number" min="1" max="100000000000000000" name="invoiceInterval" ng-model="vm.editInvoice.invoiceInterval" ng-init="vm.editInvoice.invoiceInterval" style="text-align: right">
+                <div ng-messages="vm.editInvoice.invoiceInterval.$error">
+                  <div ng-message="max">Occurrence must be between 1-18 digits</div>
+                  <div ng-message="min">Occurrence must be between 1-18 digits</div>
+                </div>
+              </md-input-container>
+
+            </div>
+
+            <div layout="row">
                 <md-input-container flex="30">
                     <label>Start Date</label>
                     <md-datepicker ng-model="vm.editInvoice.invoiceDate" md-placeholder="Start date" >
                     </md-datepicker>
                 </md-input-container>
-                <div flex="5"></div>
-                <md-input-container flex="30">
-                    <label>Due Date</label>
-                    <md-datepicker ng-model="vm.editInvoice.dueDate" md-placeholder="Due date" >
-                    </md-datepicker>
-                </md-input-container>
+                <!--<div flex="5"></div>-->
+                <!--<md-input-container flex="30">-->
+                    <!--<label>Due Date</label>-->
+                    <!--<md-datepicker ng-model="vm.editInvoice.dueDate" md-placeholder="Due date" >-->
+                    <!--</md-datepicker>-->
+                <!--</md-input-container>-->
             </div>
 
         </md-card-content>
@@ -117,67 +161,7 @@
                         <md-button ng-click="removerow($index);" class="md-icon-button md-warn mr-12"><md-icon md-font-icon="icon-close-circle"></md-icon><md-tooltip>Remove row</md-tooltip> </md-button>
                     </div>
                 </div>
-                <!--<div layout-gt-sm="row" ng-repeat="row in rows" class="add-item-row">-->
-                    <!--<div flex="30" class="rel">-->
-                        <!--<md-autocomplete flex required-->
-                                         <!--md-input-id="{{row.productId}}"-->
-                                         <!--ng-required="true"-->
-                                         <!--ng-keydown="toggleSearchMre(rows,$event,$index,vm.searchText[$index],'true')"-->
-                                         <!--md-select-on-match-->
-                                         <!--ng-keypress="enter($event)"-->
-                                         <!--ng-disabled="row.isAutoDisabled"-->
-                                         <!--md-input-name="productRowAuto"-->
-                                         <!--md-no-cache="vm.noCache"-->
-                                         <!--md-selected-item="row.product"-->
-                                         <!--md-selected-item-change="validateProduct(row.product,$index,row)"-->
-                                         <!--md-search-text="vm.searchText[$index]"-->
-                                         <!--md-floating-label="Product"-->
-                                         <!--md-items="prod in querySearch(vm.searchText[$index],$index)"-->
-                                         <!--md-item-text="prod.code"-->
-                                         <!--autocomplete-validator>-->
-                            <!--<md-not-found>-->
-                                <!--&lt;!&ndash;No items.&ndash;&gt;-->
-                                <!--&lt;!&ndash;<md-button ng-hide="$scope.searchMre"&ndash;&gt;-->
-                                <!--&lt;!&ndash;style="line-height: 20px;font-size: 12px"&ndash;&gt;-->
-                                <!--&lt;!&ndash;ng-click="getNextProducts(vm.searchText,rows,$parent.$index);" type="button">Search More&ndash;&gt;-->
-                                <!--&lt;!&ndash;</md-button>&ndash;&gt;-->
-                                <!--<label ng-show="last">No items.</label>-->
-                            <!--</md-not-found>-->
-                            <!--<md-item-template>-->
-                                <!--<span md-highlight-text="vm.searchText">{{prod.code}}</span>-->
-                            <!--</md-item-template>-->
-                            <!--<div class="errors" ng-messages="vm.editInvoice.productRowAuto.$error">-->
-                                <!--&lt;!&ndash;<div ng-message="required">Product is required</div>&ndash;&gt;-->
-                                <!--<div ng-message="invalidInput" ng-if="!vm.editInvoice.productRowAuto.$error.required">Please select a valid product</div>-->
-                            <!--</div>-->
-                        <!--</md-autocomplete>-->
-                    <!--</div>-->
-                    <!--<div flex="5"></div>-->
-                    <!--<div flex>-->
-                        <!--<md-input-container class="md-block">-->
-                            <!--<label>Quantity</label>-->
-                            <!--<input name="InvoiceProdQty" id="{{row.qtyId}}" ng-required="true" ng-pattern="/^-?[0-9][^\.]*$/" type="number" min="1" ng-blur="calcQty(row,$index)" ng-model="row.qty">-->
-                            <!--<div ng-messages="vm.editInvoice.InvoiceProdQty.$error">-->
-                                <!--<div ng-message="pattern">Quantity of Unit is invalid</div>-->
-                            <!--</div>-->
-                        <!--</md-input-container>-->
-                    <!--</div>-->
-                    <!--<div flex="5"></div>-->
-                    <!--<div flex layout="row">-->
-                        <!--<div flex="5" layout="column" class="billingFrqCurrency" layout-align="center start">-->
-                            <!--{{0| isoCurrency: BaseCurrency:0}}-->
-                        <!--</div>-->
-                        <!--<md-input-container class="md-block" flex-gt-sm>-->
-                            <!--<label>Amount</label>-->
-                            <!--<input disabled type="" ng-model="row.rowAmtDisplay">-->
-                        <!--</md-input-container>-->
-                    <!--</div>-->
 
-                    <!--<div layout="column" layout-align="center center">-->
-                        <!--<md-button ng-click="removerow($index);" class="md-icon-button md-warn"><md-icon md-font-icon="icon-close-circle"></md-icon><md-tooltip>Remove row</md-tooltip> </md-button>-->
-                    <!--</div>-->
-
-                <!--</div>-->
             </div>
 
             <div layout="row" layout-align="end center">
@@ -186,6 +170,20 @@
                     <md-tooltip>Add another row</md-tooltip>
                 </md-button>
             </div>
+
+          <div layout="row" class="p-5">
+            <div flex="70"></div>
+            <div layout="row" layout-align="start center" flex="30">
+
+              <md-input-container flex>
+                <label>Promotion code</label>
+                <input ng-required="false" type="text" name="promotion" ng-model="vm.editInvoice.promotion" style="text-align: right" ng-blur="checkPromotion(vm.editInvoice.promotion)">
+
+              </md-input-container>
+            </div>
+            <div class="w-55"></div>
+          </div>
+
             <div layout="row" class="p-5">
                 <div flex="70"></div>
                 <div layout="row" layout-align="start center" flex="30">
@@ -238,19 +236,19 @@
                 </div>
                 <div class="w-55"></div>
             </div>
-            <!--<div layout="row" style="margin-bottom: 10px">-->
-                <!--<div flex="30">-->
-                    <!--<md-input-container class="md-block">-->
-                        <!--<label>Payment collection method</label>-->
-                        <!--&lt;!&ndash;<input type="text" ng-required="true" min="1" ng-model="row.unitUom">&ndash;&gt;-->
-                        <!--<md-select ng-required="true" flex ng-model="vm.editInvoice.paymentOption">-->
-                            <!--<md-option value="Online">Online</md-option>-->
-                            <!--<md-option value="Offline">Offline</md-option>-->
-                        <!--</md-select>-->
-                    <!--</md-input-container>-->
-                <!--</div>-->
-                <!--<div flex="5"></div>-->
-            <!--</div>-->
+
+          <div style="margin-top: 50px">
+            <div class="group-sub-head"><b>Payment Method</b></div>
+            <div layout="row" layout-align="start center">
+              <md-input-container flex="30">
+                <md-radio-group ng-model="vm.editInvoice.paymentMethod" ng-init="vm.editInvoice.paymentMethod='cash'" ng-change="paymentMethodHandler(vm.editInvoice.paymentMethod)">
+                  <md-radio-button value="cash" class="md-primary">CASH</md-radio-button>
+                  <md-radio-button value="credit" class="md-primary">CREDIT</md-radio-button>
+                </md-radio-group>
+              </md-input-container>
+            </div>
+          </div>
+
         </md-card-content>
     </md-card>
 

@@ -26,6 +26,21 @@
 		vm.scrollPos = 0;
 		vm.scrollEl = angular.element('#content');
 
+    ///
+    //////////
+    ////////////
+    /////////////
+    $scope.issubscriptionappuse = true; // if subscription module uses this is true else false
+    if(true)  // TODO : need to check whether invoice module or subscription
+    {
+      $scope.issubscriptionappuse = false;
+    }
+    /////////////
+    ///////////
+    //////
+    ////
+
+
 		//vm.invoices = Invoice.data;
 		//console.log(vm.invoices);
 		//invoice data getter !
@@ -237,7 +252,6 @@
 		$scope.a = {};
 		$scope.content = {};
 		$scope.content = {};
-		$scope.productlist=[];
 		$scope.a.amountMod=0;
 		$scope.a.quantity=1;
 		$scope.invoicetypes = ['One Time', 'Installment', 'Recurring'];
@@ -405,350 +419,116 @@
 			//}
 		};
 
+   $scope.paymentMethodHandler =  function (selection){
+      if(selection=='cash'){
+        vm.editInvoice.paymentMethod = 'cash';
+      }else{
+        vm.editInvoice.paymentMethod = 'credit';
+      }
+    }
+
 		$scope.isInvoiceQuoteEmpty = true;
 
 		$scope.submit = function () {
-			//$scope.clearText();
-			$scope.isAdded=false;
-			//if($scope.content.bill_addr!="") {
-			if (vm.editInvoiceForm.$valid == true) {
-				vm.submitted=true;
-				$scope.spinnerInvoice = true;
-				$scope.invoiceDetails=[];
-        $scope.productsDet=[];
-				if(!isValid) {
-					var promocode="";
-					if(promocode!="") {
-						$charge.promotion().getByCode(promocode).success(function (data) {
-							$scope.validPromo = true;
-							vm.editInvoice.gupromotionid = data[0].gupromotionid;
 
-							//var unitPrice = vm.editInvoice.amount;
-							vm.editInvoice.invoiceType="Manual";
+      $scope.isAdded = false;
+      //if($scope.content.bill_addr!="") {
+      if (vm.editInvoiceForm.$valid == true) {
+        vm.submitted = true;
+        $scope.spinnerInvoice = true;
+        $scope.invoiceDetails = [];
+        $scope.productsDet = [];
+        //if (!isValid) {    // this is to validate promotion if needs
+            //
+            var unitPrice = vm.editInvoice.amount = (vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount);
+            vm.editInvoice.invoiceType = "Manual";
 
-              for(var i=0;i<$scope.rows.length;i++)
-              {
-                var qty = $scope.rows[i].qty;
-                var unitPrice = $scope.rows[i].rowAmtDisplay/qty;
-                var productObj = $scope.rows[i].product;
-                if(productObj==null) {
-                  var productReq = {
-                    "currency": $scope.BaseCurrency,
-                    "type":"",
-                    "class":"Product",
-                    "name": vm.searchText[i],
-                    "code": vm.searchText[i],
-                    "description": "",
-                    "unitPrice": unitPrice,
-                    "rate": 1
-                  }
-                  $scope.productsDet.push(productReq);
-                }
-              }
-
-              if($scope.productsDet.length!=0) {
-                $charge.plan().addPlanBulk($scope.productsDet).success(function (data) {
-                  for (var i = 0; i < $scope.rows.length; i++) {
-                    var productObj = $scope.rows[i].product;
-                    var totalPrice = $scope.rows[i].rowAmtDisplay;
-                    var qty = $scope.rows[i].qty;
-                    var unitPrice = $scope.rows[i].rowAmtDisplay/qty;
-                    // var unitPrice = calcAmt[i].rowAmt;
-                    if(productObj!=null) {
-                      $scope.invoiceDetails.push({
-                        paid: "false",
-                        paidAmount: 0,
-                        tax: 0,
-                        gty: qty,
-                        itemDescription: "",
-                        itemType: "",
-                        guItemID: productObj.guPlanID,
-                        lineID: "",
-                        totalPrice: totalPrice,
-                        unitPrice: unitPrice,
-                        discount: 0,
-                        startDate: vm.editInvoice.invoiceDate,
-                        uom: "",
-                        subTotal: totalPrice,
-                        promotionId: ""
-                      });
-                    }
-                    else {
-                      var existingProduct = $filter('filter')(results, {data:{code:vm.searchText[i]}})[0];
-                      if (existingProduct != null) {
-                        $scope.invoiceDetails.push({
-                          paid: "false",
-                          paidAmount: 0,
-                          tax: 0,
-                          gty: qty,
-                          itemDescription: "",
-                          itemType: "",
-                          guItemID: existingProduct.data.refference,
-                          lineID: "",
-                          totalPrice: totalPrice,
-                          unitPrice: unitPrice,
-                          discount: 0,
-                          startDate: vm.editInvoice.invoiceDate,
-                          uom: "",
-                          subTotal: totalPrice,
-                          promotionId: ""
-                        });
-                      }
-                    }
-                  }
-
-                  var accountID = vm.editInvoice.profile.profileId;
-                  // var invoiceAmount=vm.editInvoice.amount+vm.editInvoice.additionalcharge-vm.editInvoice.discount;
-                  var invoiceAmount=vm.itemTotal+vm.editInvoice.additionalcharge-vm.editInvoice.discount;
-                  var req = {
-                    "batchNo": "12345",
-                    "period": vm.editInvoice.invoiceDate+","+vm.editInvoice.dueDate,
-                    "paidDate":"",
-                    "paidAmount": 0,
-                    "paymentCompleted": 1,
-                    "tag": vm.editInvoice.remarks,
-                    "invoiceAmount": invoiceAmount,
-                    "discAmt": vm.editInvoice.discount,
-                    "additionalcharge": vm.editInvoice.additionalcharge,
-                    "subTotal": vm.itemTotal,
-                    "invoiceDetails": $scope.invoiceDetails,
-                    "invoiceType": vm.editInvoice.invoiceType,
-                    "dueDate": vm.editInvoice.dueDate,
-                    "invoiceDate": vm.editInvoice.invoiceDate,
-                    "guTranID":"123",
-                    "guOrderId":"",
-                    "guAccountID":accountID,
-                    "currency":$scope.BaseCurrency,
-                    "rate":1,
-                    "invoiceStatus":"Not Paid"
-                  }
-
-                  debugger;
-                  $charge.invoice().insert(req).success(function (data) {
-                    if(data!=null || data!=undefined) {
-                      notifications.toast("Invoice has been processed", "success");
-                      $scope.isAdded = true;
-                      $scope.clearFields();
-                    }
-                    else
-                    {
-                      $mdDialog.show(
-                        $mdDialog.alert()
-                          .parent(angular.element(document.querySelector('#invoice')))
-                          .clickOutsideToClose(false)
-                          .title('Error')
-                          .textContent('An error occurred. Please try again in a few minutes.')
-                          .ariaLabel('Alert Dialog Demo')
-                          .ok('Ok'));
-                      $scope.isAdded = false;
-                    }
-                    vm.submitted=false;
-                  }).error(function (data) {
-                    notifications.toast("Error while creating invoice", "error");
-                    $scope.clearFields();
-                  })
-                }).error(function () {
-
-                });
-              }
-              else
-              {
                 for (var i = 0; i < $scope.rows.length; i++) {
                   var productObj = $scope.rows[i].product;
                   var totalPrice = $scope.rows[i].rowAmtDisplay;
+
+                  var promotion = 0;
+                  if($scope.rows[i].promotion)
+                  {
+                    promotion = $scope.rows[i].promotion;
+                  }
+
+                  var promotionId = '';
+                  if($scope.rows[i].promotionId)
+                  {
+                    promotionId = $scope.rows[i].promotionId;
+                  }
+
                   var qty = $scope.rows[i].qty;
-                  var unitPrice = $scope.rows[i].rowAmtDisplay/qty;
+                  var unitPrice = $scope.rows[i].rowAmtDisplay;
+                  // var unitPrice = calcAmt[i].rowAmt;
+                  if (productObj != null) {
                     $scope.invoiceDetails.push({
                       paid: "false",
                       paidAmount: 0,
                       tax: 0,
-                      gty: qty,
+                      qty: qty,
                       itemDescription: "",
                       itemType: "",
-                      guItemID: productObj.guPlanID,
+                      guItemID: productObj.guproductID,
                       lineID: "",
                       totalPrice: totalPrice,
                       unitPrice: unitPrice,
-                      discount: 0,
+                      discount: promotion,
                       startDate: vm.editInvoice.invoiceDate,
                       uom: "",
                       subTotal: totalPrice,
-                      promotionId: ""
+                      promotionId: promotionId,
+                      "code":productObj.code
                     });
                   }
-
-
-                var accountID = vm.editInvoice.profile.profileId;
-                // var invoiceAmount=vm.editInvoice.amount+vm.editInvoice.additionalcharge-vm.editInvoice.discount;
-                var invoiceAmount=vm.itemTotal+vm.editInvoice.additionalcharge-vm.editInvoice.discount;
-                var req = {
-                  "batchNo": "12345",
-                  "period": vm.editInvoice.invoiceDate+","+vm.editInvoice.dueDate,
-                  "paidDate":"",
-                  "paidAmount": 0,
-                  "paymentCompleted": 1,
-                  "tag": vm.editInvoice.remarks,
-                  "invoiceAmount": invoiceAmount,
-                  "discAmt": vm.editInvoice.discount,
-                  "additionalcharge": vm.editInvoice.additionalcharge,
-                  "subTotal": vm.itemTotal,
-                  "invoiceDetails": $scope.invoiceDetails,
-                  "invoiceType": vm.editInvoice.invoiceType,
-                  "dueDate": vm.editInvoice.dueDate,
-                  "invoiceDate": vm.editInvoice.invoiceDate,
-                  "guTranID":"123",
-                  "guOrderId":"",
-                  "guAccountID":accountID,
-                  "currency":$scope.BaseCurrency,
-                  "rate":1,
-                  "invoiceStatus":"Not Paid"
                 }
 
-                debugger;
-                $charge.invoice().insert(req).success(function (data) {
-                  if(data!=null || data!=undefined) {
+        if(!$scope.rows[0].product){
+
+          notifications.toast("Please add invoice products", "Error");
+          $scope.isAdded = false;
+          vm.submitted = false;
+          return;
+
+        }
+
+
+              if(vm.editInvoice.invoiceOccurence != "Installment")
+              {
+                vm.editInvoice.occurence = -1;
+              }
+
+            if(!vm.editInvoice.promotion)
+            {
+              vm.editInvoice.promotion = '';
+            }
+
+                var accountID = vm.editInvoice.profile.profileId;
+                var invoiceAmount = vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount;
+
+                var req = {
+                  "email": vm.editInvoice.profile.email,
+                  "products": $scope.invoiceDetails,
+                  "note": vm.editInvoice.remarks,
+                  "startDate": $filter('date')(new Date(vm.editInvoice.invoiceDate), 'yyyy-MM-dd'),
+                  "invoiceType": vm.editInvoice.invoiceOccurence,
+                  "invoicePeriod": vm.editInvoice.invoiceingPeriod,
+                  "invoiceInterval": vm.editInvoice.invoiceInterval,
+                  "occurrence": vm.editInvoice.occurence,
+                  "payMethod": vm.editInvoice.paymentMethod,
+                  "otherDisc": vm.editInvoice.discount,
+                  "miscCharges": vm.editInvoice.additionalcharge,
+                  "gupromotionId": vm.editInvoice.gupromotionId
+                }
+
+                $charge.invoicing().insert(req).success(function (data) {
+                  if (data != null || data != undefined) {
                     notifications.toast("Invoice has been processed", "success");
                     $scope.isAdded = true;
                     $scope.clearFields();
-                  }
-                  else
-                  {
-                    $mdDialog.show(
-                      $mdDialog.alert()
-                        .parent(angular.element(document.querySelector('#invoice')))
-                        .clickOutsideToClose(false)
-                        .title('Error')
-                        .textContent('An error occurred. Please try again in a few minutes.')
-                        .ariaLabel('Alert Dialog Demo')
-                        .ok('Ok'));
-                    $scope.isAdded = false;
-                  }
-                  vm.submitted=false;
-                }).error(function (data) {
-                  notifications.toast("Error while creating invoice", "error");
-                  $scope.clearFields();
-                })
-              }
-
-
-
-						}).error(function (data) {
-							$scope.spinnerInvoice = false;
-							vm.submitted=false;
-						})
-					}
-					else
-					{
-						$scope.content.gupromotionid="";
-						//
-						var unitPrice =vm.editInvoice.amount;
-						vm.editInvoice.invoiceType="Manual";
-
-            for(var i=0;i<$scope.rows.length;i++)
-            {
-              var productObj = $scope.rows[i].product;
-              var qty = $scope.rows[i].qty;
-              var unitPrice = $scope.rows[i].rowAmtDisplay/qty;
-              if(productObj==null) {
-                var productReq = {
-                  "currency": $scope.BaseCurrency,
-                  "type":"",
-                  "class":"Product",
-                  "name": vm.searchText[i],
-                  "code": vm.searchText[i],
-                  "description": "",
-                  "unitPrice": unitPrice,
-                  "rate": 1
-                }
-                $scope.productsDet.push(productReq);
-              }
-            }
-
-            if($scope.productsDet.length!=0) {
-              $charge.plan().addPlanBulk($scope.productsDet).success(function (results) {
-                for (var i = 0; i < $scope.rows.length; i++) {
-                  var productObj = $scope.rows[i].product;
-                  var totalPrice = $scope.rows[i].rowAmtDisplay;
-                  var qty = $scope.rows[i].qty;
-                  var unitPrice = $scope.rows[i].rowAmtDisplay/qty;
-                  // var unitPrice = calcAmt[i].rowAmt;
-                  if(productObj!=null) {
-                    $scope.invoiceDetails.push({
-                      paid: "false",
-                      paidAmount: 0,
-                      tax: 0,
-                      gty: qty,
-                      itemDescription: "",
-                      itemType: "",
-                      guItemID: productObj.guPlanID,
-                      lineID: "",
-                      totalPrice: totalPrice,
-                      unitPrice: unitPrice,
-                      discount: 0,
-                      startDate: vm.editInvoice.invoiceDate,
-                      uom: "",
-                      subTotal: totalPrice,
-                      promotionId: ""
-                    });
                   }
                   else {
-                    var existingProduct = $filter('filter')(results, {data:{code:vm.searchText[i]}})[0];
-                    if (existingProduct != null) {
-                      $scope.invoiceDetails.push({
-                        paid: "false",
-                        paidAmount: 0,
-                        tax: 0,
-                        gty: qty,
-                        itemDescription: "",
-                        itemType: "",
-                        guItemID: existingProduct.data.refference,
-                        lineID: "",
-                        totalPrice: totalPrice,
-                        unitPrice: unitPrice,
-                        discount: 0,
-                        startDate: vm.editInvoice.invoiceDate,
-                        uom: "",
-                        subTotal: totalPrice,
-                        promotionId: ""
-                      });
-                    }
-                  }
-                }
-
-                var accountID = vm.editInvoice.profile.profileId;
-                var invoiceAmount=vm.itemTotal+vm.editInvoice.additionalcharge-vm.editInvoice.discount;
-
-                var req = {
-                  "batchNo": "12345",
-                  "period": vm.editInvoice.invoiceDate+","+vm.editInvoice.dueDate,
-                  "paidDate":"",
-                  "paidAmount": 0,
-                  "paymentCompleted": 1,
-                  "tag": vm.editInvoice.remarks,
-                  "invoiceAmount": invoiceAmount,
-                  "discAmt": vm.editInvoice.discount,
-                  "additionalcharge": vm.editInvoice.additionalcharge,
-                  "subTotal": vm.itemTotal,
-                  "invoiceDetails": $scope.invoiceDetails,
-                  "invoiceType": vm.editInvoice.invoiceType,
-                  "dueDate": vm.editInvoice.dueDate,
-                  "invoiceDate": vm.editInvoice.invoiceDate,
-                  "guTranID":"123",
-                  "guOrderId":"",
-                  "guAccountID":accountID,
-                  "currency":$scope.BaseCurrency,
-                  "rate":1,
-                  "invoiceStatus":"Not Paid"
-                }
-                debugger;
-                $charge.invoice().insert(req).success(function (data) {
-                  if(data!=null || data!=undefined) {
-                    notifications.toast("Invoice has been processed", "success");
-                    $scope.isAdded = true;
-                    $scope.clearFields();
-                  }
-                  else
-                  {
                     $mdDialog.show(
                       $mdDialog.alert()
                         .parent(angular.element(document.querySelector('#invoice')))
@@ -759,312 +539,26 @@
                         .ok('Ok'));
                     $scope.isAdded = false;
                   }
-                  vm.submitted=false;
+                  vm.submitted = false;
                 }).error(function (data) {
                   notifications.toast("Error while creating invoice", "error");
                   $scope.clearFields();
-                  vm.submitted=false;
+                  vm.submitted = false;
                 })
 
 
-              }).error(function () {
-
-              });
-            }
-            else
-            {
-              for (var i = 0; i < $scope.rows.length; i++) {
-                var productObj = $scope.rows[i].product;
-                var totalPrice = $scope.rows[i].rowAmtDisplay;
-                var qty = $scope.rows[i].qty;
-                var unitPrice = $scope.rows[i].rowAmtDisplay/qty;
-
-                $scope.invoiceDetails.push({
-                  paid: "false",
-                  paidAmount: 0,
-                  tax: 0,
-                  gty: qty,
-                  itemDescription: "",
-                  itemType: "",
-                  guItemID: productObj.guPlanID,
-                  lineID: "",
-                  totalPrice: totalPrice,
-                  unitPrice: unitPrice,
-                  discount: 0,
-                  startDate: vm.editInvoice.invoiceDate,
-                  uom: "",
-                  subTotal: totalPrice,
-                  promotionId: ""
-                });
-              }
-              var accountID = vm.editInvoice.profile.profileId;
-              var invoiceAmount=vm.itemTotal+vm.editInvoice.additionalcharge-vm.editInvoice.discount;
-
-              var req = {
-                "batchNo": "12345",
-                "period": vm.editInvoice.invoiceDate+","+vm.editInvoice.dueDate,
-                "paidDate":"",
-                "paidAmount": 0,
-                "paymentCompleted": 1,
-                "tag": vm.editInvoice.remarks,
-                "invoiceAmount": invoiceAmount,
-                "discAmt": vm.editInvoice.discount,
-                "additionalcharge": vm.editInvoice.additionalcharge,
-                "subTotal": vm.itemTotal,
-                "invoiceDetails": $scope.invoiceDetails,
-                "invoiceType": vm.editInvoice.invoiceType,
-                "dueDate": vm.editInvoice.dueDate,
-                "invoiceDate": vm.editInvoice.invoiceDate,
-                "guTranID":"123",
-                "guOrderId":"",
-                "guAccountID":accountID,
-                "currency":$scope.BaseCurrency,
-                "rate":1,
-                "invoiceStatus":"Not Paid"
-              }
-              debugger;
-              $charge.invoice().insert(req).success(function (data) {
-                if(data!=null || data!=undefined) {
-                  notifications.toast("Invoice has been processed", "success");
-                  $scope.isAdded = true;
-                  $scope.clearFields();
-                }
-                else
-                {
-                  $mdDialog.show(
-                    $mdDialog.alert()
-                      .parent(angular.element(document.querySelector('#invoice')))
-                      .clickOutsideToClose(false)
-                      .title('Error')
-                      .textContent('An error occurred. Please try again in a few minutes.')
-                      .ariaLabel('Alert Dialog Demo')
-                      .ok('Ok'));
-                  $scope.isAdded = false;
-                }
-                vm.submitted=false;
-              }).error(function (data) {
-                notifications.toast("Error while creating invoice", "error");
-                $scope.clearFields();
-                vm.submitted=false;
-              })
-            }
-					}
-				}
-				else
-				{
-					var unitPrice = vm.editInvoice.amount;
-					vm.editInvoice.invoiceType="Manual";
 
 
-          for(var i=0;i<$scope.rows.length;i++)
-          {
-            var productObj = $scope.rows[i].product;
-            var qty = $scope.rows[i].qty;
-            var unitPrice = $scope.rows[i].rowAmtDisplay/qty;
-            if(productObj==null) {
-              var productReq = {
-                "currency": $scope.BaseCurrency,
-                "type":"",
-                "class":"Product",
-                "name": vm.searchText[i],
-                "code": vm.searchText[i],
-                "description": "",
-                "unitPrice": unitPrice,
-                "rate": 1
-              }
-              $scope.productsDet.push(productReq);
-            }
-          }
+        //}
+        //else {
+        //  angular.element('#invoiceForm').find('.ng-invalid:visible:first').focus();
+        //}
+      }
+    }
 
-          if($scope.productsDet.length!=0) {
-            $charge.plan().addPlanBulk($scope.productsDet).success(function (results) {
-              for (var i = 0; i < $scope.rows.length; i++) {
-                var productObj = $scope.rows[i].product;
-                var totalPrice = $scope.rows[i].rowAmtDisplay;
-                var qty = $scope.rows[i].qty;
-                var unitPrice = $scope.rows[i].rowAmtDisplay/qty;
-                // var unitPrice = calcAmt[i].rowAmt;
-                if(productObj!=null) {
-                  $scope.invoiceDetails.push({
-                    paid: "false",
-                    paidAmount: 0,
-                    tax: 0,
-                    gty: qty,
-                    itemDescription: "",
-                    itemType: "",
-                    guItemID: productObj.guPlanID,
-                    lineID: "",
-                    totalPrice: totalPrice,
-                    unitPrice: unitPrice,
-                    discount: 0,
-                    startDate: vm.editInvoice.invoiceDate,
-                    uom: "",
-                    subTotal: totalPrice,
-                    promotionId: ""
-                  });
-                }
-                else {
-                  var existingProduct = $filter('filter')(results, {data:{code:vm.searchText[i]}})[0];
-                  if (existingProduct != null) {
-                    $scope.invoiceDetails.push({
-                      paid: "false",
-                      paidAmount: 0,
-                      tax: 0,
-                      gty: qty,
-                      itemDescription: "",
-                      itemType: "",
-                      guItemID: existingProduct.data.refference,
-                      lineID: "",
-                      totalPrice: totalPrice,
-                      unitPrice: unitPrice,
-                      discount: 0,
-                      startDate: vm.editInvoice.invoiceDate,
-                      uom: "",
-                      subTotal: totalPrice,
-                      promotionId: ""
-                    });
-                  }
-                }
-              }
 
-              var accountID = vm.editInvoice.profile.profileId;
-              var invoiceAmount=vm.itemTotal+vm.editInvoice.additionalcharge-vm.editInvoice.discount;
 
-              var req = {
-                "batchNo": "12345",
-                "period": vm.editInvoice.invoiceDate+","+vm.editInvoice.dueDate,
-                "paidDate":"",
-                "paidAmount": 0,
-                "paymentCompleted": 1,
-                "tag": vm.editInvoice.remarks,
-                "invoiceAmount": invoiceAmount,
-                "discAmt": vm.editInvoice.discount,
-                "additionalcharge": vm.editInvoice.additionalcharge,
-                "subTotal": vm.itemTotal,
-                "invoiceDetails": $scope.invoiceDetails,
-                "invoiceType": vm.editInvoice.invoiceType,
-                "dueDate": vm.editInvoice.dueDate,
-                "invoiceDate": vm.editInvoice.invoiceDate,
-                "guTranID":"123",
-                "guOrderId":"",
-                "guAccountID":accountID,
-                "currency":$scope.BaseCurrency,
-                "rate":1,
-                "invoiceStatus":"Not Paid"
-              }
-              debugger;
-              $charge.invoice().insert(req).success(function (data) {
-                if(data!=null || data!=undefined) {
-                  notifications.toast("Invoice has been processed", "success");
-                  $scope.isAdded = true;
-                  $scope.clearFields();
-                }
-                else
-                {
-                  $mdDialog.show(
-                    $mdDialog.alert()
-                      .parent(angular.element(document.querySelector('#invoice')))
-                      .clickOutsideToClose(false)
-                      .title('Error')
-                      .textContent('An error occurred. Please try again in a few minutes.')
-                      .ariaLabel('Alert Dialog Demo')
-                      .ok('Ok'));
-                  $scope.isAdded = false;
-                }
-                vm.submitted=false;
-              }).error(function (data) {
-                notifications.toast("Error while creating invoice", "error");
-                $scope.clearFields();
-                vm.submitted=false;
-              })
-            }).error(function () {
 
-            });
-          }
-          else
-          {
-            for (var i = 0; i < $scope.rows.length; i++) {
-              var productObj = $scope.rows[i].product;
-              var totalPrice = $scope.rows[i].rowAmtDisplay;
-              var qty = $scope.rows[i].qty;
-              var unitPrice = $scope.rows[i].rowAmtDisplay/qty;
-
-              $scope.invoiceDetails.push({
-                paid: "false",
-                paidAmount: 0,
-                tax: 0,
-                gty: qty,
-                itemDescription: "",
-                itemType: "",
-                guItemID: productObj.guPlanID,
-                lineID: "",
-                totalPrice: totalPrice,
-                unitPrice: unitPrice,
-                discount: 0,
-                startDate: vm.editInvoice.invoiceDate,
-                uom: "",
-                subTotal: totalPrice,
-                promotionId: ""
-              });
-            }
-
-            var accountID = vm.editInvoice.profile.profileId;
-            var invoiceAmount=vm.itemTotal+vm.editInvoice.additionalcharge-vm.editInvoice.discount;
-
-            var req = {
-              "batchNo": "12345",
-              "period": vm.editInvoice.invoiceDate+","+vm.editInvoice.dueDate,
-              "paidDate":"",
-              "paidAmount": 0,
-              "paymentCompleted": 1,
-              "tag": vm.editInvoice.remarks,
-              "invoiceAmount": invoiceAmount,
-              "discAmt": vm.editInvoice.discount,
-              "additionalcharge": vm.editInvoice.additionalcharge,
-              "subTotal": vm.itemTotal,
-              "invoiceDetails": $scope.invoiceDetails,
-              "invoiceType": vm.editInvoice.invoiceType,
-              "dueDate": vm.editInvoice.dueDate,
-              "invoiceDate": vm.editInvoice.invoiceDate,
-              "guTranID":"123",
-              "guOrderId":"",
-              "guAccountID":accountID,
-              "currency":$scope.BaseCurrency,
-              "rate":1,
-              "invoiceStatus":"Not Paid"
-            }
-            debugger;
-            $charge.invoice().insert(req).success(function (data) {
-              if(data!=null || data!=undefined) {
-                notifications.toast("Invoice has been processed", "success");
-                $scope.isAdded = true;
-                $scope.clearFields();
-              }
-              else
-              {
-                $mdDialog.show(
-                  $mdDialog.alert()
-                    .parent(angular.element(document.querySelector('#invoice')))
-                    .clickOutsideToClose(false)
-                    .title('Error')
-                    .textContent('An error occurred. Please try again in a few minutes.')
-                    .ariaLabel('Alert Dialog Demo')
-                    .ok('Ok'));
-                $scope.isAdded = false;
-              }
-              vm.submitted=false;
-            }).error(function (data) {
-              notifications.toast("Error while creating invoice", "error");
-              $scope.clearFields();
-              vm.submitted=false;
-            })
-          }
-				}
-			}
-			else {
-				angular.element('#invoiceForm').find('.ng-invalid:visible:first').focus();
-			}
-		}
 		$scope.clearFields= function () {
 			vm.editInvoiceForm.$setPristine();
 			vm.editInvoiceForm.$setUntouched();
@@ -1107,8 +601,8 @@
 			$scope.requiredStatus =false;
 			insufficientStocks=[];
       $scope.productsDet=[];
-      $scope.plans=[];
-      $scope.loadAllPlans(0,100);
+      $scope.products=[];
+      $scope.loadAllProducts(0,100);
      // $scope.loadA
 			$state.go($state.current, {}, {reload: $scope.isAdded});
 
@@ -1362,9 +856,9 @@
 		var currencyDetails = [];
 
 		$scope.validateProduct= function (row,index,existingRow) {
-			//
+
 			if(row!=null) {
-				var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guPlanID })[0];
+				var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guproductID })[0];
 				//
 				if (existingProduct!=null) {
 
@@ -1376,11 +870,11 @@
 				{
 					//
 					//$scope.tempProduct.push({
-					//  productId:row.guPlanID
+					//  productId:row.guproductID
 					//});
 
 					$scope.tempProduct.splice(index, index, {
-						productId:row.guPlanID
+						productId:row.guproductID
 					});
 
 				}
@@ -1454,7 +948,12 @@
 		$scope.calcQty=function(row,index)
 		{
       if($scope.rows[index].product!=null) {
-        $scope.rows[index].rowAmtDisplay = $scope.rows[index].product.unitPrice * $scope.rows[index].qty;
+        if($scope.issubscriptionappuse)
+        {
+          $scope.rows[index].rowAmtDisplay = $scope.rows[index].product.unitPrice * $scope.rows[index].qty;
+        }else {
+          $scope.rows[index].rowAmtDisplay = $scope.rows[index].product.price_of_unit * $scope.rows[index].qty;
+        }
       }
       else
       {
@@ -1984,7 +1483,7 @@
 		$scope.addNewRow=function()
 		{
 			var product={};
-			product.productlst=angular.copy($scope.plans);
+			product.productlst=angular.copy($scope.products);
 			//
 			product.promotion=0;
 			product.taxDisplay=0;
@@ -2546,7 +2045,7 @@
 
 		$scope.accountId;
 		$scope.GetAddr=function(name,val)
-		{debugger;
+		{
 			var selectedProfile = vm.editInvoice.profile;
 			if (name != "") {
 				var users = $scope.filteredUsers;
@@ -2734,8 +2233,60 @@
 			}
 		}
 
-		$scope.calcPromo= function () {
-			$scope.content.gupromotionid="";
+
+    $scope.checkPromotion = function(promoCode){
+
+      if(!promoCode || promoCode === '')
+      {
+        return;
+      }
+
+      	$charge.coupon().getByCode(promoCode).success(function (data) {
+
+          //if(vm.editInvoice.discount)
+          //  vm.editInvoice.discount += data['0'].discountamount;
+          //else
+          //  vm.editInvoice.discount = data['0'].discountamount;
+
+          vm.editInvoice.gupromotionId = data[0].gucouponid;
+
+          $scope.calcPromotionToProducts(data);
+
+      	}).error(function (error) {
+          vm.editInvoice.promotion = '';
+          vm.editInvoice.gupromotionId = '';
+          notifications.toast(error.error, "error");
+      	})
+    }
+
+		$scope.calcPromotionToProducts= function (data) {
+
+      if($scope.rows.length >= 1 && $scope.rows[0].product != null) {
+
+        for (var i = 0; i < $scope.rows.length; i++) {
+
+          if(data[0].associateplan === 1) {
+            for (var ii = 0; ii < data.couponDetails.length; ii++) {
+              if (data.couponDetails[ii].guDetailid === ($scope.rows[i].product.guproductID)) {
+                $scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
+                $scope.rows[i].promotionId = data[0].gucouponid;
+
+                $scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+              }
+            }
+
+          }else{
+            $scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
+            $scope.rows[i].promotionId = data[0].gucouponid;
+
+            $scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+          }
+
+
+        }
+
+      }
+
 		}
 		//var skipPromo= 0,takePromo=100;
 		$scope.promotionList=[];
@@ -3476,7 +3027,6 @@
 
 			//
 			$charge.invoice().all(skip,take,"desc").success(function(data) {
-				//
 
 				if(data.length<=take)
 					$scope.lastSet=true;
@@ -3493,7 +3043,7 @@
 					//invoice.invoiceAmount=data[i].invoiceAmount*data[i].rate;
 					//invoice.currency=data[i].currency;
 					//invoice.invoiceDate=invoiceDate;
-
+          data[i]['guInvID']=data[i].guInvID
 					data[i]['invoice_type']=data[i].invoiceType;
 					data[i]['code']=data[i].invoiceNo;
 					data[i]['code']=$filter('numberFixedLen')(data[i]['code'],lenPrefix);
@@ -3788,82 +3338,106 @@
 		//$scope.loadUsers();
 		$scope.moreInvoice();
 
+
+
+    $scope.loadInvoiceDetail = function(data){
+
+      $scope.invProducts=[];
+      var invoiceDetails=data[0].invoiceDetails;
+      var count=invoiceDetails.length;
+      var productName;
+      var status=false;
+      var totDiscount=0;
+      //var address = $scope.GetAddress(invoice.person_name);
+      // var address = $filter('filter')($scope.users, { profilename: invoice.person_name })[0];
+      // $scope.prefix=prefixLength!=0? parseInt(prefixLength.RecordFieldData):0;
+      //var prefixInvoice=invoicePrefix !="" ? invoicePrefix.RecordFieldData:"INV";
+      var exchangeRate=parseFloat(data[0].rate);
+      $scope.selectedInvoice={};
+      $scope.selectedInvoice = data[0];
+      $scope.selectedInvoice.guInvID=data[0].guInvID;
+
+      var array =  $scope.selectedInvoice.period.split(',');
+      $scope.selectedInvoice.periodStartDate =  array[0];
+      $scope.selectedInvoice.periodEndDate =  array[1];
+
+
+      //var invoiceNum=invoice.invoiceNo;
+      //$scope.selectedInvoice.invoiceNo=invoiceNum;
+      $scope.selectedInvoice.bill_addr = data[0].bill_addr;
+      $scope.selectedInvoice.person_name = data[0].profile_type=="Individual"?data[0].first_name + " " + data[0].last_name:data[0].business_name;
+      $scope.selectedInvoice.email_addr = data[0].email_addr;
+      $scope.selectedInvoice.phone=data[0].phone;
+      $scope.selectedInvoice.subTotal=angular.copy(data[0].subTotal*exchangeRate);
+      $scope.selectedInvoice.discAmt=data[0].discAmt*exchangeRate;
+      //$scope.selectedInvoice.invoiceNo=prefixInvoice;
+      $scope.selectedInvoice.additionalcharge=data[0].additionalcharge*exchangeRate;
+      $scope.selectedInvoice.invoiceAmount=data[0].invoiceAmount*exchangeRate;
+      $scope.selectedInvoice.tax=data[0].tax*exchangeRate;
+      $scope.selectedInvoice.dueDate=moment(data[0].dueDate.toString()).format('LL');
+      $scope.selectedInvoice.logo=$scope.content.companyLogo;
+      $scope.selectedInvoice.currency=data[0].currency;
+      $scope.selectedInvoice.rate=exchangeRate;
+      $scope.selectedInvoice.invoiceDetails=invoiceDetails;
+      $scope.selectedInvoice.companyName=$scope.content.companyName;
+      $scope.selectedInvoice.companyAddress=$scope.content.companyAddress;
+      $scope.selectedInvoice.companyPhone=$scope.content.companyPhone;
+      $scope.selectedInvoice.companyEmail=$scope.content.companyEmail;
+      $scope.selectedInvoice.companyLogo=$scope.content.companyLogo;
+      invoiceDetails.forEach(function(inv){
+        inv.product_name= inv.product_name;
+        inv.unitPrice= inv.unitPrice*exchangeRate;
+        inv.gty= inv.gty;
+        inv.totalPrice=(inv.unitPrice * inv.gty) - inv.discount;
+        totDiscount=totDiscount+inv.discount*exchangeRate;
+        inv.promotion=totDiscount});
+
+      $scope.selectedInvoice.subTotal = 0;
+      for(var i=0;i<invoiceDetails.length;i++){
+
+        $scope.selectedInvoice.subTotal += invoiceDetails[i].totalPrice;
+      }
+
+
+      $scope.selectedInvoice.discount=totDiscount;
+      vm.selectedInvoice=$scope.selectedInvoice;
+      vm.selectedInvoice.transactionType = invoice.transactionType;
+      //$scope.showAdvancedInvoice(ev,vm.selectedInvoice);
+      invoice.isDialogLoading = false;
+      $scope.isReadLoaded = true;
+
+
+  }
+
+
 		$scope.editOff = true;
 		$scope.isReadLoaded = true;
 		$scope.openInvoiceLst = function(invoice)
 		{
 			$scope.isReadLoaded = false;
 			vm.selectedInvoiceList = invoice;
-			$charge.invoice().getByIdWithAllData(invoice.code).success(function(data) {
-				$scope.invProducts=[];
-				var invoiceDetails=data[0].invoiceDetails;
-				var count=invoiceDetails.length;
-				var productName;
-				var status=false;
-				var totDiscount=0;
-				//var address = $scope.GetAddress(invoice.person_name);
-				// var address = $filter('filter')($scope.users, { profilename: invoice.person_name })[0];
-				// $scope.prefix=prefixLength!=0? parseInt(prefixLength.RecordFieldData):0;
-				//var prefixInvoice=invoicePrefix !="" ? invoicePrefix.RecordFieldData:"INV";
-				var exchangeRate=parseFloat(data[0].rate);
-				$scope.selectedInvoice={};
-				$scope.selectedInvoice = data[0];
-				$scope.selectedInvoice.guInvID=data[0].guInvID;
 
-				var array =  $scope.selectedInvoice.period.split(',');
-				$scope.selectedInvoice.periodStartDate =  array[0];
-				$scope.selectedInvoice.periodEndDate =  array[1];
+      if($scope.issubscriptionappuse){
+        $charge.invoice().getByGuinvId(invoice.guInvID).success(function (data) {
+          $scope.loadInvoiceDetail(data);
+        }).error(function (data) {
+          // console.log(data);
+          $scope.spinnerInvoice = false;
+          $scope.isReadLoaded = true;
+        });
 
+      }else {
 
-				var invoiceNum=invoice.invoiceNo;
-				$scope.selectedInvoice.invoiceNo=invoiceNum;
-				$scope.selectedInvoice.bill_addr = data[0].bill_addr;
-				$scope.selectedInvoice.person_name = data[0].profile_type=="Individual"?data[0].first_name + " " + data[0].last_name:data[0].business_name;
-				$scope.selectedInvoice.email_addr = data[0].email_addr;
-				$scope.selectedInvoice.phone=data[0].phone;
-				$scope.selectedInvoice.subTotal=angular.copy(data[0].subTotal*exchangeRate);
-				$scope.selectedInvoice.discAmt=data[0].discAmt*exchangeRate;
-				//$scope.selectedInvoice.invoiceNo=prefixInvoice;
-				$scope.selectedInvoice.additionalcharge=data[0].additionalcharge*exchangeRate;
-				$scope.selectedInvoice.invoiceAmount=data[0].invoiceAmount*exchangeRate;
-				$scope.selectedInvoice.tax=data[0].tax*exchangeRate;
-				$scope.selectedInvoice.dueDate=moment(data[0].dueDate.toString()).format('LL');
-				$scope.selectedInvoice.logo=$scope.content.companyLogo;
-				$scope.selectedInvoice.currency=data[0].currency;
-				$scope.selectedInvoice.rate=exchangeRate;
-				$scope.selectedInvoice.invoiceDetails=invoiceDetails;
-				$scope.selectedInvoice.companyName=$scope.content.companyName;
-				$scope.selectedInvoice.companyAddress=$scope.content.companyAddress;
-				$scope.selectedInvoice.companyPhone=$scope.content.companyPhone;
-				$scope.selectedInvoice.companyEmail=$scope.content.companyEmail;
-				$scope.selectedInvoice.companyLogo=$scope.content.companyLogo;
-				invoiceDetails.forEach(function(inv){
-					inv.product_name= inv.product_name;
-					inv.unitPrice= inv.unitPrice*exchangeRate;
-					inv.gty= inv.gty;
-					inv.totalPrice=inv.totalPrice*exchangeRate;
-					totDiscount=totDiscount+inv.discount*exchangeRate;
-					inv.promotion=totDiscount});
-				$scope.selectedInvoice.discount=totDiscount;
-				vm.selectedInvoice=$scope.selectedInvoice;
-				vm.selectedInvoice.transactionType = invoice.transactionType;
-				//$scope.showAdvancedInvoice(ev,vm.selectedInvoice);
-				invoice.isDialogLoading = false;
-				$scope.isReadLoaded = true;
-			}).error(function(data)        {
-				// console.log(data);
-				$scope.spinnerInvoice=false;
-				$scope.isReadLoaded = true;
-			});
+        $charge.invoice().getByGuinvIdForInvoiceModule(invoice.guInvID).success(function (data) {
+          $scope.loadInvoiceDetail(data);
+        }).error(function (data) {
+          // console.log(data);
+          $scope.spinnerInvoice = false;
+          $scope.isReadLoaded = true;
+        });
+      }
 		}
 
-
-		//suvethan
-		//(function () {
-		//  vm.editInvoice={
-		//    remarks:"Test"
-		//  };
-		//})();
 
 		vm.editInvoice={};
 		vm.editInvoice.remarks="";
@@ -3878,13 +3452,13 @@
 				while (c.charAt(0) == ' ') c = c.substring(1, c.length);
 				if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
 			}
-			//debugger;
+			//
 			return null;
 		}
 
 		function getDomainName() {
 			var _st = gst("domain");
-			return (_st != null) ? _st : "gihan"; //"248570d655d8419b91f6c3e0da331707 51de1ea9effedd696741d5911f77a64f";
+			return (_st != null) ? _st : "cogni"; //"248570d655d8419b91f6c3e0da331707 51de1ea9effedd696741d5911f77a64f";
 		}
 
 		function getDomainExtension() {
@@ -3893,7 +3467,7 @@
 		}
 
 
-		var skipUsr= 0,takeUsr=10;
+		var skipUsr= 0,takeUsr=1000;
 		$scope.filteredUsers=[];
 		$scope.loadUsersByCat= function (skipUsr,takeUsr) {
 			var dbName="";
@@ -3957,44 +3531,73 @@
 		$scope.loadUsersByCat(skipUsr,takeUsr);
 
 
-		var skipPlan= 0,takePlan=10;
-		$scope.plans=[];
-		$scope.loadAllPlans= function (skipPlan,takePlan) {
-			var dbName="";
-			dbName=getDomainName().split('.')[0]+"_"+getDomainExtension();
-			//filter="api-version=2016-09-01&?search=*&$orderby=createdDate desc&$skip="+skip+"&$top="+take+"&$filter=(domain eq '"+dbName+"')";
-			var data={
-				"search": "*",
-				"filter": "(domain eq '"+dbName+"')",
-				"orderby" : "createdDate desc",
-				"top":takePlan,
-				"skip":skipPlan
-			}
+		//var skipPlan= 0,takePlan=10;
+		var skipDetail= 0,takeDetail=10;
+		$scope.products=[];
+
+    $scope.loadAllProducts = function(skipDetail,takeDetail)
+    {
+      $charge.product().all(skipDetail,takeDetail,"desc").success(function(data)
+      {
+          skipDetail += takeDetail;
+          for (var i = 0; i < data.length; i++) {
+            $scope.products.push(data[i]);
+          }
+
+          //
+          if(data.length<takeDetail){
+            $scope.isdataavailable=false;
+            $scope.hideSearchMore=true;
+            $scope.addNewRow();
+          }
+          else if(data.length!=0 && data.length>=takeDetail)
+          {
+            $scope.loadAllProducts(skipDetail,takeDetail);
+          }
+          else if(data.length==0)
+          {
+            $scope.addNewRow();
+          }
 
 
-			$charge.azuresearch().getAllPlansPost(data).success(function(data)
+
+      }).error(function(data)
+      {
+        //console.log(data);
+        $scope.isSpinnerShown=false;
+        $scope.isdataavailable=false;
+        $scope.loading = false;
+        $scope.isLoading = false;
+        $scope.hideSearchMore=true;
+      })
+
+    }
+
+		$scope.loadAllPlans= function (skipDetail,takeDetail) {
+
+			$charge.plan().allPlans(skipDetail,takeDetail,'desc').success(function(data)
 			{
 				//console.log(data);
 
 				if($scope.loading)
 				{
 
-					skipPlan += takePlan;
-					for (var i = 0; i < data.value.length; i++) {
-						$scope.plans.push(data.value[i]);
+          skipDetail += takeDetail;
+					for (var i = 0; i < data.length; i++) {
+						$scope.products.push(data[i]);
 					}
 
-					//debugger;
-					if(data.value.length<takePlan){
+					//
+					if(data.length<takeDetail){
 						$scope.isdataavailable=false;
 						$scope.hideSearchMore=true;
 						$scope.addNewRow();
 					}
-					else if(data.value.length!=0 && data.value.length>=takePlan)
+					else if(data.length!=0 && data.length>=takeDetail)
 					{
-						$scope.loadAllPlans(skipPlan,takePlan);
+						$scope.loadAllPlans(skipDetail,takeDetail);
 					}
-					else if(data.value.length==0)
+					else if(data.length==0)
 					{
 						$scope.addNewRow();
 					}
@@ -4012,7 +3615,15 @@
 			})
 		}
 
-		$scope.loadAllPlans(skipPlan,takePlan);
+
+
+    if($scope.issubscriptionappuse){
+
+      $scope.loadAllPlans(skipDetail, takeDetail);
+    }else {
+      $scope.loadAllProducts(skipDetail, takeDetail);
+    }
+
 
 		var self = this;
 		self.selectedItem  = null;
@@ -4025,12 +3636,12 @@
 			for (i = 0;i<len; ++i){
 
 				//console.log($scope.allBanks[i].value.value);
-				//debugger;
+				//
 				//if($scope.rows[index].productlst[i].product_name.toLowerCase().indexOf(query.toLowerCase()) !=-1)
 				{
 					if($scope.filteredUsers[i].profilename.toLowerCase().startsWith(query.toLowerCase()))
 					{
-						//debugger;
+						//
 						results.push($scope.filteredUsers[i]);
 					}
 					else if($scope.filteredUsers[i].othername.toLowerCase().indexOf(query.toLowerCase()) !=-1)
