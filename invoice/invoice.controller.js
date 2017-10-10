@@ -496,7 +496,7 @@
                   }
                 }
 
-        if(!$scope.rows[0].product){
+        if($scope.rows.length <= 0){
 
           notifications.toast("Please add invoice products", "Error");
           $scope.isAdded = false;
@@ -534,31 +534,56 @@
                   "gupromotionId": vm.editInvoice.gupromotionId
                 }
 
-                $charge.invoicing().insert(req).success(function (data) {
-                  if (data != null || data != undefined) {
-                    notifications.toast("Invoice has been processed", "success");
-                    $scope.isAdded = true;
-                    $scope.clearFields();
-                  }
-                  else {
-                    $mdDialog.show(
-                      $mdDialog.alert()
-                        .parent(angular.element(document.querySelector('#invoice')))
-                        .clickOutsideToClose(false)
-                        .title('Error')
-                        .textContent('An error occurred. Please try again in a few minutes.')
-                        .ariaLabel('Alert Dialog Demo')
-                        .ok('Ok'));
-                    $scope.isAdded = false;
-                  }
-                  vm.submitted = false;
-                }).error(function (data) {
-                  notifications.toast("Error while creating invoice", "error");
-                  $scope.clearFields();
-                  vm.submitted = false;
-                })
+        if($scope.issubscriptionappuse){
+            $charge.order().store(req).success(function (data) {
+              if (data != null || data != undefined) {
+                notifications.toast("Invoice has been processed", "success");
+                $scope.isAdded = true;
+                $scope.clearFields();
+              }
+              else {
+                $mdDialog.show(
+                  $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#invoice')))
+                    .clickOutsideToClose(false)
+                    .title('Error')
+                    .textContent('An error occurred. Please try again in a few minutes.')
+                    .ariaLabel('Alert Dialog Demo')
+                    .ok('Ok'));
+                $scope.isAdded = false;
+              }
+              vm.submitted = false;
+            }).error(function (data) {
+              notifications.toast("Error while creating invoice", "error");
+              $scope.clearFields();
+              vm.submitted = false;
+            })
+        }else {
+          $charge.invoicing().insert(req).success(function (data) {
+            if (data != null || data != undefined) {
+              notifications.toast("Invoice has been processed", "success");
+              $scope.isAdded = true;
+              $scope.clearFields();
+            }
+            else {
+              $mdDialog.show(
+                $mdDialog.alert()
+                  .parent(angular.element(document.querySelector('#invoice')))
+                  .clickOutsideToClose(false)
+                  .title('Error')
+                  .textContent('An error occurred. Please try again in a few minutes.')
+                  .ariaLabel('Alert Dialog Demo')
+                  .ok('Ok'));
+              $scope.isAdded = false;
+            }
+            vm.submitted = false;
+          }).error(function (data) {
+            notifications.toast("Error while creating invoice", "error");
+            $scope.clearFields();
+            vm.submitted = false;
+          })
 
-
+        }
 
 
         //}
@@ -614,9 +639,9 @@
 			insufficientStocks=[];
       $scope.productsDet=[];
       $scope.products=[];
-      $scope.loadAllProducts(0,100);
+     // $scope.loadAllProducts(0,100);
      // $scope.loadA
-			$state.go($state.current, {}, {reload: $scope.isAdded});
+			//$state.go($state.current, {}, {reload: $scope.isAdded});
 
 		};
 
@@ -3577,29 +3602,37 @@
 
 		$scope.loadAllPlans= function (skipDetail,takeDetail) {
 
-			$charge.plan().allPlans(skipDetail,takeDetail,'desc').success(function(data)
+      var jsonData = {
+        "url": "https://cloudchargesearch.search.windows.net/indexes/plan/docs/search?api-version=2016-09-01",
+        "searchBy": "*",
+        "searchFields": "",
+        "take": 100,
+        "skip": 0,
+        "orderby": "createdDate desc"
+      }
+
+			$charge.searchhelper().searchRequest(jsonData).success(function(data)
 			{
-				//console.log(data);
 
 				if($scope.loading)
 				{
 
           skipDetail += takeDetail;
-					for (var i = 0; i < data.length; i++) {
-						$scope.products.push(data[i]);
+					for (var i = 0; i < data.value.length; i++) {
+						$scope.products.push(data.value[i]);
 					}
 
 					//
-					if(data.length<takeDetail){
+					if(data.value.length<takeDetail){
 						$scope.isdataavailable=false;
 						$scope.hideSearchMore=true;
 						$scope.addNewRow();
 					}
-					else if(data.length!=0 && data.length>=takeDetail)
+					else if(data.value.length!=0 && data.value.length>=takeDetail)
 					{
 						$scope.loadAllPlans(skipDetail,takeDetail);
 					}
-					else if(data.length==0)
+					else if(data.value.length==0)
 					{
 						$scope.addNewRow();
 					}
