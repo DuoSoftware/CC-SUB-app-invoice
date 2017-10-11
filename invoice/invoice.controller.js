@@ -518,6 +518,12 @@
 
                 var accountID = vm.editInvoice.profile.profileId;
                 var invoiceAmount = vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount;
+                  var moduleType = $scope.issubscriptionappuse ? 'subscription' : 'invoice';
+
+        if(vm.editInvoice.invoiceInterval === undefined)
+        {
+          vm.editInvoice.invoiceInterval = -1;
+        }
 
                 var req = {
                   "email": vm.editInvoice.profile.email,
@@ -531,34 +537,10 @@
                   "payMethod": vm.editInvoice.paymentMethod,
                   "otherDisc": vm.editInvoice.discount,
                   "miscCharges": vm.editInvoice.additionalcharge,
-                  "gupromotionId": vm.editInvoice.gupromotionId
+                  "gupromotionId": vm.editInvoice.gupromotionId,
+                  "moduleType" : moduleType
                 }
 
-        if($scope.issubscriptionappuse){
-            $charge.order().store(req).success(function (data) {
-              if (data != null || data != undefined) {
-                notifications.toast("Invoice has been processed", "success");
-                $scope.isAdded = true;
-                $scope.clearFields();
-              }
-              else {
-                $mdDialog.show(
-                  $mdDialog.alert()
-                    .parent(angular.element(document.querySelector('#invoice')))
-                    .clickOutsideToClose(false)
-                    .title('Error')
-                    .textContent('An error occurred. Please try again in a few minutes.')
-                    .ariaLabel('Alert Dialog Demo')
-                    .ok('Ok'));
-                $scope.isAdded = false;
-              }
-              vm.submitted = false;
-            }).error(function (data) {
-              notifications.toast("Error while creating invoice", "error");
-              $scope.clearFields();
-              vm.submitted = false;
-            })
-        }else {
           $charge.invoicing().insert(req).success(function (data) {
             if (data != null || data != undefined) {
               notifications.toast("Invoice has been processed", "success");
@@ -582,14 +564,6 @@
             $scope.clearFields();
             vm.submitted = false;
           })
-
-        }
-
-
-        //}
-        //else {
-        //  angular.element('#invoiceForm').find('.ng-invalid:visible:first').focus();
-        //}
       }
     }
 
@@ -641,7 +615,7 @@
       $scope.products=[];
      // $scope.loadAllProducts(0,100);
      // $scope.loadA
-			//$state.go($state.current, {}, {reload: $scope.isAdded});
+			$state.go($state.current, {}, {reload: $scope.isAdded});
 
 		};
 
@@ -3497,61 +3471,63 @@
 		var skipUsr= 0,takeUsr=1000;
 		$scope.filteredUsers=[];
 		$scope.loadUsersByCat= function (skipUsr,takeUsr) {
-			 var jsonData = {
-				"url": "https://cloudchargesearch.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
-				"searchBy": "*",
-				"searchFields": "",
-				"take": 100,
-				"skip": 0,
-				"orderby": "createddate desc"
-			  }
 
-			  $charge.searchhelper().searchRequest(jsonData).success(function(data)
-			  { 
-				skipUsr += takeUsr;
-				  for (var i = 0; i < data.value.length; i++) {
-							if(data.value[i].status==0)
-							{
-								data.value[i].status=false;
-							}
-							else
-							{
-								data.value[i].status=true;
-							}
-							data.value[i].createddate = new Date(data.value[i].createddate);
-							//tempList.push(data.value[i]);
+      var jsonData = {
+        "url": "https://cloudchargesearch.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
+        "searchBy": "*",
+        "searchFields": "",
+        "take": 100,
+        "skip": 0,
+        "orderby": "createddate desc"
+      }
 
-				  }
+      $charge.searchhelper().searchRequest(jsonData).success(function(data)
+      {
+        skipUsr += takeUsr;
+          for (var i = 0; i < data.value.length; i++) {
+            		if(data.value[i].status==0)
+            		{
+            			data.value[i].status=false;
+            		}
+            		else
+            		{
+            			data.value[i].status=true;
+            		}
+            		data.value[i].createddate = new Date(data.value[i].createddate);
+            		//tempList.push(data.value[i]);
 
-				if(data.value.length<takeUsr)
-						vm.lastProfile=true;
-					for (var i = 0; i < data.value.length; i++) {
-						var obj = data.value[i];
+          }
 
-						$scope.filteredUsers.push({
-							profilename : obj.first_name,
-							profileId : obj.profileId,
-							othername : obj.last_name,
-							bill_addr:obj.bill_addr,
-							email:obj.email_addr,
-							credit_limit:obj.credit_limit
-						});
-					}
+        if(data.value.length<takeUsr)
+        		vm.lastProfile=true;
+        	for (var i = 0; i < data.value.length; i++) {
+        		var obj = data.value[i];
 
-					if(data.value.length<takeUsr){
-						$scope.isdataavailable=false;
-						$scope.hideSearchMore=true;
-					}
-					else if(data.value.length!=0 && data.value.length>takeUsr)
-					{
-						skipUsr+=takeUsr;
-						$scope.loadUsersByCat(skipUsr,takeUsr);
-					}
+        		$scope.filteredUsers.push({
+        			profilename : obj.first_name,
+        			profileId : obj.profileId,
+        			othername : obj.last_name,
+        			bill_addr:obj.bill_addr,
+        			email:obj.email_addr,
+        			credit_limit:obj.credit_limit
+        		});
+        	}
 
-			  }).error(function(data)
-			  {
-					$scope.isloadDone = true;
-			  })
+        	if(data.value.length<takeUsr){
+        		$scope.isdataavailable=false;
+        		$scope.hideSearchMore=true;
+        	}
+        	else if(data.value.length!=0 && data.value.length>takeUsr)
+        	{
+        		skipUsr+=takeUsr;
+        		$scope.loadUsersByCat(skipUsr,takeUsr);
+        	}
+
+      }).error(function(data)
+      {
+        	$scope.isloadDone = true;
+      })
+
 		}
 
 		$scope.loadUsersByCat(skipUsr,takeUsr);
