@@ -44,7 +44,8 @@
     ////////////
     /////////////
     $scope.issubscriptionappuse = true; // if subscription module uses this is true else false
-    if(gst("category ") === 'invoice') {
+	debugger;
+    if(gst("category") === 'invoice') {
       $scope.issubscriptionappuse = false;//"invoice";
     }
     /////////////
