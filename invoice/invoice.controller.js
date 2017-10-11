@@ -44,7 +44,7 @@
     ////////////
     /////////////
     $scope.issubscriptionappuse = true; // if subscription module uses this is true else false
-    if(gst("category ") === 'invoice') {
+    if(gst("category") === 'invoice') {
       $scope.issubscriptionappuse = false;//"invoice";
     }
     /////////////
@@ -496,7 +496,7 @@
                   }
                 }
 
-        if(!$scope.rows[0].product){
+        if($scope.rows.length <= 0){
 
           notifications.toast("Please add invoice products", "Error");
           $scope.isAdded = false;
@@ -534,31 +534,56 @@
                   "gupromotionId": vm.editInvoice.gupromotionId
                 }
 
-                $charge.invoicing().insert(req).success(function (data) {
-                  if (data != null || data != undefined) {
-                    notifications.toast("Invoice has been processed", "success");
-                    $scope.isAdded = true;
-                    $scope.clearFields();
-                  }
-                  else {
-                    $mdDialog.show(
-                      $mdDialog.alert()
-                        .parent(angular.element(document.querySelector('#invoice')))
-                        .clickOutsideToClose(false)
-                        .title('Error')
-                        .textContent('An error occurred. Please try again in a few minutes.')
-                        .ariaLabel('Alert Dialog Demo')
-                        .ok('Ok'));
-                    $scope.isAdded = false;
-                  }
-                  vm.submitted = false;
-                }).error(function (data) {
-                  notifications.toast("Error while creating invoice", "error");
-                  $scope.clearFields();
-                  vm.submitted = false;
-                })
+        if($scope.issubscriptionappuse){
+            $charge.order().store(req).success(function (data) {
+              if (data != null || data != undefined) {
+                notifications.toast("Invoice has been processed", "success");
+                $scope.isAdded = true;
+                $scope.clearFields();
+              }
+              else {
+                $mdDialog.show(
+                  $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#invoice')))
+                    .clickOutsideToClose(false)
+                    .title('Error')
+                    .textContent('An error occurred. Please try again in a few minutes.')
+                    .ariaLabel('Alert Dialog Demo')
+                    .ok('Ok'));
+                $scope.isAdded = false;
+              }
+              vm.submitted = false;
+            }).error(function (data) {
+              notifications.toast("Error while creating invoice", "error");
+              $scope.clearFields();
+              vm.submitted = false;
+            })
+        }else {
+          $charge.invoicing().insert(req).success(function (data) {
+            if (data != null || data != undefined) {
+              notifications.toast("Invoice has been processed", "success");
+              $scope.isAdded = true;
+              $scope.clearFields();
+            }
+            else {
+              $mdDialog.show(
+                $mdDialog.alert()
+                  .parent(angular.element(document.querySelector('#invoice')))
+                  .clickOutsideToClose(false)
+                  .title('Error')
+                  .textContent('An error occurred. Please try again in a few minutes.')
+                  .ariaLabel('Alert Dialog Demo')
+                  .ok('Ok'));
+              $scope.isAdded = false;
+            }
+            vm.submitted = false;
+          }).error(function (data) {
+            notifications.toast("Error while creating invoice", "error");
+            $scope.clearFields();
+            vm.submitted = false;
+          })
 
-
+        }
 
 
         //}
@@ -614,9 +639,9 @@
 			insufficientStocks=[];
       $scope.productsDet=[];
       $scope.products=[];
-      $scope.loadAllProducts(0,100);
+     // $scope.loadAllProducts(0,100);
      // $scope.loadA
-			$state.go($state.current, {}, {reload: $scope.isAdded});
+			//$state.go($state.current, {}, {reload: $scope.isAdded});
 
 		};
 
@@ -3472,62 +3497,63 @@
 		var skipUsr= 0,takeUsr=1000;
 		$scope.filteredUsers=[];
 		$scope.loadUsersByCat= function (skipUsr,takeUsr) {
-			var dbName="";
-			dbName=getDomainName().split('.')[0]+"_"+getDomainExtension();
-			//filter="api-version=2016-09-01&?search=*&$orderby=createdDate desc&$skip="+skip+"&$top="+take+"&$filter=(domain eq '"+dbName+"')";
-			var data={
-				"search": "*",
-				"filter": "(domain eq '"+dbName+"')",
-				"orderby" : "createddate desc",
-				"top":takeUsr,
-				"skip":skipUsr
-			}
 
+      var jsonData = {
+        "url": "https://cloudcharge.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
+        "searchBy": "*",
+        "searchFields": "",
+        "take": 100,
+        "skip": 0,
+        "orderby": "createddate desc"
+      }
 
-			$charge.azuresearch().getAllProfilesPost(data).success(function (data) {
-				for (var i = 0; i < data.value.length; i++) {
-					if(data.value[i].status==0)
-					{
-						data.value[i].status=false;
-					}
-					else
-					{
-						data.value[i].status=true;
-					}
-					data.value[i].createddate = new Date(data.value[i].createddate);
-					//tempList.push(data.value[i]);
-				}
+      $charge.searchhelper().searchRequest(jsonData).success(function(data)
+      {
+        skipUsr += takeUsr;
+          for (var i = 0; i < data.value.length; i++) {
+            		if(data.value[i].status==0)
+            		{
+            			data.value[i].status=false;
+            		}
+            		else
+            		{
+            			data.value[i].status=true;
+            		}
+            		data.value[i].createddate = new Date(data.value[i].createddate);
+            		//tempList.push(data.value[i]);
 
-				if(data.value.length<takeUsr)
-					vm.lastProfile=true;
-				for (var i = 0; i < data.value.length; i++) {
-					var obj = data.value[i];
+          }
 
-					$scope.filteredUsers.push({
-						profilename : obj.first_name,
-						profileId : obj.profileId,
-						othername : obj.last_name,
-						bill_addr:obj.bill_addr,
-						email:obj.email_addr,
-						credit_limit:obj.credit_limit
-					});
-				}
+        if(data.value.length<takeUsr)
+        		vm.lastProfile=true;
+        	for (var i = 0; i < data.value.length; i++) {
+        		var obj = data.value[i];
 
-				if(data.value.length<takeUsr){
-					$scope.isdataavailable=false;
-					$scope.hideSearchMore=true;
-				}
-				else if(data.value.length!=0 && data.value.length>takeUsr)
-				{
-					skipUsr+=takeUsr;
-					$scope.loadUsersByCat(skipUsr,takeUsr);
-				}
+        		$scope.filteredUsers.push({
+        			profilename : obj.first_name,
+        			profileId : obj.profileId,
+        			othername : obj.last_name,
+        			bill_addr:obj.bill_addr,
+        			email:obj.email_addr,
+        			credit_limit:obj.credit_limit
+        		});
+        	}
 
+        	if(data.value.length<takeUsr){
+        		$scope.isdataavailable=false;
+        		$scope.hideSearchMore=true;
+        	}
+        	else if(data.value.length!=0 && data.value.length>takeUsr)
+        	{
+        		skipUsr+=takeUsr;
+        		$scope.loadUsersByCat(skipUsr,takeUsr);
+        	}
 
-			}).error(function (data) {
-				//vm.profiles = [];
-				$scope.isloadDone = true;
-			});
+      }).error(function(data)
+      {
+        	$scope.isloadDone = true;
+      })
+
 		}
 
 		$scope.loadUsersByCat(skipUsr,takeUsr);
@@ -3577,29 +3603,37 @@
 
 		$scope.loadAllPlans= function (skipDetail,takeDetail) {
 
-			$charge.plan().allPlans(skipDetail,takeDetail,'desc').success(function(data)
+      var jsonData = {
+        "url": "https://cloudcharge.search.windows.net/indexes/plan/docs/search?api-version=2016-09-01",
+        "searchBy": "*",
+        "searchFields": "",
+        "take": 100,
+        "skip": 0,
+        "orderby": "createdDate desc"
+      }
+
+			$charge.searchhelper().searchRequest(jsonData).success(function(data)
 			{
-				//console.log(data);
 
 				if($scope.loading)
 				{
 
           skipDetail += takeDetail;
-					for (var i = 0; i < data.length; i++) {
-						$scope.products.push(data[i]);
+					for (var i = 0; i < data.value.length; i++) {
+						$scope.products.push(data.value[i]);
 					}
 
 					//
-					if(data.length<takeDetail){
+					if(data.value.length<takeDetail){
 						$scope.isdataavailable=false;
 						$scope.hideSearchMore=true;
 						$scope.addNewRow();
 					}
-					else if(data.length!=0 && data.length>=takeDetail)
+					else if(data.value.length!=0 && data.value.length>=takeDetail)
 					{
 						$scope.loadAllPlans(skipDetail,takeDetail);
 					}
-					else if(data.length==0)
+					else if(data.value.length==0)
 					{
 						$scope.addNewRow();
 					}
