@@ -867,28 +867,50 @@
 		var currencyDetails = [];
 
 		$scope.validateProduct= function (row,index,existingRow) {
-
 			if(row!=null) {
-				var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guproductID })[0];
-				//
-				if (existingProduct!=null) {
+        if($scope.issubscriptionappuse){
+          var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guPlanID })[0];
+          //
+          if (existingProduct!=null) {
 
-					notifications.toast("Product has been already taken.", "error");
-					//var itemIndex = $scope.tempProduct.indexOf(existingProduct);
-					self.searchText.splice(index, 1);
-				}
-				else
-				{
-					//
-					//$scope.tempProduct.push({
-					//  productId:row.guproductID
-					//});
+            notifications.toast("Product has been already taken.", "error");
+            //var itemIndex = $scope.tempProduct.indexOf(existingProduct);
+            self.searchText.splice(index, 1);
+          }
+          else
+          {
+            //
+            //$scope.tempProduct.push({
+            //  productId:row.guPlanID
+            //});
 
-					$scope.tempProduct.splice(index, index, {
-						productId:row.guproductID
-					});
+            $scope.tempProduct.splice(index, index, {
+              productId:row.guPlanID
+            });
 
-				}
+          }
+        }else{
+          var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guproductID })[0];
+          //
+          if (existingProduct!=null) {
+
+            notifications.toast("Product has been already taken.", "error");
+            //var itemIndex = $scope.tempProduct.indexOf(existingProduct);
+            self.searchText.splice(index, 1);
+          }
+          else
+          {
+            //
+            //$scope.tempProduct.push({
+            //  productId:row.guproductID
+            //});
+
+            $scope.tempProduct.splice(index, index, {
+              productId:row.guproductID
+            });
+
+          }
+        }
 
 				$scope.calcQty(row,index);
 
