@@ -44,7 +44,6 @@
     ////////////
     /////////////
     $scope.issubscriptionappuse = true; // if subscription module uses this is true else false
-	debugger;
     if(gst("category") === 'invoice') {
       $scope.issubscriptionappuse = false;//"invoice";
     }
@@ -3498,62 +3497,61 @@
 		var skipUsr= 0,takeUsr=1000;
 		$scope.filteredUsers=[];
 		$scope.loadUsersByCat= function (skipUsr,takeUsr) {
-			var dbName="";
-			dbName=getDomainName().split('.')[0]+"_"+getDomainExtension();
-			//filter="api-version=2016-09-01&?search=*&$orderby=createdDate desc&$skip="+skip+"&$top="+take+"&$filter=(domain eq '"+dbName+"')";
-			var data={
-				"search": "*",
-				"filter": "(domain eq '"+dbName+"')",
-				"orderby" : "createddate desc",
-				"top":takeUsr,
-				"skip":skipUsr
-			}
+			 var jsonData = {
+				"url": "https://cloudchargesearch.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
+				"searchBy": "*",
+				"searchFields": "",
+				"take": 100,
+				"skip": 0,
+				"orderby": "createddate desc"
+			  }
 
+			  $charge.searchhelper().searchRequest(jsonData).success(function(data)
+			  { 
+				skipUsr += takeUsr;
+				  for (var i = 0; i < data.value.length; i++) {
+							if(data.value[i].status==0)
+							{
+								data.value[i].status=false;
+							}
+							else
+							{
+								data.value[i].status=true;
+							}
+							data.value[i].createddate = new Date(data.value[i].createddate);
+							//tempList.push(data.value[i]);
 
-			$charge.azuresearch().getAllProfilesPost(data).success(function (data) {
-				for (var i = 0; i < data.value.length; i++) {
-					if(data.value[i].status==0)
-					{
-						data.value[i].status=false;
-					}
-					else
-					{
-						data.value[i].status=true;
-					}
-					data.value[i].createddate = new Date(data.value[i].createddate);
-					//tempList.push(data.value[i]);
-				}
+				  }
 
 				if(data.value.length<takeUsr)
-					vm.lastProfile=true;
-				for (var i = 0; i < data.value.length; i++) {
-					var obj = data.value[i];
+						vm.lastProfile=true;
+					for (var i = 0; i < data.value.length; i++) {
+						var obj = data.value[i];
 
-					$scope.filteredUsers.push({
-						profilename : obj.first_name,
-						profileId : obj.profileId,
-						othername : obj.last_name,
-						bill_addr:obj.bill_addr,
-						email:obj.email_addr,
-						credit_limit:obj.credit_limit
-					});
-				}
+						$scope.filteredUsers.push({
+							profilename : obj.first_name,
+							profileId : obj.profileId,
+							othername : obj.last_name,
+							bill_addr:obj.bill_addr,
+							email:obj.email_addr,
+							credit_limit:obj.credit_limit
+						});
+					}
 
-				if(data.value.length<takeUsr){
-					$scope.isdataavailable=false;
-					$scope.hideSearchMore=true;
-				}
-				else if(data.value.length!=0 && data.value.length>takeUsr)
-				{
-					skipUsr+=takeUsr;
-					$scope.loadUsersByCat(skipUsr,takeUsr);
-				}
+					if(data.value.length<takeUsr){
+						$scope.isdataavailable=false;
+						$scope.hideSearchMore=true;
+					}
+					else if(data.value.length!=0 && data.value.length>takeUsr)
+					{
+						skipUsr+=takeUsr;
+						$scope.loadUsersByCat(skipUsr,takeUsr);
+					}
 
-
-			}).error(function (data) {
-				//vm.profiles = [];
-				$scope.isloadDone = true;
-			});
+			  }).error(function(data)
+			  {
+					$scope.isloadDone = true;
+			  })
 		}
 
 		$scope.loadUsersByCat(skipUsr,takeUsr);
