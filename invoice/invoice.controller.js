@@ -478,7 +478,7 @@
                     $scope.invoiceDetails.push({
                       paid: "false",
                       paidAmount: 0,
-                      tax: 0,
+                      taxAmount: productObj.taxAmount,
                       qty: qty,
                       itemDescription: "",
                       itemType: "",
@@ -980,12 +980,33 @@
 
 		$scope.calcQty=function(row,index)
 		{
+
+
       if($scope.rows[index].product!=null) {
+
+        $scope.rows[index].product.taxAmount = 0;
+
+        if($scope.rows[index].product.rate === undefined)
+        {$scope.rows[index].product.rate = 1;}
+
+        if($scope.rows[index].product.taxID !=undefined) {
+          $charge.billing().calcTax($scope.rows[index].product.taxID, $scope.rows[index].product.unitPrice / $scope.rows[index].product.rate).success(function (data) {
+            $scope.rows[index].product.taxAmount = data.tax;
+            if ($scope.issubscriptionappuse) {
+              $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
+            } else {
+              $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.price_of_unit * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
+            }
+          }).error(function (data) {
+            $scope.rows[index].product.taxAmount = 0;
+          });
+        }
+
         if($scope.issubscriptionappuse)
         {
-          $scope.rows[index].rowAmtDisplay = $scope.rows[index].product.unitPrice * $scope.rows[index].qty;
+          $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty)+$scope.rows[index].product.taxAmount;
         }else {
-          $scope.rows[index].rowAmtDisplay = $scope.rows[index].product.price_of_unit * $scope.rows[index].qty;
+          $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.price_of_unit * $scope.rows[index].qty)+$scope.rows[index].product.taxAmount;
         }
       }
       else
@@ -1381,7 +1402,7 @@
 
 
 		$scope.toggleSearchMre= function (rows,ev,index,txt,status) {
-			//
+
 			if (ev.keyCode === 8) {
 				$timeout.cancel($scope.waitForProduct);
 				$scope.waitForProduct = $timeout(function myFunction() {
