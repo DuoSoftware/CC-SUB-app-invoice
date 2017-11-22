@@ -3516,7 +3516,7 @@
 		$scope.loadUsersByCat= function (skipUsr,takeUsr) {
 
       var jsonData = {
-        "url": "https://cloudchargesearch.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
+        "url": "https://cloudcharge.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
         "searchBy": "*",
         "searchFields": "",
         "take": 100,
@@ -3621,7 +3621,7 @@
 		$scope.loadAllPlans= function (skipDetail,takeDetail) {
 
       var jsonData = {
-        "url": "https://cloudchargesearch.search.windows.net/indexes/plan/docs/search?api-version=2016-09-01",
+        "url": "https://cloudcharge.search.windows.net/indexes/plan/docs/search?api-version=2016-09-01",
         "searchBy": "*",
         "searchFields": "",
         "take": 100,
