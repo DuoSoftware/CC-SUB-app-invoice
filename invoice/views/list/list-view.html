@@ -32,7 +32,7 @@
         </div>
 
         <div flex layout="column" layout-align="center end" ng-if="!showInpageReadpane">
-            <span>{{invoice.invoiceAmount | isoCurrency:invoice.currency :decimalPoint}}</span>
+            <span>{{invoice.invoiceAmount  | isoCurrency: invoice.currency:decimalPoint}}</span>
             <!-- <span class="totaldue"><i>{{}}</i></span> -->
         </div>
 
@@ -51,5 +51,9 @@
             </md-button>
         </div> -->
     </div>
+
+</div>
+<div layout="row" layout-align="center center" flex>
+  <md-button ng-show="showMore" ng-click="moreInvoice()">Show more</md-button>
 </div>
 <!-- PRODUCT LIST ITEMS

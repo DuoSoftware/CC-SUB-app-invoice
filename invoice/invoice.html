@@ -36,10 +36,10 @@
 
                         <div class="search" flex layout="row" layout-align="start center">
                             <md-icon md-font-icon="icon-magnify" class="icon s24"></md-icon>
-                            <input flex ng-model="vm.search" type="text" ng-keypress="searchKeyPress($event,vm.search,vm.search.length)" ng-change="loadByKeywordPlan(vm.search,3)" placeholder="Search for invoices">
+                            <input flex ng-model="vm.search" type="text" ng-blur="loadInvoiceByKeyword(vm.search)"  placeholder="Search for invoices">
                         </div>
                     </div>
-                  
+
 				  <div>
                     <md-button  class="md-raised md-accent main-app-create" layout="row" layout-align="center center" aria-label="compose" ng-disabled="vm.activePlanPaneIndex == 1" ng-click="toggleEdit()" ng-if="!inpageReadPaneEdit"><span class="fs-18 mr-10">+</span> NEW
                     </md-button>
@@ -417,24 +417,25 @@
                                 <div class="list-item" style="border-bottom: solid 1px #eee;padding: 10px;overflow: hidden;" ng-repeat="detail in vm.selectedInvoice.invoiceDetails">
                                     <div style="float: left;color: #aaa;width: 20%">{{detail.code}}<span ng-if="detail.code == '' || detail.code == null">-</span> </div>
                                     <div style="float: left;color: #aaa;width: 20%;text-align: right">
-                                        {{detail.unitPrice | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}
+                                        {{detail.unitPrice  | isoCurrency: invoice.currency:decimalPoint}}
+                                        <!--{{detail.unitPrice | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}-->
                                     </div>
                                     <div style="width: 2%;float: left;height: 10px;"></div>
                                     <div style="float: left;color: #aaa;width: 18%">
                                         {{detail.gty}}
                                     </div>
                                     <div style="float: left;color: #aaa;width: 20%" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">
-                                        {{detail.discount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}
+                                        {{detail.discount  | isoCurrency: invoice.currency:decimalPoint}}
                                     </div>
                                     <div style="float: left;color: #aaa;text-align: right" ng-style="vm.selectedInvoice.invoiceType.toLowerCase() == 'manual' ? {'width':'40%'} : {'width':'20%'}">
-                                        {{detail.totalPrice | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}
+                                        {{detail.totalPrice  | isoCurrency: invoice.currency:decimalPoint}}
                                     </div>
                                 </div>
                                 <div style="overflow: hidden;margin-bottom: 10px;margin-top: 10px;padding-right: 10px">
                                     <div style="width: 50%;height: 10px;float: left;"></div>
                                     <div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">
                                         <div style="float: left;color: #aaa;width: 50%">SUBTOTAL</div>
-                                        <div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.subTotal | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</div>
+                                        <div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.subTotal  | isoCurrency: invoice.currency:decimalPoint}}</div>
                                     </div>
                                 </div>
                                 <div style="overflow: hidden;margin-bottom: 10px;padding-right: 10px">
@@ -442,7 +443,7 @@
                                     <div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">
                                         <div style="float: left;color: #aaa;width: 50%" ng-if="vm.selectedInvoice.additionalcharge <= 0">MISCELLANEOUS CHARGES</div>
                                         <div style="float: left;color: #aaa;width: 50%" ng-if="vm.selectedInvoice.additionalcharge > 0">MISCELLANEOUS CHARGES<br/><i style="font-size: 12px">{{vm.selectedInvoice.tag}}</i></div>
-                                        <div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.additionalcharge | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</div>
+                                        <div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.additionalcharge  | isoCurrency: invoice.currency:decimalPoint}}</div>
                                     </div>
                                 </div>
                                 <div style="overflow: hidden;margin-bottom: 10px;padding-right: 10px">
@@ -450,21 +451,21 @@
                                     <div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">
                                         <div style="float: left;color: #aaa;width: 50%">DISCOUNT</div>
                                         <!--<div style="float: left;color: #aaa;width: 50%;text-align: right" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">({{vm.selectedInvoice.discount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}})</div>-->
-                                        <div style="float: left;color: #aaa;width: 50%;text-align: right" >({{vm.selectedInvoice.discAmt | isoCurrency:vm.selectedInvoice.currency:decimalPoint}})</div>
+                                        <div style="float: left;color: #aaa;width: 50%;text-align: right" >({{vm.selectedInvoice.discAmt  | isoCurrency: invoice.currency:decimalPoint}})</div>
                                     </div>
                                 </div>
                                 <div style="overflow: hidden;margin-bottom: 10px;padding-right: 10px" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">
                                     <div style="width: 50%;height: 10px;float: left;"></div>
                                     <div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">
                                         <div style="float: left;color: #aaa;width: 50%">TAX</div>
-                                        <div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.tax | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</div>
+                                        <div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.tax  | isoCurrency: invoice.currency:decimalPoint}}</div>
                                     </div>
                                 </div>
                                 <div class="list-footer" style="overflow: hidden;height: 40px;margin-top: 30px;padding-right: 10px">
                                     <div style="width: 50%;height: 10px;float: left;"></div>
                                     <div style="width: 50%;float: left;padding: 5px 0">
                                         <div style="color: #aaaaaa;font-size: 16px;width: 50%;float: left;">TOTAL</div>
-                                        <div style="color: #aaaaaa;text-align: right;width: 50%;float: left;">{{vm.selectedInvoice.invoiceAmount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}</div>
+                                        <div style="color: #aaaaaa;text-align: right;width: 50%;float: left;">{{vm.selectedInvoice.invoiceAmount  | isoCurrency: invoice.currency:decimalPoint}}</div>
                                     </div>
                                 </div>
                             </div>

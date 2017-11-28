@@ -2643,7 +2643,7 @@
 		$scope.prefferedCurrencies=[];
 		$charge.settingsapp().getDuobaseValuesByTableName("CTS_GeneralAttributes").success(function(data) {
 			//
-			$rootScope.decimalPoint=parseInt(data[6].RecordFieldData);
+			$rootScope.decimalPoint=2;//parseInt(data[6].RecordFieldData);
 			$rootScope.step=($rootScope.decimalPoint/$rootScope.decimalPoint)/Math.pow(10,$rootScope.decimalPoint);
 			$scope.baseCurrency=data[0].RecordFieldData;
 			$scope.prefferedCurrencies.push($scope.baseCurrency);
@@ -3072,21 +3072,17 @@
 		var prefixLength;
 		$scope.invoices=[];
 		$scope.users=[];
+    $scope.showMore = false;
 
 		//this function fetches a random text and adds it to array
 		$scope.moreInvoice = function(){
-			//
-			//$scope.spinnerInvoice=true;
 
-
-			//
+      $scope.listLoaded = 'loading';
+      vm.invoices=[];
 			$charge.invoice().all(skip,take,"desc").success(function(data) {
 
-				if(data.length<=take)
-					$scope.lastSet=true;
 
 				for (var i = 0, len = data.length; i < len; i++)
-					//for(var i=0;i<data.length;i++)
 				{
 					//var invoice={};
 					//invoice.invoiceNo=prefixInvoice;
@@ -3101,101 +3097,80 @@
 					data[i]['invoice_type']=data[i].invoiceType;
 					data[i]['code']=data[i].invoiceNo;
 					data[i]['code']=$filter('numberFixedLen')(data[i]['code'],lenPrefix);
-					//data[i]['code']=data[i].invoiceNo;
+					data[i]['currency']=data[i].currency;
 					data[i]['prefix']=lenPrefix;
 					data[i]['invoiceNo']=prefixInvoice+data[i]['code'];
 					data[i]['invoiceDate']=invoiceDate;
 					data[i]['invoiceAmount']=data[i].invoiceAmount*data[i].rate;
 					data[i]['client'] = data[i].profile_type=="Individual"?data[i].first_name:data[i].business_name;
 
-					// $scope.customerGUIds.push({
-					// 	'id':
-					// })
+          $scope.invoices.push(data[i]);
 
-					//if(data[i].paidAmount==0) {
-					//  invoice.status = 'Not paid';
-					//  invoice.StatusColor = "orange";
-					//}
-					//else if(data[i].paidAmount>0 && data[i].paidAmount<data[i].invoiceAmount) {
-					//  invoice.status = 'Partial Paid';
-					//  invoice.StatusColor= "skyblue";
-					//}
-					//else if(data[i].paidAmount==data[i].invoiceAmount) {
-					//  invoice.status = 'Paid';
-					//  invoice.StatusColor= "green";
-					//}
-					//$scope.invoices.push(invoice);
 				}
 				//$scope.invoices=data;
-				$scope.invoices=data;
+
 				vm.invoices=$scope.invoices;
 				//var dsdsa = $filter('filter')(vm.invoices, mySearch);
 
 				vm.selectedInvoice = vm.invoices[0];
 
 				$scope.listLoaded = 'loaded';
-				//
-				//skip += take;
+
+				if(data.length === take) {
+          skip += take;
+          $scope.showMore = true;
+        }else{
+          $scope.showMore = false;
+        }
 			}).error(function(data) {
 				$scope.listLoaded = 'loaded';
 
-				//
-				$scope.lastSet=true;
 			})
 		};
 
 
 		//full text search invoice start
 
-		var skip,take;
+	//	var skip,take;
 		var tempInvoiceList;
 		var originalKeyword;
 		$scope.loadInvoiceByKeyword= function (keyword) {
-			//
-			if($scope.invoices.length==50) {
-				if (keyword.length > invoicePrefix.RecordFieldData.length) {
-					originalKeyword=keyword;
-					keyword=keyword.substring(invoicePrefix.RecordFieldData.length);
 
-					//for(var i=keyword.length;i<prefixLength.RecordFieldData;i++)
-					//{
-					//  keyword+="0";
-					//}
-					var keyInt=parseInt(keyword);
-					//
-					if(keyInt!=0 && keyInt<=9) {
+			if(keyword.length > 2 && $scope.invoices.length >= 50) {
+        $scope.listLoaded = 'loading';
 						skip = 0;
-						//take = 10;
 						tempInvoiceList = [];
-						var len=prefixLength.RecordFieldData-keyword.length;
-						take=Math.pow(10,len);
-						$charge.invoice().filterByKey(keyInt, skip, take,len).success(function (data) {
+						$charge.invoice().filterByKey(keyword, skip, take).success(function (data) {
 							for (var i = 0; i < data.length; i++) {
-								data[i]['code']=data[i].invoiceNo;
-								data[i]['code']=$filter('numberFixedLen')(data[i]['code'],lenPrefix);
-								//data[i]['code']=data[i].invoiceNo;
-								data[i]['prefix']=lenPrefix;
-								data[i]['invoiceNo']=prefixInvoice+data[i]['code'];
-								data[i]['invoiceDate']=invoiceDate;
-								data[i]['invoiceAmount']=data[i].invoiceAmount*data[i].rate;
-								data[i]['client'] = data[i].profile_type=="Individual"?data[i].first_name:data[i].business_name;
-								data[i]['invoice_type']=data[i].invoiceType;
+                invoiceDate=moment(data[i].invoiceDate).format('LL');
+                data[i]['guInvID']=data[i].guInvID
+                data[i]['invoice_type']=data[i].invoiceType;
+                data[i]['code']=data[i].invoiceNo;
+                data[i]['code']=$filter('numberFixedLen')(data[i]['code'],lenPrefix);
+                data[i]['currency']=data[i].currency;
+                data[i]['prefix']=lenPrefix;
+                data[i]['invoiceNo']=prefixInvoice+data[i]['code'];
+                data[i]['invoiceDate']=invoiceDate;
+                data[i]['invoiceAmount']=data[i].invoiceAmount*data[i].rate;
+                data[i]['client'] = data[i].profile_type=="Individual"?data[i].first_name:data[i].business_name;
 								tempInvoiceList.push(data[i]);
+
+                $scope.listLoaded = 'loaded';
+                $scope.showMore = false;
 							}
 							vm.invoices = tempInvoiceList;
-							//skip += take;
-							//$scope.loadInvoiceByPaging(keyInt, skip, take,len);
 						}).error(function (data) {
 							vm.invoices = [];
-							//vm.selectedProduct = null;
-						});
+              $scope.showMore = false;
+              $scope.listLoaded = 'loaded';
+						})
+
 					}
-				}
-				else if (keyword.length == 0 || keyword == null) {
-					vm.invoices = $scope.invoices;
-				}
+				  else if (keyword.length == 0 || keyword == null) {
+					  vm.invoices = $scope.invoices;
+				  }
 			}
-		}
+
 
 		$scope.loadInvoiceByPaging= function (keyword,skip, take,len) {
 			$charge.invoice().filterByKey(keyword, skip, take,len).success(function (data) {
