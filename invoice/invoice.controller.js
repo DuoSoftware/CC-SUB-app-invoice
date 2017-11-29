@@ -27,30 +27,30 @@
 		vm.scrollEl = angular.element('#content');
 
 
-    function gst(name) {
-      var nameEQ = name + "=";
-      var ca = document.cookie.split(';');
-      for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-      }
-      //
-      return null;
-    }
+		function gst(name) {
+			var nameEQ = name + "=";
+			var ca = document.cookie.split(';');
+			for (var i = 0; i < ca.length; i++) {
+				var c = ca[i];
+				while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+				if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+			}
+			//
+			return null;
+		}
 
-    ///
-    //////////
-    ////////////
-    /////////////
-    $scope.issubscriptionappuse = true; // if subscription module uses this is true else false
-    if(gst("category") === 'invoice') {
-      $scope.issubscriptionappuse = false;//"invoice";
-    }
-    /////////////
-    ///////////
-    //////
-    ////
+		///
+		//////////
+		////////////
+		/////////////
+		$scope.issubscriptionappuse = true; // if subscription module uses this is true else false
+		if(gst("category") === 'invoice') {
+			$scope.issubscriptionappuse = false;//"invoice";
+		}
+		/////////////
+		///////////
+		//////
+		////
 
 
 		//vm.invoices = Invoice.data;
@@ -102,6 +102,62 @@
 		 *
 		 * @param product
 		 */
+
+		function extractEmailTemplate(paymentData, callback) {
+			$scope.currEmailTemplate = $scope.tempSelectedTemplate;
+			//Removing meta data
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<!doctype html>', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<html lang="en">', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<head>', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<meta name="viewport"', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<meta http-equiv="X-UA-Compatible" content="ie=edge">', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<meta charset="UTF-8">', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<title>Document</title>', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('</head>', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<body>', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('</body>', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('</html>', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.trim();
+
+			//Adding payment information
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyName%', $scope.content.companyName);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyPhone%', $scope.content.companyPhone);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyEmail%', $scope.content.companyEmail);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyAddress%', $scope.content.companyAddress);
+			if($scope.emailTemplateName == 'emailTemplate3.html' || $scope.emailTemplateName == 'emailTemplate4.html')
+				$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyLogo%', $scope.content.companyLogo);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%personName%', vm.selectedInvoice.person_name);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%otherName%', '');
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%bill_addr%', vm.selectedInvoice.bill_addr);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%phone%', vm.selectedInvoice.phone);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%email_addr%', vm.selectedInvoice.email_addr);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceNo%', vm.selectedInvoice.invoiceNo);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceDate%', $filter('date')(new Date(vm.selectedInvoice.invoiceDate), 'MMMM d, y', null));
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%dueDate%', vm.selectedInvoice.dueDate);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceDate% - %dueDate%', $filter('date')(new Date(vm.selectedInvoice.invoiceDate), 'yyyy.MM.dd', null) +' - '+ $filter('date')(new Date(vm.selectedInvoice.dueDate), 'yyyy.MM.dd', null));
+
+			//list
+			var listMarkup = "";
+			angular.forEach(vm.selectedInvoice.invoiceDetails, function (item) {
+				listMarkup += '<div class="list-header" style="padding: 7px 5px;overflow: hidden;"><div style="color: #555;width: 20%;float: left;">'+item.name+'</div><div style="color: #555;width: 20%;float: left;text-align: right">'+item.unitPrice+'</div><div style="width: 2%;float: left;height: 10px;"></div><div style="color: #555;width: 18%;float: left">1</div><div style="color: #555;width: 20%;float: left">'+item.promotion+'</div><div style="color: #555;width: 20%;float: left;text-align: right">'+item.unitPrice+'</div></div>';
+			});
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%listItems%', listMarkup);
+
+			//Sub details
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%additionalcharge%', vm.selectedInvoice.rate);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%discAmt%', vm.selectedInvoice.discAmt);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%discount%', vm.selectedInvoice.discount);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%subTotal%', vm.selectedInvoice.subTotal);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%tax%', vm.selectedInvoice.tax);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceAmount%', vm.selectedInvoice.invoiceAmount);
+
+			//Footer
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%greeting%', $scope.content.greeting);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%disclaimer%', $scope.content.disclaimer);
+			callback();
+		}
+
 		function selectInvoice(invoice)
 		{
 			// vm.selectedInvoice = invoice;
@@ -318,9 +374,6 @@
 		//$scope.isRowDisabled=true;
 
 
-
-
-
 		var dataInvoice1={}
 		dataInvoice1.RecordFieldData=localStorage.getItem("prefixLength");
 		prefixLength=dataInvoice1;
@@ -431,141 +484,141 @@
 			//}
 		};
 
-   $scope.paymentMethodHandler =  function (selection){
-      if(selection=='cash'){
-        vm.editInvoice.paymentMethod = 'cash';
-      }else{
-        vm.editInvoice.paymentMethod = 'credit';
-      }
-    }
+		$scope.paymentMethodHandler =  function (selection){
+			if(selection=='cash'){
+				vm.editInvoice.paymentMethod = 'cash';
+			}else{
+				vm.editInvoice.paymentMethod = 'credit';
+			}
+		}
 
 		$scope.isInvoiceQuoteEmpty = true;
 
 		$scope.submit = function () {
 
-      $scope.isAdded = false;
-      //if($scope.content.bill_addr!="") {
-      if (vm.editInvoiceForm.$valid == true) {
-        vm.submitted = true;
-        $scope.spinnerInvoice = true;
-        $scope.invoiceDetails = [];
-        $scope.productsDet = [];
-        //if (!isValid) {    // this is to validate promotion if needs
-            //
-            var unitPrice = vm.editInvoice.amount = (vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount);
-            vm.editInvoice.invoiceType = "Manual";
+			$scope.isAdded = false;
+			//if($scope.content.bill_addr!="") {
+			if (vm.editInvoiceForm.$valid == true) {
+				vm.submitted = true;
+				$scope.spinnerInvoice = true;
+				$scope.invoiceDetails = [];
+				$scope.productsDet = [];
+				//if (!isValid) {    // this is to validate promotion if needs
+				//
+				var unitPrice = vm.editInvoice.amount = (vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount);
+				vm.editInvoice.invoiceType = "Manual";
 
-                for (var i = 0; i < $scope.rows.length; i++) {
-                  var productObj = $scope.rows[i].product;
-                  var totalPrice = $scope.rows[i].rowAmtDisplay;
+				for (var i = 0; i < $scope.rows.length; i++) {
+					var productObj = $scope.rows[i].product;
+					var totalPrice = $scope.rows[i].rowAmtDisplay;
 
-                  var promotion = 0;
-                  if($scope.rows[i].promotion)
-                  {
-                    promotion = $scope.rows[i].promotion;
-                  }
+					var promotion = 0;
+					if($scope.rows[i].promotion)
+					{
+						promotion = $scope.rows[i].promotion;
+					}
 
-                  var promotionId = '';
-                  if($scope.rows[i].promotionId)
-                  {
-                    promotionId = $scope.rows[i].promotionId;
-                  }
+					var promotionId = '';
+					if($scope.rows[i].promotionId)
+					{
+						promotionId = $scope.rows[i].promotionId;
+					}
 
-                  var qty = $scope.rows[i].qty;
-                  var unitPrice = $scope.rows[i].rowAmtDisplay;
-                  // var unitPrice = calcAmt[i].rowAmt;
-                  if (productObj != null) {
-                    $scope.invoiceDetails.push({
-                      paid: "false",
-                      paidAmount: 0,
-                      taxAmount: productObj.taxAmount,
-                      qty: qty,
-                      itemDescription: "",
-                      itemType: "",
-                      guItemID: productObj.guproductID,
-                      lineID: "",
-                      totalPrice: totalPrice,
-                      unitPrice: unitPrice,
-                      discount: promotion,
-                      startDate: vm.editInvoice.invoiceDate,
-                      uom: "",
-                      subTotal: totalPrice,
-                      promotionId: promotionId,
-                      "code":productObj.code
-                    });
-                  }
-                }
+					var qty = $scope.rows[i].qty;
+					var unitPrice = $scope.rows[i].rowAmtDisplay;
+					// var unitPrice = calcAmt[i].rowAmt;
+					if (productObj != null) {
+						$scope.invoiceDetails.push({
+							paid: "false",
+							paidAmount: 0,
+							taxAmount: productObj.taxAmount,
+							qty: qty,
+							itemDescription: "",
+							itemType: "",
+							guItemID: productObj.guproductID,
+							lineID: "",
+							totalPrice: totalPrice,
+							unitPrice: unitPrice,
+							discount: promotion,
+							startDate: vm.editInvoice.invoiceDate,
+							uom: "",
+							subTotal: totalPrice,
+							promotionId: promotionId,
+							"code":productObj.code
+						});
+					}
+				}
 
-        if($scope.rows.length <= 0){
+				if($scope.rows.length <= 0){
 
-          notifications.toast("Please add invoice products", "Error");
-          $scope.isAdded = false;
-          vm.submitted = false;
-          return;
+					notifications.toast("Please add invoice products", "Error");
+					$scope.isAdded = false;
+					vm.submitted = false;
+					return;
 
-        }
+				}
 
 
-              if(vm.editInvoice.invoiceOccurence != "Installment")
-              {
-                vm.editInvoice.occurence = -1;
-              }
+				if(vm.editInvoice.invoiceOccurence != "Installment")
+				{
+					vm.editInvoice.occurence = -1;
+				}
 
-            if(!vm.editInvoice.promotion)
-            {
-              vm.editInvoice.promotion = '';
-            }
+				if(!vm.editInvoice.promotion)
+				{
+					vm.editInvoice.promotion = '';
+				}
 
-                var accountID = vm.editInvoice.profile.profileId;
-                var invoiceAmount = vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount;
-                  var moduleType = $scope.issubscriptionappuse ? 'subscription' : 'invoice';
+				var accountID = vm.editInvoice.profile.profileId;
+				var invoiceAmount = vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount;
+				var moduleType = $scope.issubscriptionappuse ? 'subscription' : 'invoice';
 
-        if(vm.editInvoice.invoiceInterval === undefined)
-        {
-          vm.editInvoice.invoiceInterval = -1;
-        }
+				if(vm.editInvoice.invoiceInterval === undefined)
+				{
+					vm.editInvoice.invoiceInterval = -1;
+				}
 
-                var req = {
-                  "email": vm.editInvoice.profile.email,
-                  "products": $scope.invoiceDetails,
-                  "note": vm.editInvoice.remarks,
-                  "startDate": $filter('date')(new Date(vm.editInvoice.invoiceDate), 'yyyy-MM-dd'),
-                  "invoiceType": vm.editInvoice.invoiceOccurence,
-                  "invoicePeriod": vm.editInvoice.invoiceingPeriod,
-                  "invoiceInterval": vm.editInvoice.invoiceInterval,
-                  "occurrence": vm.editInvoice.occurence,
-                  "payMethod": vm.editInvoice.paymentMethod,
-                  "otherDisc": vm.editInvoice.discount,
-                  "miscCharges": vm.editInvoice.additionalcharge,
-                  "gupromotionId": vm.editInvoice.gupromotionId,
-                  "moduleType" : moduleType
-                }
+				var req = {
+					"email": vm.editInvoice.profile.email,
+					"products": $scope.invoiceDetails,
+					"note": vm.editInvoice.remarks,
+					"startDate": $filter('date')(new Date(vm.editInvoice.invoiceDate), 'yyyy-MM-dd'),
+					"invoiceType": vm.editInvoice.invoiceOccurence,
+					"invoicePeriod": vm.editInvoice.invoiceingPeriod,
+					"invoiceInterval": vm.editInvoice.invoiceInterval,
+					"occurrence": vm.editInvoice.occurence,
+					"payMethod": vm.editInvoice.paymentMethod,
+					"otherDisc": vm.editInvoice.discount,
+					"miscCharges": vm.editInvoice.additionalcharge,
+					"gupromotionId": vm.editInvoice.gupromotionId,
+					"moduleType" : moduleType
+				}
 
-          $charge.invoicing().insert(req).success(function (data) {
-            if (data != null || data != undefined) {
-              notifications.toast("Invoice has been processed", "success");
-              $scope.isAdded = true;
-              $scope.clearFields();
-            }
-            else {
-              $mdDialog.show(
-                $mdDialog.alert()
-                  .parent(angular.element(document.querySelector('#invoice')))
-                  .clickOutsideToClose(false)
-                  .title('Error')
-                  .textContent('An error occurred. Please try again in a few minutes.')
-                  .ariaLabel('Alert Dialog Demo')
-                  .ok('Ok'));
-              $scope.isAdded = false;
-            }
-            vm.submitted = false;
-          }).error(function (data) {
-            notifications.toast("Error while creating invoice", "error");
-            $scope.clearFields();
-            vm.submitted = false;
-          })
-      }
-    }
+				$charge.invoicing().insert(req).success(function (data) {
+					if (data != null || data != undefined) {
+						notifications.toast("Invoice has been processed", "success");
+						$scope.isAdded = true;
+						$scope.clearFields();
+					}
+					else {
+						$mdDialog.show(
+							$mdDialog.alert()
+								.parent(angular.element(document.querySelector('#invoice')))
+								.clickOutsideToClose(false)
+								.title('Error')
+								.textContent('An error occurred. Please try again in a few minutes.')
+								.ariaLabel('Alert Dialog Demo')
+								.ok('Ok'));
+						$scope.isAdded = false;
+					}
+					vm.submitted = false;
+				}).error(function (data) {
+					notifications.toast("Error while creating invoice", "error");
+					$scope.clearFields();
+					vm.submitted = false;
+				})
+			}
+		}
 
 
 
@@ -611,10 +664,10 @@
 			$scope.divEnabled = true;
 			$scope.requiredStatus =false;
 			insufficientStocks=[];
-      $scope.productsDet=[];
-      $scope.products=[];
-     // $scope.loadAllProducts(0,100);
-     // $scope.loadA
+			$scope.productsDet=[];
+			$scope.products=[];
+			// $scope.loadAllProducts(0,100);
+			// $scope.loadA
 			$state.go($state.current, {}, {reload: $scope.isAdded});
 
 		};
@@ -868,49 +921,49 @@
 
 		$scope.validateProduct= function (row,index,existingRow) {
 			if(row!=null) {
-        if($scope.issubscriptionappuse){
-          var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guPlanID })[0];
-          //
-          if (existingProduct!=null) {
+				if($scope.issubscriptionappuse){
+					var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guPlanID })[0];
+					//
+					if (existingProduct!=null) {
 
-            notifications.toast("Product has been already taken.", "error");
-            //var itemIndex = $scope.tempProduct.indexOf(existingProduct);
-            self.searchText.splice(index, 1);
-          }
-          else
-          {
-            //
-            //$scope.tempProduct.push({
-            //  productId:row.guPlanID
-            //});
+						notifications.toast("Product has been already taken.", "error");
+						//var itemIndex = $scope.tempProduct.indexOf(existingProduct);
+						self.searchText.splice(index, 1);
+					}
+					else
+					{
+						//
+						//$scope.tempProduct.push({
+						//  productId:row.guPlanID
+						//});
 
-            $scope.tempProduct.splice(index, index, {
-              productId:row.guPlanID
-            });
+						$scope.tempProduct.splice(index, index, {
+							productId:row.guPlanID
+						});
 
-          }
-        }else{
-          var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guproductID })[0];
-          //
-          if (existingProduct!=null) {
+					}
+				}else{
+					var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guproductID })[0];
+					//
+					if (existingProduct!=null) {
 
-            notifications.toast("Product has been already taken.", "error");
-            //var itemIndex = $scope.tempProduct.indexOf(existingProduct);
-            self.searchText.splice(index, 1);
-          }
-          else
-          {
-            //
-            //$scope.tempProduct.push({
-            //  productId:row.guproductID
-            //});
+						notifications.toast("Product has been already taken.", "error");
+						//var itemIndex = $scope.tempProduct.indexOf(existingProduct);
+						self.searchText.splice(index, 1);
+					}
+					else
+					{
+						//
+						//$scope.tempProduct.push({
+						//  productId:row.guproductID
+						//});
 
-            $scope.tempProduct.splice(index, index, {
-              productId:row.guproductID
-            });
+						$scope.tempProduct.splice(index, index, {
+							productId:row.guproductID
+						});
 
-          }
-        }
+					}
+				}
 
 				$scope.calcQty(row,index);
 
@@ -982,37 +1035,37 @@
 		{
 
 
-      if($scope.rows[index].product!=null) {
+			if($scope.rows[index].product!=null) {
 
-        $scope.rows[index].product.taxAmount = 0;
+				$scope.rows[index].product.taxAmount = 0;
 
-        if($scope.rows[index].product.rate === undefined)
-        {$scope.rows[index].product.rate = 1;}
+				if($scope.rows[index].product.rate === undefined)
+				{$scope.rows[index].product.rate = 1;}
 
-        if($scope.rows[index].product.taxID !=undefined) {
-          $charge.billing().calcTax($scope.rows[index].product.taxID, $scope.rows[index].product.unitPrice / $scope.rows[index].product.rate).success(function (data) {
-            $scope.rows[index].product.taxAmount = data.tax;
-            if ($scope.issubscriptionappuse) {
-              $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
-            } else {
-              $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.price_of_unit * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
-            }
-          }).error(function (data) {
-            $scope.rows[index].product.taxAmount = 0;
-          });
-        }
+				if($scope.rows[index].product.taxID !=undefined) {
+					$charge.billing().calcTax($scope.rows[index].product.taxID, $scope.rows[index].product.unitPrice / $scope.rows[index].product.rate).success(function (data) {
+						$scope.rows[index].product.taxAmount = data.tax;
+						if ($scope.issubscriptionappuse) {
+							$scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
+						} else {
+							$scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.price_of_unit * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
+						}
+					}).error(function (data) {
+						$scope.rows[index].product.taxAmount = 0;
+					});
+				}
 
-        if($scope.issubscriptionappuse)
-        {
-          $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty)+$scope.rows[index].product.taxAmount;
-        }else {
-          $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.price_of_unit * $scope.rows[index].qty)+$scope.rows[index].product.taxAmount;
-        }
-      }
-      else
-      {
-        $scope.rows[index].rowAmtDisplay = $scope.rows[index].rowAmtDisplay * $scope.rows[index].qty;
-      }
+				if($scope.issubscriptionappuse)
+				{
+					$scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty)+$scope.rows[index].product.taxAmount;
+				}else {
+					$scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.price_of_unit * $scope.rows[index].qty)+$scope.rows[index].product.taxAmount;
+				}
+			}
+			else
+			{
+				$scope.rows[index].rowAmtDisplay = $scope.rows[index].rowAmtDisplay * $scope.rows[index].qty;
+			}
 		}
 
 
@@ -2288,58 +2341,58 @@
 		}
 
 
-    $scope.checkPromotion = function(promoCode){
+		$scope.checkPromotion = function(promoCode){
 
-      if(!promoCode || promoCode === '')
-      {
-        return;
-      }
+			if(!promoCode || promoCode === '')
+			{
+				return;
+			}
 
-      	$charge.coupon().getByCode(promoCode).success(function (data) {
+			$charge.coupon().getByCode(promoCode).success(function (data) {
 
-          //if(vm.editInvoice.discount)
-          //  vm.editInvoice.discount += data['0'].discountamount;
-          //else
-          //  vm.editInvoice.discount = data['0'].discountamount;
+				//if(vm.editInvoice.discount)
+				//  vm.editInvoice.discount += data['0'].discountamount;
+				//else
+				//  vm.editInvoice.discount = data['0'].discountamount;
 
-          vm.editInvoice.gupromotionId = data[0].gucouponid;
+				vm.editInvoice.gupromotionId = data[0].gucouponid;
 
-          $scope.calcPromotionToProducts(data);
+				$scope.calcPromotionToProducts(data);
 
-      	}).error(function (error) {
-          vm.editInvoice.promotion = '';
-          vm.editInvoice.gupromotionId = '';
-          notifications.toast(error.error, "error");
-      	})
-    }
+			}).error(function (error) {
+				vm.editInvoice.promotion = '';
+				vm.editInvoice.gupromotionId = '';
+				notifications.toast(error.error, "error");
+			})
+		}
 
 		$scope.calcPromotionToProducts= function (data) {
 
-      if($scope.rows.length >= 1 && $scope.rows[0].product != null) {
+			if($scope.rows.length >= 1 && $scope.rows[0].product != null) {
 
-        for (var i = 0; i < $scope.rows.length; i++) {
+				for (var i = 0; i < $scope.rows.length; i++) {
 
-          if(data[0].associateplan === 1) {
-            for (var ii = 0; ii < data.couponDetails.length; ii++) {
-              if (data.couponDetails[ii].guDetailid === ($scope.rows[i].product.guproductID)) {
-                $scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
-                $scope.rows[i].promotionId = data[0].gucouponid;
+					if(data[0].associateplan === 1) {
+						for (var ii = 0; ii < data.couponDetails.length; ii++) {
+							if (data.couponDetails[ii].guDetailid === ($scope.rows[i].product.guproductID)) {
+								$scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
+								$scope.rows[i].promotionId = data[0].gucouponid;
 
-                $scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
-              }
-            }
+								$scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+							}
+						}
 
-          }else{
-            $scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
-            $scope.rows[i].promotionId = data[0].gucouponid;
+					}else{
+						$scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
+						$scope.rows[i].promotionId = data[0].gucouponid;
 
-            $scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
-          }
+						$scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+					}
 
 
-        }
+				}
 
-      }
+			}
 
 		}
 		//var skipPromo= 0,takePromo=100;
@@ -3072,13 +3125,13 @@
 		var prefixLength;
 		$scope.invoices=[];
 		$scope.users=[];
-    $scope.showMore = false;
+		$scope.showMore = false;
 
 		//this function fetches a random text and adds it to array
 		$scope.moreInvoice = function(){
 
-      $scope.listLoaded = 'loading';
-      vm.invoices=[];
+			$scope.listLoaded = 'loading';
+			vm.invoices=[];
 			$charge.invoice().all(skip,take,"desc").success(function(data) {
 
 
@@ -3093,7 +3146,7 @@
 					//invoice.invoiceAmount=data[i].invoiceAmount*data[i].rate;
 					//invoice.currency=data[i].currency;
 					//invoice.invoiceDate=invoiceDate;
-          data[i]['guInvID']=data[i].guInvID
+					data[i]['guInvID']=data[i].guInvID
 					data[i]['invoice_type']=data[i].invoiceType;
 					data[i]['code']=data[i].invoiceNo;
 					data[i]['code']=$filter('numberFixedLen')(data[i]['code'],lenPrefix);
@@ -3104,7 +3157,7 @@
 					data[i]['invoiceAmount']=data[i].invoiceAmount*data[i].rate;
 					data[i]['client'] = data[i].profile_type=="Individual"?data[i].first_name:data[i].business_name;
 
-          $scope.invoices.push(data[i]);
+					$scope.invoices.push(data[i]);
 
 				}
 				//$scope.invoices=data;
@@ -3117,11 +3170,11 @@
 				$scope.listLoaded = 'loaded';
 
 				if(data.length === take) {
-          skip += take;
-          $scope.showMore = true;
-        }else{
-          $scope.showMore = false;
-        }
+					skip += take;
+					$scope.showMore = true;
+				}else{
+					$scope.showMore = false;
+				}
 			}).error(function(data) {
 				$scope.listLoaded = 'loaded';
 
@@ -3131,45 +3184,45 @@
 
 		//full text search invoice start
 
-	//	var skip,take;
+		//	var skip,take;
 		var tempInvoiceList;
 		var originalKeyword;
 		$scope.loadInvoiceByKeyword= function (keyword) {
 
 			if(keyword.length > 2 && $scope.invoices.length >= 50) {
-        $scope.listLoaded = 'loading';
-						skip = 0;
-						tempInvoiceList = [];
-						$charge.invoice().filterByKey(keyword, skip, take).success(function (data) {
-							for (var i = 0; i < data.length; i++) {
-                invoiceDate=moment(data[i].invoiceDate).format('LL');
-                data[i]['guInvID']=data[i].guInvID
-                data[i]['invoice_type']=data[i].invoiceType;
-                data[i]['code']=data[i].invoiceNo;
-                data[i]['code']=$filter('numberFixedLen')(data[i]['code'],lenPrefix);
-                data[i]['currency']=data[i].currency;
-                data[i]['prefix']=lenPrefix;
-                data[i]['invoiceNo']=prefixInvoice+data[i]['code'];
-                data[i]['invoiceDate']=invoiceDate;
-                data[i]['invoiceAmount']=data[i].invoiceAmount*data[i].rate;
-                data[i]['client'] = data[i].profile_type=="Individual"?data[i].first_name:data[i].business_name;
-								tempInvoiceList.push(data[i]);
+				$scope.listLoaded = 'loading';
+				skip = 0;
+				tempInvoiceList = [];
+				$charge.invoice().filterByKey(keyword, skip, take).success(function (data) {
+					for (var i = 0; i < data.length; i++) {
+						invoiceDate=moment(data[i].invoiceDate).format('LL');
+						data[i]['guInvID']=data[i].guInvID
+						data[i]['invoice_type']=data[i].invoiceType;
+						data[i]['code']=data[i].invoiceNo;
+						data[i]['code']=$filter('numberFixedLen')(data[i]['code'],lenPrefix);
+						data[i]['currency']=data[i].currency;
+						data[i]['prefix']=lenPrefix;
+						data[i]['invoiceNo']=prefixInvoice+data[i]['code'];
+						data[i]['invoiceDate']=invoiceDate;
+						data[i]['invoiceAmount']=data[i].invoiceAmount*data[i].rate;
+						data[i]['client'] = data[i].profile_type=="Individual"?data[i].first_name:data[i].business_name;
+						tempInvoiceList.push(data[i]);
 
-                $scope.listLoaded = 'loaded';
-                $scope.showMore = false;
-							}
-							vm.invoices = tempInvoiceList;
-						}).error(function (data) {
-							vm.invoices = [];
-              $scope.showMore = false;
-              $scope.listLoaded = 'loaded';
-						})
-
+						$scope.listLoaded = 'loaded';
+						$scope.showMore = false;
 					}
-				  else if (keyword.length == 0 || keyword == null) {
-					  vm.invoices = $scope.invoices;
-				  }
+					vm.invoices = tempInvoiceList;
+				}).error(function (data) {
+					vm.invoices = [];
+					$scope.showMore = false;
+					$scope.listLoaded = 'loaded';
+				})
+
 			}
+			else if (keyword.length == 0 || keyword == null) {
+				vm.invoices = $scope.invoices;
+			}
+		}
 
 
 		$scope.loadInvoiceByPaging= function (keyword,skip, take,len) {
@@ -3369,74 +3422,79 @@
 
 
 
-    $scope.loadInvoiceDetail = function(data){
+		$scope.loadInvoiceDetail = function(data){
 
-      $scope.invProducts=[];
-      var invoiceDetails=data[0].invoiceDetails;
-      var count=invoiceDetails.length;
-      var productName;
-      var status=false;
-      var totDiscount=0;
-      //var address = $scope.GetAddress(invoice.person_name);
-      // var address = $filter('filter')($scope.users, { profilename: invoice.person_name })[0];
-      // $scope.prefix=prefixLength!=0? parseInt(prefixLength.RecordFieldData):0;
-      //var prefixInvoice=invoicePrefix !="" ? invoicePrefix.RecordFieldData:"INV";
-      var exchangeRate=parseFloat(data[0].rate);
-      $scope.selectedInvoice={};
-      $scope.selectedInvoice = data[0];
-      $scope.selectedInvoice.guInvID=data[0].guInvID;
+			$scope.invProducts=[];
+			var invoiceDetails=data[0].invoiceDetails;
+			var count=invoiceDetails.length;
+			var productName;
+			var status=false;
+			var totDiscount=0;
+			//var address = $scope.GetAddress(invoice.person_name);
+			// var address = $filter('filter')($scope.users, { profilename: invoice.person_name })[0];
+			// $scope.prefix=prefixLength!=0? parseInt(prefixLength.RecordFieldData):0;
+			//var prefixInvoice=invoicePrefix !="" ? invoicePrefix.RecordFieldData:"INV";
+			var exchangeRate=parseFloat(data[0].rate);
+			$scope.selectedInvoice={};
+			$scope.selectedInvoice = data[0];
+			$scope.selectedInvoice.guInvID=data[0].guInvID;
 
-      var array =  $scope.selectedInvoice.period.split(',');
-      $scope.selectedInvoice.periodStartDate =  array[0];
-      $scope.selectedInvoice.periodEndDate =  array[1];
-
-
-      //var invoiceNum=invoice.invoiceNo;
-      //$scope.selectedInvoice.invoiceNo=invoiceNum;
-      $scope.selectedInvoice.bill_addr = data[0].bill_addr;
-      $scope.selectedInvoice.person_name = data[0].profile_type=="Individual"?data[0].first_name + " " + data[0].last_name:data[0].business_name;
-      $scope.selectedInvoice.email_addr = data[0].email_addr;
-      $scope.selectedInvoice.phone=data[0].phone;
-      $scope.selectedInvoice.subTotal=angular.copy(data[0].subTotal*exchangeRate);
-      $scope.selectedInvoice.discAmt=data[0].discAmt*exchangeRate;
-      //$scope.selectedInvoice.invoiceNo=prefixInvoice;
-      $scope.selectedInvoice.additionalcharge=data[0].additionalcharge*exchangeRate;
-      $scope.selectedInvoice.invoiceAmount=data[0].invoiceAmount*exchangeRate;
-      $scope.selectedInvoice.tax=data[0].tax*exchangeRate;
-      $scope.selectedInvoice.dueDate=moment(data[0].dueDate.toString()).format('LL');
-      $scope.selectedInvoice.logo=$scope.content.companyLogo;
-      $scope.selectedInvoice.currency=data[0].currency;
-      $scope.selectedInvoice.rate=exchangeRate;
-      $scope.selectedInvoice.invoiceDetails=invoiceDetails;
-      $scope.selectedInvoice.companyName=$scope.content.companyName;
-      $scope.selectedInvoice.companyAddress=$scope.content.companyAddress;
-      $scope.selectedInvoice.companyPhone=$scope.content.companyPhone;
-      $scope.selectedInvoice.companyEmail=$scope.content.companyEmail;
-      $scope.selectedInvoice.companyLogo=$scope.content.companyLogo;
-      invoiceDetails.forEach(function(inv){
-        inv.product_name= inv.product_name;
-        inv.unitPrice= inv.unitPrice*exchangeRate;
-        inv.gty= inv.gty;
-        inv.totalPrice=(inv.unitPrice * inv.gty) - inv.discount;
-        totDiscount=totDiscount+inv.discount*exchangeRate;
-        inv.promotion=totDiscount});
-
-      $scope.selectedInvoice.subTotal = 0;
-      for(var i=0;i<invoiceDetails.length;i++){
-
-        $scope.selectedInvoice.subTotal += invoiceDetails[i].totalPrice;
-      }
+			var array =  $scope.selectedInvoice.period.split(',');
+			$scope.selectedInvoice.periodStartDate =  array[0];
+			$scope.selectedInvoice.periodEndDate =  array[1];
 
 
-      $scope.selectedInvoice.discount=totDiscount;
-      vm.selectedInvoice=$scope.selectedInvoice;
-      vm.selectedInvoice.transactionType = invoice.transactionType;
-      //$scope.showAdvancedInvoice(ev,vm.selectedInvoice);
-      invoice.isDialogLoading = false;
-      $scope.isReadLoaded = true;
+			//var invoiceNum=invoice.invoiceNo;
+			//$scope.selectedInvoice.invoiceNo=invoiceNum;
+			$scope.selectedInvoice.bill_addr = data[0].bill_addr;
+			$scope.selectedInvoice.person_name = data[0].profile_type=="Individual"?data[0].first_name + " " + data[0].last_name:data[0].business_name;
+			$scope.selectedInvoice.email_addr = data[0].email_addr;
+			$scope.selectedInvoice.phone=data[0].phone;
+			$scope.selectedInvoice.subTotal=angular.copy(data[0].subTotal*exchangeRate);
+			$scope.selectedInvoice.discAmt=data[0].discAmt*exchangeRate;
+			//$scope.selectedInvoice.invoiceNo=prefixInvoice;
+			$scope.selectedInvoice.additionalcharge=data[0].additionalcharge*exchangeRate;
+			$scope.selectedInvoice.invoiceAmount=data[0].invoiceAmount*exchangeRate;
+			$scope.selectedInvoice.tax=data[0].tax*exchangeRate;
+			$scope.selectedInvoice.dueDate=moment(data[0].dueDate.toString()).format('LL');
+			$scope.selectedInvoice.logo=$scope.content.companyLogo;
+			$scope.selectedInvoice.currency=data[0].currency;
+			$scope.selectedInvoice.rate=exchangeRate;
+			$scope.selectedInvoice.invoiceDetails=invoiceDetails;
+			$scope.selectedInvoice.companyName=$scope.content.companyName;
+			$scope.selectedInvoice.companyAddress=$scope.content.companyAddress;
+			$scope.selectedInvoice.companyPhone=$scope.content.companyPhone;
+			$scope.selectedInvoice.companyEmail=$scope.content.companyEmail;
+			$scope.selectedInvoice.companyLogo=$scope.content.companyLogo;
+			invoiceDetails.forEach(function(inv){
+				inv.product_name= inv.product_name;
+				inv.unitPrice= inv.unitPrice*exchangeRate;
+				inv.gty= inv.gty;
+				inv.totalPrice=(inv.unitPrice * inv.gty) - inv.discount;
+				totDiscount=totDiscount+inv.discount*exchangeRate;
+				inv.promotion=totDiscount});
+
+			$scope.selectedInvoice.subTotal = 0;
+			for(var i=0;i<invoiceDetails.length;i++){
+
+				$scope.selectedInvoice.subTotal += invoiceDetails[i].totalPrice;
+			}
 
 
-  }
+			$scope.selectedInvoice.discount=totDiscount;
+			vm.selectedInvoice=$scope.selectedInvoice;
+			vm.selectedInvoice.transactionType = invoice.transactionType;
+			//$scope.showAdvancedInvoice(ev,vm.selectedInvoice);
+			invoice.isDialogLoading = false;
+
+			extractEmailTemplate(vm.selectedInvoice, function () {
+				var preview = $('#print-content');
+				preview.children().remove();
+				preview.append($scope.currEmailTemplate);
+				$scope.isReadLoaded = true;
+			});
+
+		}
 
 
 		$scope.editOff = true;
@@ -3446,25 +3504,25 @@
 			$scope.isReadLoaded = false;
 			vm.selectedInvoiceList = invoice;
 
-      if($scope.issubscriptionappuse){
-        $charge.invoice().getByGuinvId(invoice.guInvID).success(function (data) {
-          $scope.loadInvoiceDetail(data);
-        }).error(function (data) {
-          // console.log(data);
-          $scope.spinnerInvoice = false;
-          $scope.isReadLoaded = true;
-        });
+			if($scope.issubscriptionappuse){
+				$charge.invoice().getByGuinvId(invoice.guInvID).success(function (data) {
+					$scope.loadInvoiceDetail(data);
+				}).error(function (data) {
+					// console.log(data);
+					$scope.spinnerInvoice = false;
+					$scope.isReadLoaded = true;
+				});
 
-      }else {
+			}else {
 
-        $charge.invoice().getByGuinvIdForInvoiceModule(invoice.guInvID).success(function (data) {
-          $scope.loadInvoiceDetail(data);
-        }).error(function (data) {
-          // console.log(data);
-          $scope.spinnerInvoice = false;
-          $scope.isReadLoaded = true;
-        });
-      }
+				$charge.invoice().getByGuinvIdForInvoiceModule(invoice.guInvID).success(function (data) {
+					$scope.loadInvoiceDetail(data);
+				}).error(function (data) {
+					// console.log(data);
+					$scope.spinnerInvoice = false;
+					$scope.isReadLoaded = true;
+				});
+			}
 		}
 
 
@@ -3490,61 +3548,61 @@
 		$scope.filteredUsers=[];
 		$scope.loadUsersByCat= function (skipUsr,takeUsr) {
 
-      var jsonData = {
-        "url": "https://cloudchargesearch.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
-        "searchBy": "*",
-        "searchFields": "",
-        "take": 100,
-        "skip": 0,
-        "orderby": "createddate desc"
-      }
+			var jsonData = {
+				"url": "https://cloudcharge.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
+				"searchBy": "*",
+				"searchFields": "",
+				"take": 100,
+				"skip": 0,
+				"orderby": "createddate desc"
+			}
 
-      $charge.searchhelper().searchRequest(jsonData).success(function(data)
-      {
-        skipUsr += takeUsr;
-          for (var i = 0; i < data.value.length; i++) {
-            		if(data.value[i].status==0)
-            		{
-            			data.value[i].status=false;
-            		}
-            		else
-            		{
-            			data.value[i].status=true;
-            		}
-            		data.value[i].createddate = new Date(data.value[i].createddate);
-            		//tempList.push(data.value[i]);
+			$charge.searchhelper().searchRequest(jsonData).success(function(data)
+			{
+				skipUsr += takeUsr;
+				for (var i = 0; i < data.value.length; i++) {
+					if(data.value[i].status==0)
+					{
+						data.value[i].status=false;
+					}
+					else
+					{
+						data.value[i].status=true;
+					}
+					data.value[i].createddate = new Date(data.value[i].createddate);
+					//tempList.push(data.value[i]);
 
-          }
+				}
 
-        if(data.value.length<takeUsr)
-        		vm.lastProfile=true;
-        	for (var i = 0; i < data.value.length; i++) {
-        		var obj = data.value[i];
+				if(data.value.length<takeUsr)
+					vm.lastProfile=true;
+				for (var i = 0; i < data.value.length; i++) {
+					var obj = data.value[i];
 
-        		$scope.filteredUsers.push({
-        			profilename : obj.first_name,
-        			profileId : obj.profileId,
-        			othername : obj.last_name,
-        			bill_addr:obj.bill_addr,
-        			email:obj.email_addr,
-        			credit_limit:obj.credit_limit
-        		});
-        	}
+					$scope.filteredUsers.push({
+						profilename : obj.first_name,
+						profileId : obj.profileId,
+						othername : obj.last_name,
+						bill_addr:obj.bill_addr,
+						email:obj.email_addr,
+						credit_limit:obj.credit_limit
+					});
+				}
 
-        	if(data.value.length<takeUsr){
-        		$scope.isdataavailable=false;
-        		$scope.hideSearchMore=true;
-        	}
-        	else if(data.value.length!=0 && data.value.length>takeUsr)
-        	{
-        		skipUsr+=takeUsr;
-        		$scope.loadUsersByCat(skipUsr,takeUsr);
-        	}
+				if(data.value.length<takeUsr){
+					$scope.isdataavailable=false;
+					$scope.hideSearchMore=true;
+				}
+				else if(data.value.length!=0 && data.value.length>takeUsr)
+				{
+					skipUsr+=takeUsr;
+					$scope.loadUsersByCat(skipUsr,takeUsr);
+				}
 
-      }).error(function(data)
-      {
-        	$scope.isloadDone = true;
-      })
+			}).error(function(data)
+			{
+				$scope.isloadDone = true;
+			})
 
 		}
 
@@ -3555,54 +3613,54 @@
 		var skipDetail= 0,takeDetail=10;
 		$scope.products=[];
 
-    $scope.loadAllProducts = function(skipDetail,takeDetail)
-    {
-      $charge.product().all(skipDetail,takeDetail,"desc").success(function(data)
-      {
-          skipDetail += takeDetail;
-          for (var i = 0; i < data.length; i++) {
-            $scope.products.push(data[i]);
-          }
+		$scope.loadAllProducts = function(skipDetail,takeDetail)
+		{
+			$charge.product().all(skipDetail,takeDetail,"desc").success(function(data)
+			{
+				skipDetail += takeDetail;
+				for (var i = 0; i < data.length; i++) {
+					$scope.products.push(data[i]);
+				}
 
-          //
-          if(data.length<takeDetail){
-            $scope.isdataavailable=false;
-            $scope.hideSearchMore=true;
-            $scope.addNewRow();
-          }
-          else if(data.length!=0 && data.length>=takeDetail)
-          {
-            $scope.loadAllProducts(skipDetail,takeDetail);
-          }
-          else if(data.length==0)
-          {
-            $scope.addNewRow();
-          }
+				//
+				if(data.length<takeDetail){
+					$scope.isdataavailable=false;
+					$scope.hideSearchMore=true;
+					$scope.addNewRow();
+				}
+				else if(data.length!=0 && data.length>=takeDetail)
+				{
+					$scope.loadAllProducts(skipDetail,takeDetail);
+				}
+				else if(data.length==0)
+				{
+					$scope.addNewRow();
+				}
 
 
 
-      }).error(function(data)
-      {
-        //console.log(data);
-        $scope.isSpinnerShown=false;
-        $scope.isdataavailable=false;
-        $scope.loading = false;
-        $scope.isLoading = false;
-        $scope.hideSearchMore=true;
-      })
+			}).error(function(data)
+			{
+				//console.log(data);
+				$scope.isSpinnerShown=false;
+				$scope.isdataavailable=false;
+				$scope.loading = false;
+				$scope.isLoading = false;
+				$scope.hideSearchMore=true;
+			})
 
-    }
+		}
 
 		$scope.loadAllPlans= function (skipDetail,takeDetail) {
 
-      var jsonData = {
-        "url": "https://cloudchargesearch.search.windows.net/indexes/plan/docs/search?api-version=2016-09-01",
-        "searchBy": "*",
-        "searchFields": "",
-        "take": 100,
-        "skip": 0,
-        "orderby": "createdDate desc"
-      }
+			var jsonData = {
+				"url": "https://cloudcharge.search.windows.net/indexes/plan/docs/search?api-version=2016-09-01",
+				"searchBy": "*",
+				"searchFields": "",
+				"take": 100,
+				"skip": 0,
+				"orderby": "createdDate desc"
+			}
 
 			$charge.searchhelper().searchRequest(jsonData).success(function(data)
 			{
@@ -3610,7 +3668,7 @@
 				if($scope.loading)
 				{
 
-          skipDetail += takeDetail;
+					skipDetail += takeDetail;
 					for (var i = 0; i < data.value.length; i++) {
 						$scope.products.push(data.value[i]);
 					}
@@ -3645,12 +3703,12 @@
 
 
 
-    if($scope.issubscriptionappuse){
+		if($scope.issubscriptionappuse){
 
-      $scope.loadAllPlans(skipDetail, takeDetail);
-    }else {
-      $scope.loadAllProducts(skipDetail, takeDetail);
-    }
+			$scope.loadAllPlans(skipDetail, takeDetail);
+		}else {
+			$scope.loadAllProducts(skipDetail, takeDetail);
+		}
 
 
 		var self = this;
@@ -4298,9 +4356,22 @@
 				$scope.currentTemplateView='emailTemplate1';
 			}else{
 				$scope.currentTemplateView=data[0][0].RecordFieldData.split('/')[data[0][0].RecordFieldData.split('/').length-1].split('.')[0];
+				$http({
+					method:'GET',
+					url:data[0][0].RecordFieldData
+				}).then(function (res) {
+					$scope.tempSelectedTemplate = angular.copy(res.data);
+				}, function (res) {});
 			}
 		}).error(function (data) {
 			$scope.currentTemplateView='emailTemplate1';
+			$http({
+				method:'GET',
+				url:'https://ccresourcegrpdisks974.blob.core.windows.net/email-templates/emailTemplate1.html'
+			}).then(function (res) {
+				$scope.tempSelectedTemplate = angular.copy(res.data);
+				$scope.currEmailTemplate = res.data;
+			}, function (res) {});
 		});
 
 		$scope.$watch(function () {
