@@ -218,266 +218,272 @@
                     <!--<md-button ng-click="getEmbededPlanForm(vm.selectedPlan)" class="embed-btn md-raised font-accent h-30 lh-32" layout="row" layout-align="center center">Embed <md-icon md-font-icon="icon-share" class="fs-20 font-accent w-20 h-20 m-0 lh-18"></md-icon><md-tooltip>Get embeddable form</md-tooltip></md-button>-->
                     <!--</div>-->
                     <!--<md-divider class="mt-10 mb-20"></md-divider>-->
+
+
                     <!-- INVOICE -->
-                    <div class="email-template" style="box-shadow:none!important;float:none;width: 100%;max-width: 700px;min-height: 800px;position:relative">
-                        <div class="state-flag-wrap">
-                            <md-icon md-font-icon="icon-bookmark {{vm.selectedInvoice.invoiceStatus | lowercase}}"></md-icon>
-                            <span class="state-flag-text {{vm.selectedInvoice.invoiceStatus | lowercase}}">{{vm.selectedInvoice.invoiceStatus}}</span>
-                        </div>
-                        <div id="print-content" style="border: solid 1px #ddd;min-height: 800px;position:relative;">
-                            <div ng-if="currentTemplateView == 'emailTemplate1'">
-                                <div class="template-header bg-blue-g" style="height: 100px;background: #05a3ec;background:linear-gradient(45deg, #05a3ec,#006696);color: #fff;padding: 10px;">
-                                    <div class="left-content" style="width: 30%;float: left;">
-                                        <div style="font-size: 30px;margin: 20px 0;">INVOICE</div>
-                                    </div>
-                                    <div class="right-content" style="width: 70%;float: right;">
-                                        <div class="inner-left" style="width: 35%;float: left;">
-                                        </div>
-                                        <div class="inner-right" style="width: 65%;float: right">
-                                            <div><h3 style="margin: 0;">{{vm.selectedInvoice.companyName}}</h3></div>
-                                            <div>{{vm.selectedInvoice.companyAddress}}</div>
-                                            <div>{{vm.selectedInvoice.companyPhone}}</div>
-                                            <div>{{vm.selectedInvoice.companyEmail}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="sub-header" style="padding: 10px;padding-top: 30px;overflow: hidden;">
-                                    <div class="left-content" style="width: 55%;float: left;">
-                                        <div style="color: #aaa;margin-bottom: 5px">Billed to</div>
-                                        <div style="margin-bottom: 5px">{{vm.selectedInvoice.person_name}}</div>
-                                        <div style="margin-bottom: 5px">{{vm.selectedInvoice.bill_addr}}</div>
-                                        <div style="margin-bottom: 5px">{{vm.selectedInvoice.phone}}</div>
-                                        <div>{{vm.selectedInvoice.email_addr}}</div>
-                                    </div>
-                                    <div class="right-content" style="width: 45%;float: right;">
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div style="display:inline-block;width: 100px;color: #aaa;margin-bottom: 2px">Invoice no</div>
-                                            <div style="display:inline-block;">{{selectedInvoice.invoiceNo}}</div>
-                                        </div>
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div style="display:inline-block;width: 100px;color: #aaa;margin-bottom: 2px">Invoice type</div>
-                                            <div style="display:inline-block;">{{vm.selectedInvoice.invoiceType}}</div>
-                                        </div>
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div style="display:inline-block;width: 100px;color: #aaa;margin-bottom: 2px">Created date</div>
-                                            <div style="display:inline-block;">{{selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</div>
-                                        </div>
-                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
-                                            <!--<div style="display:inline-block;width: 100px;color: #aaa;margin-bottom: 2px">Due date</div>-->
-                                            <!--<div style="display:inline-block;">{{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
+                    <!--<div class="email-template" style="box-shadow:none!important;float:none;width: 100%;max-width: 700px;min-height: 800px;position:relative">-->
+                        <!--<div class="state-flag-wrap">-->
+                            <!--<md-icon md-font-icon="icon-bookmark {{vm.selectedInvoice.invoiceStatus | lowercase}}"></md-icon>-->
+                            <!--<span class="state-flag-text {{vm.selectedInvoice.invoiceStatus | lowercase}}">{{vm.selectedInvoice.invoiceStatus}}</span>-->
+                        <!--</div>-->
+                        <!--<div id="print-content" style="border: solid 1px #ddd;min-height: 800px;position:relative;">-->
+                            <!--<div ng-if="currentTemplateView == 'emailTemplate1'">-->
+                                <!--<div class="template-header bg-blue-g" style="height: 100px;background: #05a3ec;background:linear-gradient(45deg, #05a3ec,#006696);color: #fff;padding: 10px;">-->
+                                    <!--<div class="left-content" style="width: 30%;float: left;">-->
+                                        <!--<div style="font-size: 30px;margin: 20px 0;">INVOICE</div>-->
+                                    <!--</div>-->
+                                    <!--<div class="right-content" style="width: 70%;float: right;">-->
+                                        <!--<div class="inner-left" style="width: 35%;float: left;">-->
                                         <!--</div>-->
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div style="display:inline-block;width: 100px;color: #aaa;margin-bottom: 2px">Billing period</div>
-                                            <div style="display:inline-block;">{{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>
-                                            <!--<div style="display:inline-block;">{{vm.selectedInvoice.period}}</div>-->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div ng-if="currentTemplateView == 'emailTemplate2'">
-                                <div class="template-header bg-image" style="height: 110px;background: url('../../../../assets/images/backgrounds/email_template_1.jpg') -30px;background-repeat:no-repeat;background-size:cover;color: #fff;padding: 10px;">
-                                    <div class="left-content" style="width: 55%;float: left;">
-                                        <div style="font-size: 30px;margin: 20px 0;">INVOICE</div>
-                                    </div>
-                                    <div class="right-content" style="width: 45%;float: right;">
-                                        <div class="inner-right" style="float: left;color: #000;">
-                                            <div><h3 style="margin: 0;">{{vm.selectedInvoice.companyName}}</h3></div>
-                                            <div>{{vm.selectedInvoice.companyAddress}}</div>
-                                            <div>{{vm.selectedInvoice.companyPhone}}</div>
-                                            <div>{{vm.selectedInvoice.companyEmail}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="sub-header" style="padding: 10px;padding-top: 30px;overflow: hidden;">
-                                    <div class="left-content" style="width: 55%;float: left;">
-                                        <div style="color: #aaa;margin-bottom: 5px">Billed to</div>
-                                        <div style="margin-bottom: 5px">{{vm.selectedInvoice.person_name}}</div>
-                                        <div style="margin-bottom: 5px">{{vm.selectedInvoice.bill_addr}}</div>
-                                        <div style="margin-bottom: 5px">{{vm.selectedInvoice.phone}}</div>
-                                        <div>{{vm.selectedInvoice.email_addr}}</div>
-                                    </div>
-                                    <div class="right-content" style="width: 45%;float: right;">
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div style="width: 100px;display: inline-block;color: #aaa;margin-bottom: 2px">Invoice no</div>
-                                            <div style="display:inline-block;">{{selectedInvoice.invoiceNo}}</div>
-                                        </div>
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div style="width: 100px;display: inline-block;color: #aaa;margin-bottom: 2px">Invoice type</div>
-                                            <div style="display:inline-block;">{{selectedInvoice.invoiceType}}</div>
-                                        </div>
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div style="width: 100px;display: inline-block;color: #aaa;margin-bottom: 2px">Created date</div>
-                                            <div style="display:inline-block;">{{selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</div>
-                                        </div>
-                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
-                                            <!--<div style="width: 100px;display: inline-block;color: #aaa;margin-bottom: 2px">Due date</div>-->
-                                            <!--<div style="display:inline-block;">{{selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
+                                        <!--<div class="inner-right" style="width: 65%;float: right">-->
+                                            <!--<div><h3 style="margin: 0;">{{vm.selectedInvoice.companyName}}</h3></div>-->
+                                            <!--<div>{{vm.selectedInvoice.companyAddress}}</div>-->
+                                            <!--<div>{{vm.selectedInvoice.companyPhone}}</div>-->
+                                            <!--<div>{{vm.selectedInvoice.companyEmail}}</div>-->
                                         <!--</div>-->
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div style="width: 100px;display: inline-block;color: #aaa;margin-bottom: 2px">Billing period</div>
-                                          <div style="display:inline-block;">{{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div ng-if="currentTemplateView == 'emailTemplate3'">
-                                <div class="template-header" style="height: 150px;padding: 10px;text-align: center;position: relative;">
-                                    <img src="{{vm.selectedInvoice.companyLogo}}" alt="" style="height: 100px;position: absolute;left: 0;right: 0;top: 0;bottom: 0;margin: auto;">
-                                </div>
-                                <div style="text-align: center">
-                                    <div style="margin: 5px 0;color: #aaaaaa;">{{vm.selectedInvoice.companyName}}</div>
-                                    <div style="margin-left: 25%;margin-right:25%;height: 1px;border-top: solid 1px #eee"></div>
-                                    <div style="margin: 5px 0;color: #aaaaaa;">{{vm.selectedInvoice.companyPhone}}</div>
-                                    <div style="margin: 5px 0;color: #aaaaaa;">{{vm.selectedInvoice.companyEmail}}</div>
-                                </div>
-                                <div style="overflow: hidden;background: #f7f7f7;color: #aaa;">
-                                    <div style="margin: 5px 0;text-align: center">{{vm.selectedInvoice.companyAddress}}</div>
-                                </div>
-                                <div class="bg-blue" style="height: 40px;text-align: center;background: #05a3ec;color: #fff;margin-bottom: 10px">
-                                    <div style="font-size: 20px;padding: 5px 0;">INVOICE</div>
-                                </div>
-                                <div class="sub-header" style="padding: 10px;overflow: hidden;">
-                                    <div class="left-content" style="width: 67%;float: left;">
-                                        <div style="margin-bottom: 5px">{{vm.selectedInvoice.person_name}}</div>
-                                        <div style="margin-bottom: 5px">{{vm.selectedInvoice.bill_addr}}</div>
-                                        <div style="margin-bottom: 5px">{{vm.selectedInvoice.phone}}</div>
-                                        <div>{{vm.selectedInvoice.email_addr}}</div>
-                                    </div>
-                                    <div class="right-content" style="width: 33%;float: right;">
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div><span style="color: #aaa;">Invoice no: </span>  {{selectedInvoice.invoiceNo}}</div>
-                                        </div>
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div><span style="color: #aaa;">Invoice type: </span>  {{selectedInvoice.invoiceType}}</div>
-                                        </div>
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div><span style="color: #aaa;">Created date: </span>  {{selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</div>
-                                        </div>
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div class="sub-header" style="padding: 10px;padding-top: 30px;overflow: hidden;">-->
+                                    <!--<div class="left-content" style="width: 55%;float: left;">-->
+                                        <!--<div style="color: #aaa;margin-bottom: 5px">Billed to</div>-->
+                                        <!--<div style="margin-bottom: 5px">{{vm.selectedInvoice.person_name}}</div>-->
+                                        <!--<div style="margin-bottom: 5px">{{vm.selectedInvoice.bill_addr}}</div>-->
+                                        <!--<div style="margin-bottom: 5px">{{vm.selectedInvoice.phone}}</div>-->
+                                        <!--<div>{{vm.selectedInvoice.email_addr}}</div>-->
+                                    <!--</div>-->
+                                    <!--<div class="right-content" style="width: 45%;float: right;">-->
                                         <!--<div class="inner-left" style="margin-bottom: 10px">-->
-                                            <!--<div><span style="color: #aaa;">Due date: </span>  {{selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
+                                            <!--<div style="display:inline-block;width: 100px;color: #aaa;margin-bottom: 2px">Invoice no</div>-->
+                                            <!--<div style="display:inline-block;">{{selectedInvoice.invoiceNo}}</div>-->
                                         <!--</div>-->
-                                        <div class="inner-left" style="margin-bottom: 10px">
-                                            <div><span style="color: #aaa;">Billing period: </span>  {{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div ng-if="currentTemplateView == 'emailTemplate4'">
-                                <div class="bg-blue" style="height: 40px;text-align: center;background-color: #05a3ec;color: #fff;margin-bottom: 30px">
-                                    <div style="font-size: 20px;padding: 5px 0;">INVOICE</div>
-                                </div>
-                                <div class="sub-header" style="padding: 10px;overflow: hidden;">
-                                    <div class="left-content" style="width: 50%;float: left;">
-                                        <div style="margin-bottom: 20px">
-                                            <div><span style="color: #aaa;">Invoice no: </span>  {{vm.selectedInvoice.invoiceNo}}</div>
-                                            <div><span style="color: #aaa;">Invoice type: </span>  {{vm.selectedInvoice.invoiceType}}</div>
-                                            <div><span style="color: #aaa;">Created date: </span>  {{selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</div>
-                                            <!--<div style="margin-bottom: 5px"><span style="color: #aaa;">Due date: </span>  {{selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
-                                            <div style="margin-bottom: 5px"><span style="color: #aaa;">Billing period: </span>  {{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>
-                                        </div>
-                                        <div>{{vm.selectedInvoice.person_name}}</div>
-                                        <div>{{vm.selectedInvoice.bill_addr}}</div>
-                                        <div>{{vm.selectedInvoice.phone}}</div>
-                                        <div>{{vm.selectedInvoice.email_addr}}</div>
-                                    </div>
-                                    <div class="right-content" style="width: 50%;float: right;">
-                                        <div class="logo" style="position:relative;float: left;width:100px;height: 150px;border-right:solid 1px #eee;">
-                                            <img src="{{vm.selectedInvoice.companyLogo}}" alt="" style="position:absolute;padding-right:10px;height: 90px;left: 0;right: 0;top: 0;bottom: 0;margin: auto;">
-                                        </div>
-                                        <div style="float: left;margin-left: 10px;max-width: 177px;">
-                                            <div><h3>{{vm.selectedInvoice.companyName}}</h3></div>
-                                            <div>{{vm.selectedInvoice.companyAddress}}</div>
-                                            <div style="clear: both;color: #aaa;padding-top: 10px;margin-top: 10px;font-size: 12px;">
-                                                <div style="margin-bottom: 5px">{{vm.selectedInvoice.companyPhone}}</div>
-                                                <div>{{vm.selectedInvoice.companyEmail}}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="list" style="margin: 10px;">
-                                <div class="list-header" style="overflow: hidden;padding: 10px;background: #eee;">
-                                    <div style="color: #aaa;width: 20%;float: left;">
-                                        Item
-                                    </div>
-                                    <div style="color: #aaa;width: 20%;float: left;text-align: right">
-                                        Unit price
-                                    </div>
-                                    <div style="width: 2%;float: left;height: 10px;"></div>
-                                    <div style="color: #aaa;width: 18%;float: left">
-                                        Quantity
-                                    </div>
-                                    <div style="color: #aaa;width: 20%;float: left" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">
-                                        Promotion
-                                    </div>
-                                    <div style="color: #aaa;float: left;text-align: right" ng-style="vm.selectedInvoice.invoiceType.toLowerCase() == 'manual' ? {'width':'40%'} : {'width':'20%'}">
-                                        Total
-                                    </div>
-                                </div>
-                                <div class="list-item" style="border-bottom: solid 1px #eee;padding: 10px;overflow: hidden;" ng-repeat="detail in vm.selectedInvoice.invoiceDetails">
-                                    <div style="float: left;color: #aaa;width: 20%">{{detail.code}}<span ng-if="detail.code == '' || detail.code == null">-</span> </div>
-                                    <div style="float: left;color: #aaa;width: 20%;text-align: right">
-                                        {{detail.unitPrice  | isoCurrency: invoice.currency:decimalPoint}}
-                                        <!--{{detail.unitPrice | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}-->
-                                    </div>
-                                    <div style="width: 2%;float: left;height: 10px;"></div>
-                                    <div style="float: left;color: #aaa;width: 18%">
-                                        {{detail.gty}}
-                                    </div>
-                                    <div style="float: left;color: #aaa;width: 20%" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">
-                                        {{detail.discount  | isoCurrency: invoice.currency:decimalPoint}}
-                                    </div>
-                                    <div style="float: left;color: #aaa;text-align: right" ng-style="vm.selectedInvoice.invoiceType.toLowerCase() == 'manual' ? {'width':'40%'} : {'width':'20%'}">
-                                        {{detail.totalPrice  | isoCurrency: invoice.currency:decimalPoint}}
-                                    </div>
-                                </div>
-                                <div style="overflow: hidden;margin-bottom: 10px;margin-top: 10px;padding-right: 10px">
-                                    <div style="width: 50%;height: 10px;float: left;"></div>
-                                    <div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">
-                                        <div style="float: left;color: #aaa;width: 50%">SUBTOTAL</div>
-                                        <div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.subTotal  | isoCurrency: invoice.currency:decimalPoint}}</div>
-                                    </div>
-                                </div>
-                                <div style="overflow: hidden;margin-bottom: 10px;padding-right: 10px">
-                                    <div style="width: 50%;height: 10px;float: left;"></div>
-                                    <div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">
-                                        <div style="float: left;color: #aaa;width: 50%" ng-if="vm.selectedInvoice.additionalcharge <= 0">MISCELLANEOUS CHARGES</div>
-                                        <div style="float: left;color: #aaa;width: 50%" ng-if="vm.selectedInvoice.additionalcharge > 0">MISCELLANEOUS CHARGES<br/><i style="font-size: 12px">{{vm.selectedInvoice.tag}}</i></div>
-                                        <div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.additionalcharge  | isoCurrency: invoice.currency:decimalPoint}}</div>
-                                    </div>
-                                </div>
-                                <div style="overflow: hidden;margin-bottom: 10px;padding-right: 10px">
-                                    <div style="width: 50%;height: 10px;float: left;"></div>
-                                    <div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">
-                                        <div style="float: left;color: #aaa;width: 50%">DISCOUNT</div>
-                                        <!--<div style="float: left;color: #aaa;width: 50%;text-align: right" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">({{vm.selectedInvoice.discount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}})</div>-->
-                                        <div style="float: left;color: #aaa;width: 50%;text-align: right" >({{vm.selectedInvoice.discAmt  | isoCurrency: invoice.currency:decimalPoint}})</div>
-                                    </div>
-                                </div>
-                                <div style="overflow: hidden;margin-bottom: 10px;padding-right: 10px" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">
-                                    <div style="width: 50%;height: 10px;float: left;"></div>
-                                    <div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">
-                                        <div style="float: left;color: #aaa;width: 50%">TAX</div>
-                                        <div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.tax  | isoCurrency: invoice.currency:decimalPoint}}</div>
-                                    </div>
-                                </div>
-                                <div class="list-footer" style="overflow: hidden;height: 40px;margin-top: 30px;padding-right: 10px">
-                                    <div style="width: 50%;height: 10px;float: left;"></div>
-                                    <div style="width: 50%;float: left;padding: 5px 0">
-                                        <div style="color: #aaaaaa;font-size: 16px;width: 50%;float: left;">TOTAL</div>
-                                        <div style="color: #aaaaaa;text-align: right;width: 50%;float: left;">{{vm.selectedInvoice.invoiceAmount  | isoCurrency: invoice.currency:decimalPoint}}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="template-footer" style="width: 100%;margin-top: 40px;padding: 10px;position:absolute;bottom: 0;">
-                                <div style="margin: 5px 0;font-size: 12px">{{vm.selectedInvoice.greeting}}</div>
-                                <div style="font-size: 12px;color: #aaa;padding-top: 5px;border-top: solid 1px #eee">
-                                    {{vm.selectedInvoice.disclaimer}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
+                                            <!--<div style="display:inline-block;width: 100px;color: #aaa;margin-bottom: 2px">Invoice type</div>-->
+                                            <!--<div style="display:inline-block;">{{vm.selectedInvoice.invoiceType}}</div>-->
+                                        <!--</div>-->
+                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
+                                            <!--<div style="display:inline-block;width: 100px;color: #aaa;margin-bottom: 2px">Created date</div>-->
+                                            <!--<div style="display:inline-block;">{{selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
+                                        <!--</div>-->
+                                        <!--&lt;!&ndash;<div class="inner-left" style="margin-bottom: 10px">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<div style="display:inline-block;width: 100px;color: #aaa;margin-bottom: 2px">Due date</div>&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<div style="display:inline-block;">{{vm.selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
+                                            <!--<div style="display:inline-block;width: 100px;color: #aaa;margin-bottom: 2px">Billing period</div>-->
+                                            <!--<div style="display:inline-block;">{{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
+                                            <!--&lt;!&ndash;<div style="display:inline-block;">{{vm.selectedInvoice.period}}</div>&ndash;&gt;-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div ng-if="currentTemplateView == 'emailTemplate2'">-->
+                                <!--<div class="template-header bg-image" style="height: 110px;background: url('../../../../assets/images/backgrounds/email_template_1.jpg') -30px;background-repeat:no-repeat;background-size:cover;color: #fff;padding: 10px;">-->
+                                    <!--<div class="left-content" style="width: 55%;float: left;">-->
+                                        <!--<div style="font-size: 30px;margin: 20px 0;">INVOICE</div>-->
+                                    <!--</div>-->
+                                    <!--<div class="right-content" style="width: 45%;float: right;">-->
+                                        <!--<div class="inner-right" style="float: left;color: #000;">-->
+                                            <!--<div><h3 style="margin: 0;">{{vm.selectedInvoice.companyName}}</h3></div>-->
+                                            <!--<div>{{vm.selectedInvoice.companyAddress}}</div>-->
+                                            <!--<div>{{vm.selectedInvoice.companyPhone}}</div>-->
+                                            <!--<div>{{vm.selectedInvoice.companyEmail}}</div>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div class="sub-header" style="padding: 10px;padding-top: 30px;overflow: hidden;">-->
+                                    <!--<div class="left-content" style="width: 55%;float: left;">-->
+                                        <!--<div style="color: #aaa;margin-bottom: 5px">Billed to</div>-->
+                                        <!--<div style="margin-bottom: 5px">{{vm.selectedInvoice.person_name}}</div>-->
+                                        <!--<div style="margin-bottom: 5px">{{vm.selectedInvoice.bill_addr}}</div>-->
+                                        <!--<div style="margin-bottom: 5px">{{vm.selectedInvoice.phone}}</div>-->
+                                        <!--<div>{{vm.selectedInvoice.email_addr}}</div>-->
+                                    <!--</div>-->
+                                    <!--<div class="right-content" style="width: 45%;float: right;">-->
+                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
+                                            <!--<div style="width: 100px;display: inline-block;color: #aaa;margin-bottom: 2px">Invoice no</div>-->
+                                            <!--<div style="display:inline-block;">{{selectedInvoice.invoiceNo}}</div>-->
+                                        <!--</div>-->
+                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
+                                            <!--<div style="width: 100px;display: inline-block;color: #aaa;margin-bottom: 2px">Invoice type</div>-->
+                                            <!--<div style="display:inline-block;">{{selectedInvoice.invoiceType}}</div>-->
+                                        <!--</div>-->
+                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
+                                            <!--<div style="width: 100px;display: inline-block;color: #aaa;margin-bottom: 2px">Created date</div>-->
+                                            <!--<div style="display:inline-block;">{{selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
+                                        <!--</div>-->
+                                        <!--&lt;!&ndash;<div class="inner-left" style="margin-bottom: 10px">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<div style="width: 100px;display: inline-block;color: #aaa;margin-bottom: 2px">Due date</div>&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<div style="display:inline-block;">{{selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
+                                            <!--<div style="width: 100px;display: inline-block;color: #aaa;margin-bottom: 2px">Billing period</div>-->
+                                          <!--<div style="display:inline-block;">{{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div ng-if="currentTemplateView == 'emailTemplate3'">-->
+                                <!--<div class="template-header" style="height: 150px;padding: 10px;text-align: center;position: relative;">-->
+                                    <!--<img src="{{vm.selectedInvoice.companyLogo}}" alt="" style="height: 100px;position: absolute;left: 0;right: 0;top: 0;bottom: 0;margin: auto;">-->
+                                <!--</div>-->
+                                <!--<div style="text-align: center">-->
+                                    <!--<div style="margin: 5px 0;color: #aaaaaa;">{{vm.selectedInvoice.companyName}}</div>-->
+                                    <!--<div style="margin-left: 25%;margin-right:25%;height: 1px;border-top: solid 1px #eee"></div>-->
+                                    <!--<div style="margin: 5px 0;color: #aaaaaa;">{{vm.selectedInvoice.companyPhone}}</div>-->
+                                    <!--<div style="margin: 5px 0;color: #aaaaaa;">{{vm.selectedInvoice.companyEmail}}</div>-->
+                                <!--</div>-->
+                                <!--<div style="overflow: hidden;background: #f7f7f7;color: #aaa;">-->
+                                    <!--<div style="margin: 5px 0;text-align: center">{{vm.selectedInvoice.companyAddress}}</div>-->
+                                <!--</div>-->
+                                <!--<div class="bg-blue" style="height: 40px;text-align: center;background: #05a3ec;color: #fff;margin-bottom: 10px">-->
+                                    <!--<div style="font-size: 20px;padding: 5px 0;">INVOICE</div>-->
+                                <!--</div>-->
+                                <!--<div class="sub-header" style="padding: 10px;overflow: hidden;">-->
+                                    <!--<div class="left-content" style="width: 67%;float: left;">-->
+                                        <!--<div style="margin-bottom: 5px">{{vm.selectedInvoice.person_name}}</div>-->
+                                        <!--<div style="margin-bottom: 5px">{{vm.selectedInvoice.bill_addr}}</div>-->
+                                        <!--<div style="margin-bottom: 5px">{{vm.selectedInvoice.phone}}</div>-->
+                                        <!--<div>{{vm.selectedInvoice.email_addr}}</div>-->
+                                    <!--</div>-->
+                                    <!--<div class="right-content" style="width: 33%;float: right;">-->
+                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
+                                            <!--<div><span style="color: #aaa;">Invoice no: </span>  {{selectedInvoice.invoiceNo}}</div>-->
+                                        <!--</div>-->
+                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
+                                            <!--<div><span style="color: #aaa;">Invoice type: </span>  {{selectedInvoice.invoiceType}}</div>-->
+                                        <!--</div>-->
+                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
+                                            <!--<div><span style="color: #aaa;">Created date: </span>  {{selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
+                                        <!--</div>-->
+                                        <!--&lt;!&ndash;<div class="inner-left" style="margin-bottom: 10px">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<div><span style="color: #aaa;">Due date: </span>  {{selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                        <!--<div class="inner-left" style="margin-bottom: 10px">-->
+                                            <!--<div><span style="color: #aaa;">Billing period: </span>  {{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div ng-if="currentTemplateView == 'emailTemplate4'">-->
+                                <!--<div class="bg-blue" style="height: 40px;text-align: center;background-color: #05a3ec;color: #fff;margin-bottom: 30px">-->
+                                    <!--<div style="font-size: 20px;padding: 5px 0;">INVOICE</div>-->
+                                <!--</div>-->
+                                <!--<div class="sub-header" style="padding: 10px;overflow: hidden;">-->
+                                    <!--<div class="left-content" style="width: 50%;float: left;">-->
+                                        <!--<div style="margin-bottom: 20px">-->
+                                            <!--<div><span style="color: #aaa;">Invoice no: </span>  {{vm.selectedInvoice.invoiceNo}}</div>-->
+                                            <!--<div><span style="color: #aaa;">Invoice type: </span>  {{vm.selectedInvoice.invoiceType}}</div>-->
+                                            <!--<div><span style="color: #aaa;">Created date: </span>  {{selectedInvoice.invoiceDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
+                                            <!--&lt;!&ndash;<div style="margin-bottom: 5px"><span style="color: #aaa;">Due date: </span>  {{selectedInvoice.dueDate | parseDate | date: 'dd/MM/yyyy'}}</div>&ndash;&gt;-->
+                                            <!--<div style="margin-bottom: 5px"><span style="color: #aaa;">Billing period: </span>  {{vm.selectedInvoice.periodStartDate | parseDate | date: 'dd/MM/yyyy'}} - {{vm.selectedInvoice.periodEndDate | parseDate | date: 'dd/MM/yyyy'}}</div>-->
+                                        <!--</div>-->
+                                        <!--<div>{{vm.selectedInvoice.person_name}}</div>-->
+                                        <!--<div>{{vm.selectedInvoice.bill_addr}}</div>-->
+                                        <!--<div>{{vm.selectedInvoice.phone}}</div>-->
+                                        <!--<div>{{vm.selectedInvoice.email_addr}}</div>-->
+                                    <!--</div>-->
+                                    <!--<div class="right-content" style="width: 50%;float: right;">-->
+                                        <!--<div class="logo" style="position:relative;float: left;width:100px;height: 150px;border-right:solid 1px #eee;">-->
+                                            <!--<img src="{{vm.selectedInvoice.companyLogo}}" alt="" style="position:absolute;padding-right:10px;height: 90px;left: 0;right: 0;top: 0;bottom: 0;margin: auto;">-->
+                                        <!--</div>-->
+                                        <!--<div style="float: left;margin-left: 10px;max-width: 177px;">-->
+                                            <!--<div><h3>{{vm.selectedInvoice.companyName}}</h3></div>-->
+                                            <!--<div>{{vm.selectedInvoice.companyAddress}}</div>-->
+                                            <!--<div style="clear: both;color: #aaa;padding-top: 10px;margin-top: 10px;font-size: 12px;">-->
+                                                <!--<div style="margin-bottom: 5px">{{vm.selectedInvoice.companyPhone}}</div>-->
+                                                <!--<div>{{vm.selectedInvoice.companyEmail}}</div>-->
+                                            <!--</div>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="list" style="margin: 10px;">-->
+                                <!--<div class="list-header" style="overflow: hidden;padding: 10px;background: #eee;">-->
+                                    <!--<div style="color: #aaa;width: 20%;float: left;">-->
+                                        <!--Item-->
+                                    <!--</div>-->
+                                    <!--<div style="color: #aaa;width: 20%;float: left;text-align: right">-->
+                                        <!--Unit price-->
+                                    <!--</div>-->
+                                    <!--<div style="width: 2%;float: left;height: 10px;"></div>-->
+                                    <!--<div style="color: #aaa;width: 18%;float: left">-->
+                                        <!--Quantity-->
+                                    <!--</div>-->
+                                    <!--<div style="color: #aaa;width: 20%;float: left" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">-->
+                                        <!--Promotion-->
+                                    <!--</div>-->
+                                    <!--<div style="color: #aaa;float: left;text-align: right" ng-style="vm.selectedInvoice.invoiceType.toLowerCase() == 'manual' ? {'width':'40%'} : {'width':'20%'}">-->
+                                        <!--Total-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div class="list-item" style="border-bottom: solid 1px #eee;padding: 10px;overflow: hidden;" ng-repeat="detail in vm.selectedInvoice.invoiceDetails">-->
+                                    <!--<div style="float: left;color: #aaa;width: 20%">{{detail.code}}<span ng-if="detail.code == '' || detail.code == null">-</span> </div>-->
+                                    <!--<div style="float: left;color: #aaa;width: 20%;text-align: right">-->
+                                        <!--{{detail.unitPrice  | isoCurrency: invoice.currency:decimalPoint}}-->
+                                        <!--&lt;!&ndash;{{detail.unitPrice | isoCurrency:vm.selectedInvoice.currency:decimalPoint}}&ndash;&gt;-->
+                                    <!--</div>-->
+                                    <!--<div style="width: 2%;float: left;height: 10px;"></div>-->
+                                    <!--<div style="float: left;color: #aaa;width: 18%">-->
+                                        <!--{{detail.gty}}-->
+                                    <!--</div>-->
+                                    <!--<div style="float: left;color: #aaa;width: 20%" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">-->
+                                        <!--{{detail.discount  | isoCurrency: invoice.currency:decimalPoint}}-->
+                                    <!--</div>-->
+                                    <!--<div style="float: left;color: #aaa;text-align: right" ng-style="vm.selectedInvoice.invoiceType.toLowerCase() == 'manual' ? {'width':'40%'} : {'width':'20%'}">-->
+                                        <!--{{detail.totalPrice  | isoCurrency: invoice.currency:decimalPoint}}-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div style="overflow: hidden;margin-bottom: 10px;margin-top: 10px;padding-right: 10px">-->
+                                    <!--<div style="width: 50%;height: 10px;float: left;"></div>-->
+                                    <!--<div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">-->
+                                        <!--<div style="float: left;color: #aaa;width: 50%">SUBTOTAL</div>-->
+                                        <!--<div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.subTotal  | isoCurrency: invoice.currency:decimalPoint}}</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div style="overflow: hidden;margin-bottom: 10px;padding-right: 10px">-->
+                                    <!--<div style="width: 50%;height: 10px;float: left;"></div>-->
+                                    <!--<div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">-->
+                                        <!--<div style="float: left;color: #aaa;width: 50%" ng-if="vm.selectedInvoice.additionalcharge <= 0">MISCELLANEOUS CHARGES</div>-->
+                                        <!--<div style="float: left;color: #aaa;width: 50%" ng-if="vm.selectedInvoice.additionalcharge > 0">MISCELLANEOUS CHARGES<br/><i style="font-size: 12px">{{vm.selectedInvoice.tag}}</i></div>-->
+                                        <!--<div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.additionalcharge  | isoCurrency: invoice.currency:decimalPoint}}</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div style="overflow: hidden;margin-bottom: 10px;padding-right: 10px">-->
+                                    <!--<div style="width: 50%;height: 10px;float: left;"></div>-->
+                                    <!--<div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">-->
+                                        <!--<div style="float: left;color: #aaa;width: 50%">DISCOUNT</div>-->
+                                        <!--&lt;!&ndash;<div style="float: left;color: #aaa;width: 50%;text-align: right" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">({{vm.selectedInvoice.discount | isoCurrency:vm.selectedInvoice.currency:decimalPoint}})</div>&ndash;&gt;-->
+                                        <!--<div style="float: left;color: #aaa;width: 50%;text-align: right" >({{vm.selectedInvoice.discAmt  | isoCurrency: invoice.currency:decimalPoint}})</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div style="overflow: hidden;margin-bottom: 10px;padding-right: 10px" ng-if="vm.selectedInvoice.invoiceType.toLowerCase() != 'manual'">-->
+                                    <!--<div style="width: 50%;height: 10px;float: left;"></div>-->
+                                    <!--<div style="width: 50%;float: left;padding: 5px 0;border-bottom: solid 1px #eee">-->
+                                        <!--<div style="float: left;color: #aaa;width: 50%">TAX</div>-->
+                                        <!--<div style="float: left;color: #aaa;width: 50%;text-align: right">{{vm.selectedInvoice.tax  | isoCurrency: invoice.currency:decimalPoint}}</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                                <!--<div class="list-footer" style="overflow: hidden;height: 40px;margin-top: 30px;padding-right: 10px">-->
+                                    <!--<div style="width: 50%;height: 10px;float: left;"></div>-->
+                                    <!--<div style="width: 50%;float: left;padding: 5px 0">-->
+                                        <!--<div style="color: #aaaaaa;font-size: 16px;width: 50%;float: left;">TOTAL</div>-->
+                                        <!--<div style="color: #aaaaaa;text-align: right;width: 50%;float: left;">{{vm.selectedInvoice.invoiceAmount  | isoCurrency: invoice.currency:decimalPoint}}</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="template-footer" style="width: 100%;margin-top: 40px;padding: 10px;position:absolute;bottom: 0;">-->
+                                <!--<div style="margin: 5px 0;font-size: 12px">{{vm.selectedInvoice.greeting}}</div>-->
+                                <!--<div style="font-size: 12px;color: #aaa;padding-top: 5px;border-top: solid 1px #eee">-->
+                                    <!--{{vm.selectedInvoice.disclaimer}}-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
                     <!-- / INVOICE -->
+
+                    <div class="email-template" style="box-shadow:none!important;float:none;width: 100%;max-width: 700px;min-height: 800px;position:relative">
+                        <div id="print-content" style="border: solid 1px #ddd;min-height: 800px;position:relative;margin-bottom: 20px"></div>
+                    </div>
 
                     <!-- Use the following element to add breaks to your pages -->
                     <!-- This will make sure that the section after this element will be printed on a new page -->
