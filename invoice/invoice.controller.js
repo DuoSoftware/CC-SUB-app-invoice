@@ -7,7 +7,7 @@
 		.controller('InvoiceController', InvoiceController);
 
 	/** @ngInject */
-	function InvoiceController($scope, $document, $timeout, $mdDialog, $mdMedia, $mdSidenav,$charge,$productHandler,$filter,$rootScope,notifications,$state,$http)
+	function InvoiceController($scope, $document, $timeout, $mdDialog, $mdMedia, $mdSidenav,$charge,$productHandler,$filter,$rootScope,notifications,$state,$http,$azureSearchHandle)
 	{
 		var vm = this;
 
@@ -3546,65 +3546,67 @@
 
 		var skipUsr= 0,takeUsr=1000;
 		$scope.filteredUsers=[];
-		$scope.loadUsersByCat= function (skipUsr,takeUsr) {
+    $scope.loadUsersByCat= function (skipUsr,takeUsr) {
 
-			var jsonData = {
-				"url": "https://cloudcharge.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
-				"searchBy": "*",
-				"searchFields": "",
-				"take": 100,
-				"skip": 0,
-				"orderby": "createddate desc"
-			}
+      var jsonData = {
+        "url": "https://cloudcharge.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
+        "searchBy": "*",
+        "searchFields": "",
+        "take": takeUsr,
+        "skip": skipUsr,
+        "orderby": "createddate desc"
+      }
 
-			$charge.searchhelper().searchRequest(jsonData).success(function(data)
-			{
-				skipUsr += takeUsr;
-				for (var i = 0; i < data.value.length; i++) {
-					if(data.value[i].status==0)
-					{
-						data.value[i].status=false;
-					}
-					else
-					{
-						data.value[i].status=true;
-					}
-					data.value[i].createddate = new Date(data.value[i].createddate);
-					//tempList.push(data.value[i]);
+      $charge.searchhelper().searchRequest(jsonData).success(function(data)
+      {
+        skipUsr += takeUsr;
+        for (var i = 0; i < data.value.length; i++) {
+          if(data.value[i].status==0)
+          {
+            data.value[i].status=false;
+          }
+          else
+          {
+            data.value[i].status=true;
+          }
+          data.value[i].createddate = new Date(data.value[i].createddate);
+          //tempList.push(data.value[i]);
 
-				}
+        }
 
-				if(data.value.length<takeUsr)
-					vm.lastProfile=true;
-				for (var i = 0; i < data.value.length; i++) {
-					var obj = data.value[i];
+        if(data.value.length<takeUsr)
+          vm.lastProfile=true;
+        for (var i = 0; i < data.value.length; i++) {
+          var obj = data.value[i];
 
-					$scope.filteredUsers.push({
-						profilename : obj.first_name,
-						profileId : obj.profileId,
-						othername : obj.last_name,
-						bill_addr:obj.bill_addr,
-						email:obj.email_addr,
-						credit_limit:obj.credit_limit
-					});
-				}
+          $scope.filteredUsers.push({
+            profilename : obj.first_name,
+            profileId : obj.profileId,
+            othername : obj.last_name,
+            bill_addr:obj.bill_addr,
+            email:obj.email_addr,
+            credit_limit:obj.credit_limit
+          });
+        }
 
-				if(data.value.length<takeUsr){
-					$scope.isdataavailable=false;
-					$scope.hideSearchMore=true;
-				}
-				else if(data.value.length!=0 && data.value.length>takeUsr)
-				{
-					skipUsr+=takeUsr;
-					$scope.loadUsersByCat(skipUsr,takeUsr);
-				}
+        if(data.value.length<takeUsr){
+          $scope.isdataavailable=false;
+          $scope.hideSearchMore=true;
+          skipUsr = 0;
+        }
+        else if(data.value.length!=0 && data.value.length>=takeUsr)
+        {
+          //skipUsr+=takeUsr;
+          $scope.loadUsersByCat(skipUsr,takeUsr);
+        }
 
-			}).error(function(data)
-			{
-				$scope.isloadDone = true;
-			})
+      }).error(function(data)
+      {
+        $scope.isloadDone = true;
+        skipUsr = 0;
+      })
 
-		}
+    }
 
 		$scope.loadUsersByCat(skipUsr,takeUsr);
 
@@ -3651,55 +3653,62 @@
 
 		}
 
-		$scope.loadAllPlans= function (skipDetail,takeDetail) {
+    $scope.loadAllPlans= function (skipDetail,takeDetail) {
 
-			var jsonData = {
-				"url": "https://cloudcharge.search.windows.net/indexes/plan/docs/search?api-version=2016-09-01",
-				"searchBy": "*",
-				"searchFields": "",
-				"take": 100,
-				"skip": 0,
-				"orderby": "createdDate desc"
-			}
+      //var jsonData = {
+      //  "url": "https://cloudcharge.search.windows.net/indexes/plan/docs/search?api-version=2016-09-01",
+      //  "searchBy": "*",
+      //  "searchFields": "",
+      //  "take": takeDetail,
+      //  "skip": skipDetail,
+      //  "orderby": "createdDate desc"
+      //}
 
-			$charge.searchhelper().searchRequest(jsonData).success(function(data)
-			{
+      //$charge.searchhelper().searchRequest(jsonData).success(function(data)
+      //{
+      $azureSearchHandle.getClient().SearchRequest("plan",skipDetail,takeDetail,'desc','Active').onComplete(function(data)
+      {
+        if($scope.loading)
+        {
+          data.value = data;
+          skipDetail += takeDetail;
+          for (var i = 0; i < data.value.length; i++) {
+            if(data.value[i].status === 'Active')
+            {
+              $scope.products.push(data.value[i])
+            }
+          }
 
-				if($scope.loading)
-				{
+          //
+          if(data.value.length<takeDetail){
+            $scope.isdataavailable=false;
+            $scope.hideSearchMore=true;
+            $scope.addNewRow();
+            skipDetail = 0;
+          }
+          else if(data.value.length!=0 && data.value.length>=takeDetail)
+          {
+            $scope.loadAllPlans(skipDetail,takeDetail);
+          }
+          else if(data.value.length==0)
+          {
+            $scope.addNewRow();
+          }
 
-					skipDetail += takeDetail;
-					for (var i = 0; i < data.value.length; i++) {
-						$scope.products.push(data.value[i]);
-					}
+        }
 
-					//
-					if(data.value.length<takeDetail){
-						$scope.isdataavailable=false;
-						$scope.hideSearchMore=true;
-						$scope.addNewRow();
-					}
-					else if(data.value.length!=0 && data.value.length>=takeDetail)
-					{
-						$scope.loadAllPlans(skipDetail,takeDetail);
-					}
-					else if(data.value.length==0)
-					{
-						$scope.addNewRow();
-					}
+      }).onError(function(data)
+      {
+        //console.log(data);
+        $scope.isSpinnerShown=false;
+        $scope.isdataavailable=false;
+        $scope.loading = false;
+        $scope.isLoading = false;
+        $scope.hideSearchMore=true;
 
-				}
-
-			}).error(function(data)
-			{
-				//console.log(data);
-				$scope.isSpinnerShown=false;
-				$scope.isdataavailable=false;
-				$scope.loading = false;
-				$scope.isLoading = false;
-				$scope.hideSearchMore=true;
-			})
-		}
+        skipDetail = 0;
+      })
+    }
 
 
 

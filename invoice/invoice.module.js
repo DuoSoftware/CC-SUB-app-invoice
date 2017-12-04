@@ -1,16 +1,16 @@
 //////////////////////////////////////
 // App : Invoice
 // Owner  : Ishara Gunathilaka
-// Last changed date : 2017/11/29
-// Version : 6.1.0.19
-// Modified By : Kasun
+// Last changed date : 2017/12/04
+// Version : 6.1.0.20
+// Modified By : Ishara
 /////////////////////////////////
 (function ()
 {
 	'use strict';
 
 	angular
-		.module('app.invoice', ['valid-number'])
+		.module('app.invoice', ['valid-number','searchHandler'])
 		.config(config)
 		.filter('parseDate',parseDateFilter)
 		.filter('numberFixedLen',numberFixedLength);
