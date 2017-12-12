@@ -31,61 +31,41 @@
             </div>
 
             <div layout="row">
-
-              <md-input-container flex="15">
-                <md-select ng-required="true" flex ng-model="vm.editInvoice.invoiceOccurence">
-                  <md-option value="One Time" selected>One Time</md-option>
-                  <md-option value="Recurring">Recurring</md-option>
-                  <md-option value="Installment">Installment</md-option>
-                </md-select>
-              </md-input-container>
-
-              <div class="w-20"></div>
-
-              <md-input-container flex="15" ng-if="vm.editInvoice.invoiceOccurence === 'Installment'">
-                <label>Occurrence</label>
-                <input ng-required="true" type="number" min="1" max="100000000000000000" name="frequency" ng-model="vm.editInvoice.occurence" ng-init="vm.editInvoice.occurence" style="text-align: right">
-                <div ng-messages="vm.editInvoice.occurence.$error">
-                  <div ng-message="max">Occurrence must be between 1-18 digits</div>
-                  <div ng-message="min">Occurrence must be between 1-18 digits</div>
-                </div>
-              </md-input-container>
-
-              <div class="w-20"></div>
-
-              <md-input-container flex="15" ng-if="vm.editInvoice.invoiceOccurence != 'One Time'">
-                <md-select ng-required="true" flex ng-model="vm.editInvoice.invoiceingPeriod">
-                  <md-option value="Days" selected>Days</md-option>
-                  <md-option value="Months">Months</md-option>
-                  <md-option value="Years">Years</md-option>
-                </md-select>
-              </md-input-container>
-
-              <div class="w-20"></div>
-
-              <md-input-container flex="15" ng-if="vm.editInvoice.invoiceOccurence != 'One Time'">
-                <label>Invoice Interval</label>
-                <input ng-required="true" type="number" min="1" max="100000000000000000" name="invoiceInterval" ng-model="vm.editInvoice.invoiceInterval" ng-init="vm.editInvoice.invoiceInterval" style="text-align: right">
-                <div ng-messages="vm.editInvoice.invoiceInterval.$error">
-                  <div ng-message="max">Occurrence must be between 1-18 digits</div>
-                  <div ng-message="min">Occurrence must be between 1-18 digits</div>
-                </div>
-              </md-input-container>
-
-            </div>
-
-            <div layout="row">
                 <md-input-container flex="30">
-                    <label>Start Date</label>
-                    <md-datepicker ng-model="vm.editInvoice.invoiceDate" md-placeholder="Start date" >
-                    </md-datepicker>
+                    <label>Type</label>
+                    <md-select ng-required="true" flex ng-model="vm.editInvoice.invoiceOccurence">
+                        <md-option value="One Time" selected>One Time</md-option>
+                        <md-option value="Recurring">Recurring</md-option>
+                        <md-option value="Installment">Installment</md-option>
+                    </md-select>
                 </md-input-container>
-                <!--<div flex="5"></div>-->
-                <!--<md-input-container flex="30">-->
-                    <!--<label>Due Date</label>-->
-                    <!--<md-datepicker ng-model="vm.editInvoice.dueDate" md-placeholder="Due date" >-->
-                    <!--</md-datepicker>-->
-                <!--</md-input-container>-->
+                <div flex="5"></div>
+                <md-input-container flex="30" ng-if="vm.editInvoice.invoiceOccurence == 'Installment'">
+                    <label>Occurrence</label>
+                    <input ng-required="true" type="number" min="1" max="100000000000000000" name="frequency" ng-model="vm.editInvoice.occurence" ng-init="vm.editInvoice.occurence" style="text-align: right">
+                    <div ng-messages="vm.editInvoice.occurence.$error">
+                        <div ng-message="max">Occurrence must be between 1-18 digits</div>
+                        <div ng-message="min">Occurrence must be between 1-18 digits</div>
+                    </div>
+                </md-input-container>
+                <div flex="5" ng-if="vm.editInvoice.invoiceOccurence == 'Installment'"></div>
+                <md-input-container flex="30" ng-if="vm.editInvoice.invoiceOccurence != 'One Time'">
+                    <label>Period</label>
+                    <md-select ng-required="true" flex ng-model="vm.editInvoice.invoiceingPeriod">
+                        <md-option value="Days" selected>Days</md-option>
+                        <md-option value="Months">Months</md-option>
+                        <md-option value="Years">Years</md-option>
+                    </md-select>
+                </md-input-container>
+                <div flex="5" ng-if="vm.editInvoice.invoiceOccurence != 'One Time'"></div>
+                <md-input-container flex="30" ng-if="vm.editInvoice.invoiceOccurence != 'One Time'">
+                    <label>Invoice Interval</label>
+                    <input ng-required="true" type="number" min="1" max="100000000000000000" name="invoiceInterval" ng-model="vm.editInvoice.invoiceInterval" ng-init="vm.editInvoice.invoiceInterval" style="text-align: right">
+                    <div ng-messages="vm.editInvoice.invoiceInterval.$error">
+                        <div ng-message="max">Occurrence must be between 1-18 digits</div>
+                        <div ng-message="min">Occurrence must be between 1-18 digits</div>
+                    </div>
+                </md-input-container>
             </div>
 
         </md-card-content>
@@ -171,18 +151,18 @@
                 </md-button>
             </div>
 
-          <div layout="row" class="p-5">
-            <div flex="70"></div>
-            <div layout="row" layout-align="start center" flex="30">
+            <div layout="row" class="p-5">
+                <div flex="70"></div>
+                <div layout="row" layout-align="start center" flex="30">
 
-              <md-input-container flex>
-                <label>Promotion code</label>
-                <input ng-required="false" type="text" name="promotion" ng-model="vm.editInvoice.promotion" style="text-align: right" ng-blur="checkPromotion(vm.editInvoice.promotion)">
+                    <md-input-container flex>
+                        <label>Promotion code</label>
+                        <input ng-required="false" type="text" name="promotion" ng-model="vm.editInvoice.promotion" style="text-align: right" ng-blur="checkPromotion(vm.editInvoice.promotion)">
 
-              </md-input-container>
+                    </md-input-container>
+                </div>
+                <div class="w-55"></div>
             </div>
-            <div class="w-55"></div>
-          </div>
 
             <div layout="row" class="p-5">
                 <div flex="70"></div>
@@ -237,17 +217,17 @@
                 <div class="w-55"></div>
             </div>
 
-          <div style="margin-top: 50px">
-            <div class="group-sub-head"><b>Payment Method</b></div>
-            <div layout="row" layout-align="start center">
-              <md-input-container flex="30">
-                <md-radio-group ng-model="vm.editInvoice.paymentMethod" ng-init="vm.editInvoice.paymentMethod='cash'" ng-change="paymentMethodHandler(vm.editInvoice.paymentMethod)">
-                  <md-radio-button value="cash" class="md-primary">CASH</md-radio-button>
-                  <md-radio-button value="credit" class="md-primary">CREDIT</md-radio-button>
-                </md-radio-group>
-              </md-input-container>
+            <div style="margin-top: 50px">
+                <div class="group-sub-head"><b>Payment Method</b></div>
+                <div layout="row" layout-align="start center">
+                    <md-input-container flex="30">
+                        <md-radio-group ng-model="vm.editInvoice.paymentMethod" ng-init="vm.editInvoice.paymentMethod='cash'" ng-change="paymentMethodHandler(vm.editInvoice.paymentMethod)">
+                            <md-radio-button value="cash" class="md-primary">CASH</md-radio-button>
+                            <md-radio-button value="credit" class="md-primary">CREDIT</md-radio-button>
+                        </md-radio-group>
+                    </md-input-container>
+                </div>
             </div>
-          </div>
 
         </md-card-content>
     </md-card>

@@ -2,6 +2,12 @@
 <div class="main-list-preloader animate-fade-in-out" layout="row" layout-sm="column" layout-align="space-around" ng-if="listLoaded!=='loaded'">
     <md-progress-circular md-mode="indeterminate"></md-progress-circular>
 </div>
+<div class="main-empty-list" ng-if="vm.invoices.length == 0 && listLoaded=='loaded'">
+    <div>
+        <img src="assets/images/empty-list.gif" alt="Nothing to show">
+        <h2>Nothing to Show</h2>
+    </div>
+</div>
 <div class="list-item" layout="row" layout-align="center center" flex ng-repeat="invoice in vm.invoices | filter:vm.search | filter: global.search"
      md-ink-ripple
      ng-click="vm.selectInvoice(invoice)"
@@ -32,7 +38,7 @@
         </div>
 
         <div flex layout="column" layout-align="center end" ng-if="!showInpageReadpane">
-            <span>{{invoice.invoiceAmount | isoCurrency:invoice.currency :decimalPoint}}</span>
+            <span>{{invoice.invoiceAmount  | isoCurrency: invoice.currency:decimalPoint}}</span>
             <!-- <span class="totaldue"><i>{{}}</i></span> -->
         </div>
 
@@ -51,5 +57,9 @@
             </md-button>
         </div> -->
     </div>
+
+</div>
+<div layout="row" layout-align="center center" flex>
+  <md-button ng-show="showMore" ng-click="moreInvoice()">Show more</md-button>
 </div>
 <!-- PRODUCT LIST ITEMS
