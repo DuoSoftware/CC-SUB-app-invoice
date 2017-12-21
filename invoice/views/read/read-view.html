@@ -110,6 +110,14 @@
                             <div ng-message="invalidInput" ng-if="!vm.editInvoice.productRowAuto.$error.required">Please select a valid product</div>
                         </div>
                     </md-autocomplete>
+                  <div flex="5"></div>
+                  <md-input-container class="mb-0" flex="30">
+                    <label>Tax Code</label>
+                    <input name="taxCode" id="{{row.tax}}" ng-required="false" ng-pattern="" type=""  ng-model="row.product.avaTaxCode">
+                    <!--<div ng-messages="vm.editInvoice.InvoiceProdQty.$error">-->
+                      <!--<div ng-message="pattern">Quantity of Unit is invalid</div>-->
+                    <!--</div>-->
+                  </md-input-container>
                     <div flex="5"></div>
                     <md-input-container class="mb-0" flex="30">
                         <label>Quantity</label>

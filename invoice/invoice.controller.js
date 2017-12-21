@@ -505,6 +505,7 @@
               paidAmount: 0,
               taxAmount: productObj.taxAmount,
               qty: qty,
+              tax: productObj.avaTaxCode,
               itemDescription: "",
               itemType: "",
               guItemID: productObj.guproductID,
@@ -581,13 +582,14 @@
       $http({
         method:'GET',
         url:'app/main/invoice/utill/GUID.php?view=getGUID'
-      }).then(function (res) {        
+      }).then(function (res) {
         guid = res.data;
       }, function (res) {
-		guid = new Date().getTime();
+        guid = new Date().getTime();
       });
 
-      
+
+
       $charge.tax().calcuteTax(invoice).success(function (data) {
 
         if(data.status) {
@@ -610,7 +612,7 @@
             .cancel('No');
 
           $mdDialog.show(confirm).then(function () {
-			  invoice.guInvoiceId = guid;
+            invoice.guInvoiceId = guid;
               $scope.saveInvoice(invoice);
           }, function () {
             vm.submitted = false;
