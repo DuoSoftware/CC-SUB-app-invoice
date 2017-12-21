@@ -581,11 +581,10 @@
       $http({
         method:'GET',
         url:'app/main/invoice/utill/GUID.php?view=getGUID'
-      }).then(function (res) {
-        debugger;
-        guid = res;
+      }).then(function (res) {        
+        guid = res.data;
       }, function (res) {
-
+		guid = new Date().getTime();
       });
 
       invoice.guInvoiceId = guid;
