@@ -587,8 +587,7 @@
 		guid = new Date().getTime();
       });
 
-      invoice.guInvoiceId = guid;
-
+      
       $charge.tax().calcuteTax(invoice).success(function (data) {
 
         if(data.status) {
@@ -611,6 +610,7 @@
             .cancel('No');
 
           $mdDialog.show(confirm).then(function () {
+			  invoice.guInvoiceId = guid;
               $scope.saveInvoice(invoice);
           }, function () {
             vm.submitted = false;
