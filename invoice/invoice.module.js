@@ -1,8 +1,8 @@
 //////////////////////////////////////
 // App : Invoice
 // Owner  : Ishara Gunathilaka
-// Last changed date : 2017/12/04
-// Version : 6.1.0.20
+// Last changed date : 2017/12/21
+// Version : 6.1.0.21
 // Modified By : Ishara
 /////////////////////////////////
 (function ()
@@ -31,7 +31,7 @@
 					security: ['$q','mesentitlement','$timeout','$rootScope','$state','$location', function($q,mesentitlement,$timeout,$rootScope,$state, $location){
 						return $q(function(resolve, reject) {
 							$timeout(function() {
-								if (true || $rootScope.isBaseSet2) {
+								if ($rootScope.isBaseSet2) {
 									resolve(function () {
 										var entitledStatesReturn = mesentitlement.stateDepResolver('invoice');
 

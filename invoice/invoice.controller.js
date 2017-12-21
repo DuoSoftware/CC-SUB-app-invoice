@@ -7,2184 +7,2178 @@
 		.controller('InvoiceController', InvoiceController);
 
 	/** @ngInject */
-	function InvoiceController($scope, $document, $timeout, $mdDialog, $mdMedia, $mdSidenav,$charge,$productHandler,$filter,$rootScope,notifications,$state,$http,$azureSearchHandle)
-	{
-		var vm = this;
-
-		vm.appInnerState = "default";
-		vm.pageTitle="Create New";
-		vm.checked = [];
-		vm.colors = ['blue-bg', 'blue-grey-bg', 'orange-bg', 'pink-bg', 'purple-bg'];
-		vm.showFilters=true;
-		vm.selectedInvoice = {};
-		vm.toggleSidenav = toggleSidenav;
-
-		vm.responsiveReadPane = undefined;
-		vm.activeInvoicePaneIndex = 0;
-		vm.dynamicHeight = false;
-
-		vm.scrollPos = 0;
-		vm.scrollEl = angular.element('#content');
-
-
-		function gst(name) {
-			var nameEQ = name + "=";
-			var ca = document.cookie.split(';');
-			for (var i = 0; i < ca.length; i++) {
-				var c = ca[i];
-				while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-				if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-			}
-			//
-			return null;
-		}
-
-		///
-		//////////
-		////////////
-		/////////////
-		$scope.issubscriptionappuse = true; // if subscription module uses this is true else false
-		if(gst("category") === 'invoice') {
-			$scope.issubscriptionappuse = false;//"invoice";
-		}
-		/////////////
-		///////////
-		//////
-		////
-
-
-		//vm.invoices = Invoice.data;
-		//console.log(vm.invoices);
-		//invoice data getter !
-		//vm.selectedInvoice = vm.invoices[0];
-		vm.selectedMailShowDetails = false;
-
-
-		// Methods
-		vm.checkAll = checkAll;
-		vm.closeReadPane = closeReadPane;
-		vm.addInvoice = toggleinnerView;
-		vm.isChecked = isChecked;
-		vm.selectInvoice = selectInvoice;
-		vm.toggleStarred = toggleStarred;
-		vm.toggleCheck = toggleCheck;
-		vm.closeInfoPane = closeInfoPane;
-		vm.isAutoDisabled = false;
-		$scope.showInpageReadpane = false;
-
-		//////////
-
-		// Watch screen size to activate responsive read pane
-		$scope.$watch(function ()
-		{
-			return $mdMedia('gt-md');
-		}, function (current)
-		{
-			vm.responsiveReadPane = !current;
-		});
-
-		// Watch screen size to activate dynamic height on tabs
-		$scope.$watch(function ()
-		{
-			return $mdMedia('xs');
-		}, function (current)
-		{
-			vm.dynamicHeight = current;
-		});
-
-
-
-
-
-
-		/**
-		 * Select product
-		 *
-		 * @param product
-		 */
-
-		function extractEmailTemplate(paymentData, callback) {
-			$scope.currEmailTemplate = $scope.tempSelectedTemplate;
-			//Removing meta data
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<!doctype html>', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<html lang="en">', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<head>', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<meta name="viewport"', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<meta http-equiv="X-UA-Compatible" content="ie=edge">', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<meta charset="UTF-8">', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<title>Document</title>', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('</head>', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('<body>', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('</body>', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('</html>', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.trim();
-
-			//Adding payment information
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyName%', $scope.content.companyName);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyPhone%', $scope.content.companyPhone);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyEmail%', $scope.content.companyEmail);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyAddress%', $scope.content.companyAddress);
-			if($scope.emailTemplateName == 'emailTemplate3.html' || $scope.emailTemplateName == 'emailTemplate4.html')
-				$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyLogo%', $scope.content.companyLogo);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%personName%', vm.selectedInvoice.person_name);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%otherName%', '');
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%bill_addr%', vm.selectedInvoice.bill_addr);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%phone%', vm.selectedInvoice.phone);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%email_addr%', vm.selectedInvoice.email_addr);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceNo%', vm.selectedInvoice.invoiceNo);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceDate%', $filter('date')(new Date(vm.selectedInvoice.invoiceDate), 'MMMM d, y', null));
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%dueDate%', vm.selectedInvoice.dueDate);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceDate% - %dueDate%', $filter('date')(new Date(vm.selectedInvoice.invoiceDate), 'yyyy.MM.dd', null) +' - '+ $filter('date')(new Date(vm.selectedInvoice.dueDate), 'yyyy.MM.dd', null));
-
-			//list
-			var listMarkup = "";
-			angular.forEach(vm.selectedInvoice.invoiceDetails, function (item) {
-				listMarkup += '<div class="list-header" style="padding: 7px 5px;overflow: hidden;"><div style="color: #555;width: 20%;float: left;">'+item.name+'</div><div style="color: #555;width: 20%;float: left;text-align: right">'+item.unitPrice+'</div><div style="width: 2%;float: left;height: 10px;"></div><div style="color: #555;width: 18%;float: left">1</div><div style="color: #555;width: 20%;float: left">'+item.promotion+'</div><div style="color: #555;width: 20%;float: left;text-align: right">'+item.unitPrice+'</div></div>';
-			});
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%listItems%', listMarkup);
-
-			//Sub details
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%additionalcharge%', vm.selectedInvoice.rate);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%discAmt%', vm.selectedInvoice.discAmt);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%discount%', vm.selectedInvoice.discount);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%subTotal%', vm.selectedInvoice.subTotal);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%tax%', vm.selectedInvoice.tax);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceAmount%', vm.selectedInvoice.invoiceAmount);
-
-			//Footer
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%greeting%', $scope.content.greeting);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%disclaimer%', $scope.content.disclaimer);
-			callback();
-		}
-
-		function selectInvoice(invoice)
-		{
-			// vm.selectedInvoice = invoice;
-			vm.selectedInvoice=$scope.openInvoiceLst(invoice);
-			vm.showFilters=false;
-			$scope.showInpageReadpane = true;
-			// $timeout(function ()
-			// {
-			// 	vm.activeInvoicePaneIndex = 1;
-			//
-			// 	// Store the current scrollPos
-			// 	vm.scrollPos = vm.scrollEl.scrollTop();
-			//
-			// 	// Scroll to the top
-			// 	vm.scrollEl.scrollTop(0);
-			// });
-		}
-
-		function closeInfoPane() {
-			$scope.showInpageReadpane = false;
-		}
-
-		/**
-		 * Close read pane
-		 */
-		function closeReadPane()
-		{
-			vm.activeInvoicePaneIndex = 0;
-			vm.showFilters=true;
-			$timeout(function ()
-			{
-				vm.scrollEl.scrollTop(vm.scrollPos);
-			}, 650);
-		}
-
-		/**
-		 * Toggle starred
-		 *
-		 * @param mail
-		 * @param event
-		 */
-		function toggleStarred(mail, event)
-		{
-			event.stopPropagation();
-			mail.starred = !mail.starred;
-		}
-
-		/**
-		 * Toggle checked status of the mail
-		 *
-		 * @param invoice
-		 * @param event
-		 */
-		function toggleCheck(invoice, event)
-		{
-			if ( event )
-			{
-				event.stopPropagation();
-			}
-
-			var idx = vm.checked.indexOf(invoice);
-
-			if ( idx > -1 )
-			{
-				vm.checked.splice(idx, 1);
-			}
-			else
-			{
-				vm.checked.push(invoice);
-			}
-		}
-
-		/**
-		 * Return checked status of the invoice
-		 *
-		 * @param invoice
-		 * @returns {boolean}
-		 */
-		function isChecked(invoice)
-		{
-			return vm.checked.indexOf(invoice) > -1;
-		}
-
-		/**
-		 * Check all
-		 */
-		function checkAll()
-		{
-			if ( vm.allChecked )
-			{
-				vm.checked = [];
-				vm.allChecked = false;
-			}
-			else
-			{
-				angular.forEach(vm.invoices, function (invoice)
-				{
-					if ( !isChecked(invoice) )
-					{
-						toggleCheck(invoice);
-					}
-				});
-
-				vm.allChecked = true;
-			}
-		}
-
-
-		/**
-		 * Toggle sidenav
-		 *
-		 * @param sidenavId
-		 */
-		function toggleSidenav(sidenavId)
-		{
-			$mdSidenav(sidenavId).toggle();
-		}
-
-		/**
-		 * Toggle innerview
-		 *
-		 */
-
-		function toggleinnerView(){
-			if(vm.appInnerState === "default"){
-				//vm.appInnerState = "add";
-				vm.pageTitle="View Invoices";
-				vm.showFilters=false;
-			}else{
-				if(vm.editInvoice != undefined && vm.editInvoice.$dirty ){
-					var confirm = $mdDialog.confirm()
-						.title('Are you sure?')
-						.textContent('Fields have changed and you might have unsaved data. Are you sure you want to leave this page?')
-						.ariaLabel('Are you sure?')
-						.targetEvent()
-						.ok('Yes')
-						.cancel('Stay');
-
-					$mdDialog.show(confirm).then(function() {
-						vm.editInvoice.$pristine = false;
-						vm.editInvoice.$dirty = false;
-						$scope.clearFields();
-						vm.appInnerState = "default";
-						vm.pageTitle="Create New";
-						vm.showFilters=true;
-					}, function() {
-					});
-				}else {
-					vm.appInnerState = "default";
-					vm.pageTitle="Create New";
-					vm.showFilters=true;
-				}
-			}
-		}
-
-		//addCtrl
-
-		//var skip=0;
-		//var take=100;
-		$scope.a = {};
-		$scope.content = {};
-		$scope.content = {};
-		$scope.a.amountMod=0;
-		$scope.a.quantity=1;
-		$scope.invoicetypes = ['One Time', 'Installment', 'Recurring'];
-		$scope.frequencies = ['Weekly', 'Monthly', 'Daily', 'Yearly'];
-		$scope.categories=['Customer','Supplier','Dealer'];
-		$scope.companyLogo="";
-		var isValid=false;
-		$scope.content={};
-		$scope.promotionObj={};
-		$scope.productlist=[];
-		$scope.isBaseCurrency=true;
-		$scope.rows=[];
-		$scope.content.stat=false;
-		$scope.content.invoiceDate = new Date();
-		$scope.content.dueDate=new Date();
-		$scope.content.netamt=0;
-		$scope.content.invoiceType='One Time';
-		if($scope.content.invoiceType=='One Time')
-			$scope.content.occurrence=0;
-		$scope.content.gupromotionid="";
-		$scope.content.promocode="";
-		$scope.content.discount=0;
-		$scope.content.additionalcharge=0;
-		$scope.content.advance=true;
-
-		$scope.content.PromoAmt=0;
-		$scope.content.taxAmt=0;
-		$scope.tempProduct=[];
-		$scope.tempTaxArray=[];
-		$scope.promoLists=[];
-		$scope.content.status="credit";
-		$scope.paymentMethods=['Cash','Card'];
-		$scope.last=false;
-		var prefixInvoice;
-		var lenPrefix;
-		var lenQuotPrefix;
-		var prefixQuotation;
-		var prefixQLength=0;
-		$scope.invoiceTerms=[];
-		$scope.content.invoiceTerm="DueonReceipt";
-
-		var dataInvoice={};
-		dataInvoice.RecordFieldData=localStorage.getItem("invoicePrefix");
-		invoicePrefix=dataInvoice;
-		prefixInvoice=localStorage.getItem("invoicePrefix");
-
-
-		vm.discountEnabled=true;
-		vm.sendAutoMail=false;
-		vm.allowPartial=false;
-		vm.itemTotal = 0;
-		//$scope.isRowDisabled=true;
-
-
-		var dataInvoice1={}
-		dataInvoice1.RecordFieldData=localStorage.getItem("prefixLength");
-		prefixLength=dataInvoice1;
-		lenPrefix=dataInvoice1.RecordFieldData;
-
-
-		$charge.settingsapp().getDuobaseValuesByTableName("CTS_CompanyAttributes").success(function(data) {
-			$scope.CompanyProfile=data;
-			$scope.content.companyName=data[0].RecordFieldData;
-			$scope.content.companyAddress=data[1].RecordFieldData;
-			$scope.content.companyPhone=data[2].RecordFieldData;
-			$scope.content.companyEmail=data[3].RecordFieldData;
-			$scope.content.companyLogo=data[4].RecordFieldData;
-			$scope.content.companyLogo=(data[4].RecordFieldData=="")?"":data[4].RecordFieldData=="Array"?"":data[4].RecordFieldData;
-		}).error(function(data) {
-			$scope.CompanyProfile=[];
-		})
-
-
-		$charge.settingsapp().getDuobaseValuesByTableName("CTS_FooterAttributes").success(function(data) {
-			$scope.FooterData=data;
-			$scope.content.greeting=data[0].RecordFieldData;
-			$scope.content.disclaimer=data[1].RecordFieldData!=""?atob(data[1].RecordFieldData):"";
-		}).error(function(data) {
-		})
-
-		$charge.settingsapp().getDuobaseValuesByTableName("CTS_QuotationAttributes").success(function(data) {
-			//
-			prefixQuotation=data[0].RecordFieldData!=""?data[0].RecordFieldData:"";
-			prefixQLength=data[1];
-			lenQuotPrefix=prefixQLength!=0? parseInt(prefixQLength.RecordFieldData):0;
-
-		}).error(function(data) {
-			prefixQuotation="";
-			lenQuotPrefix=0;
-		})
-
-		$charge.settingsapp().getDuobaseValuesByTableName("CTS_InvoiceAttributes").success(function(data) {
-			//
-			vm.discountEnabled=data[2].RecordFieldData==""?true:data[2].RecordFieldData=="1"?false:true;
-			vm.sendAutoMail=data[3].RecordFieldData==""?false:data[3].RecordFieldData=="1"?true:false;
-			vm.allowPartial=data[5].RecordFieldData==""?false:true;
-			$scope.invoiceTerms = data[8].RecordFieldData != "" ? JSON.parse(data[8].RecordFieldData) : "";
-			$scope.invoiceReminders = data[6].RecordFieldData != "" ? JSON.parse(data[6].RecordFieldData) : [];
-		}).error(function(data) {
-			$scope.invoiceReminders=[];
-		})
-
-
-
-		var isSubmitValid=true;
-		$scope.showConfirmation = function(ev) {
-			if(document.querySelector('input[name=acQuotation]').innerText != ""){
-				$scope.isInvoiceQuoteEmpty = false;
-			}
-			// Appending dialog to document.body to cover sidenav in docs app
-			//if($scope.content.invoiceType == "One Time" && $scope.content.category!=undefined) {
-			if (vm.editInvoice.$valid == true) {
-
-				for(var i=0;i<$scope.rows.length;i++) {
-					//
-					if($scope.rows[i].product==null) {
-						self.searchText[i]='';
-						isSubmitValid=false;
-						break;
-					}
-				}
-				if(isSubmitValid) {
-					var confirm = $mdDialog.confirm()
-						.title('Would you like to proceed Invoice?')
-						.textContent('You cannot revert this action again for a active Invoice!')
-						.ariaLabel('Lucky day')
-						.targetEvent(ev)
-						.ok('Please do it!')
-						.cancel('No!');
-
-					$mdDialog.show(confirm).then(function () {
-						$scope.submit();
-					}, function () {
-
-					});
-				}
-				else
-				{
-					isSubmitValid=true;
-				}
-			}else{
-				angular.element(document.querySelector('#invoiceForm')).find('.ng-invalid:visible:first').focus();
-			}
-			//}
-			//else
-			//{
-			//  if($scope.content.frequency!=undefined && $scope.content.category!=undefined) {
-			//    var confirm = $mdDialog.confirm()
-			//      .title('Would you like to proceed Invoice?')
-			//      .textContent('You cannot revert this action again for a active Invoice!')
-			//      .ariaLabel('Lucky day')
-			//      .targetEvent(ev)
-			//      .ok('Please do it!')
-			//      .cancel('No!');
-			//
-			//    $mdDialog.show(confirm).then(function () {
-			//      $scope.submit();
-			//    }, function () {
-			//
-			//    });
-			//}
-			//}
-		};
-
-		$scope.paymentMethodHandler =  function (selection){
-			if(selection=='cash'){
-				vm.editInvoice.paymentMethod = 'cash';
-			}else{
-				vm.editInvoice.paymentMethod = 'credit';
-			}
-		}
-
-		$scope.isInvoiceQuoteEmpty = true;
-
-		$scope.submit = function () {
-
-			$scope.isAdded = false;
-			//if($scope.content.bill_addr!="") {
-			if (vm.editInvoiceForm.$valid == true) {
-				vm.submitted = true;
-				$scope.spinnerInvoice = true;
-				$scope.invoiceDetails = [];
-				$scope.productsDet = [];
-				//if (!isValid) {    // this is to validate promotion if needs
-				//
-				var unitPrice = vm.editInvoice.amount = (vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount);
-				vm.editInvoice.invoiceType = "Manual";
-
-				for (var i = 0; i < $scope.rows.length; i++) {
-					var productObj = $scope.rows[i].product;
-					var totalPrice = $scope.rows[i].rowAmtDisplay;
-
-					var promotion = 0;
-					if($scope.rows[i].promotion)
-					{
-						promotion = $scope.rows[i].promotion;
-					}
-
-					var promotionId = '';
-					if($scope.rows[i].promotionId)
-					{
-						promotionId = $scope.rows[i].promotionId;
-					}
-
-					var qty = $scope.rows[i].qty;
-					var unitPrice = $scope.rows[i].rowAmtDisplay;
-					// var unitPrice = calcAmt[i].rowAmt;
-					if (productObj != null) {
-						$scope.invoiceDetails.push({
-							paid: "false",
-							paidAmount: 0,
-							taxAmount: productObj.taxAmount,
-							qty: qty,
-							itemDescription: "",
-							itemType: "",
-							guItemID: productObj.guproductID,
-							lineID: "",
-							totalPrice: totalPrice,
-							unitPrice: unitPrice,
-							discount: promotion,
-							startDate: vm.editInvoice.invoiceDate,
-							uom: "",
-							subTotal: totalPrice,
-							promotionId: promotionId,
-							"code":productObj.code
-						});
-					}
-				}
-
-				if($scope.rows.length <= 0){
-
-					notifications.toast("Please add invoice products", "Error");
-					$scope.isAdded = false;
-					vm.submitted = false;
-					return;
-
-				}
-
-
-				if(vm.editInvoice.invoiceOccurence != "Installment")
-				{
-					vm.editInvoice.occurence = -1;
-				}
-
-				if(!vm.editInvoice.promotion)
-				{
-					vm.editInvoice.promotion = '';
-				}
-
-				var accountID = vm.editInvoice.profile.profileId;
-				var invoiceAmount = vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount;
-				var moduleType = $scope.issubscriptionappuse ? 'subscription' : 'invoice';
-
-				if(vm.editInvoice.invoiceInterval === undefined)
-				{
-					vm.editInvoice.invoiceInterval = -1;
-				}
-
-				var req = {
-					"email": vm.editInvoice.profile.email,
-					"products": $scope.invoiceDetails,
-					"note": vm.editInvoice.remarks,
-					"startDate": $filter('date')(new Date(vm.editInvoice.invoiceDate), 'yyyy-MM-dd'),
-					"invoiceType": vm.editInvoice.invoiceOccurence,
-					"invoicePeriod": vm.editInvoice.invoiceingPeriod,
-					"invoiceInterval": vm.editInvoice.invoiceInterval,
-					"occurrence": vm.editInvoice.occurence,
-					"payMethod": vm.editInvoice.paymentMethod,
-					"otherDisc": vm.editInvoice.discount,
-					"miscCharges": vm.editInvoice.additionalcharge,
-					"gupromotionId": vm.editInvoice.gupromotionId,
-					"moduleType" : moduleType
-				}
-
-				$charge.invoicing().insert(req).success(function (data) {
-					if (data != null || data != undefined) {
-						notifications.toast("Invoice has been processed", "success");
-						$scope.isAdded = true;
-						$scope.clearFields();
-					}
-					else {
-						$mdDialog.show(
-							$mdDialog.alert()
-								.parent(angular.element(document.querySelector('#invoice')))
-								.clickOutsideToClose(false)
-								.title('Error')
-								.textContent('An error occurred. Please try again in a few minutes.')
-								.ariaLabel('Alert Dialog Demo')
-								.ok('Ok'));
-						$scope.isAdded = false;
-					}
-					vm.submitted = false;
-				}).error(function (data) {
-					notifications.toast("Error while creating invoice", "error");
-					$scope.clearFields();
-					vm.submitted = false;
-				})
-			}
-		}
-
-
-
-
-		$scope.clearFields= function () {
-			vm.editInvoiceForm.$setPristine();
-			vm.editInvoiceForm.$setUntouched();
-			$scope.rows=[];
-			$scope.promoLists=[];
-			vm.submitted=false;
-			$scope.tempProduct=[];
-			$scope.tempTaxArray=[];
-			$scope.addNewRow();
-			$scope.content.stat=false;
-			$scope.content.invoiceDate = new Date();
-			$scope.content.dueDate=new Date();
-			$scope.content.netamt=0;
-			$scope.content.invoiceType='One Time';
-			if($scope.content.invoiceType=='One Time')
-				$scope.content.occurrence=0;
-			$scope.content.gupromotionid="";
-			$scope.content.promocode="";
-			self.searchPromo=null;
-			$scope.content.notes="";
-			$scope.content.discount=0;
-			$scope.content.additionalcharge=0;
-			$scope.content.PromoAmt=0;
-			$scope.content.taxAmt=0;
-			$scope.content.category="Customer";
-			self.searchText=[];
-			self.searchProfile="";
-			self.searchQuotation    = "";
-			$scope.content.bill_addr = "";
-			$scope.filteredUsers=[];
-			$scope.content.payMethod="";
-			$scope.content.payAmt="";
-			$scope.content.status="credit";
-			$scope.content.preferredCurrency=$scope.baseCurrency;
-			$scope.content.invoiceTerm="Custom";
-			$scope.content.frequency="";
-			rate=1;
-			$scope.exchangeRate="";
-			$scope.divEnabled = true;
-			$scope.requiredStatus =false;
-			insufficientStocks=[];
-			$scope.productsDet=[];
-			$scope.products=[];
-			// $scope.loadAllProducts(0,100);
-			// $scope.loadA
-			$state.go($state.current, {}, {reload: $scope.isAdded});
-
-		};
-
-
-		/*
-		 Pay For Invoice
-		 */
-
-		$scope.payForInvoice= function (invoice) {
-			//
-			var confirm = $mdDialog.confirm()
-				.title('Confirmation')
-				.textContent('Pay the full payment of '+invoice.invoiceAmount+' to this invoice?')
-				.ariaLabel('Lucky day')
-				.ok('Yes')
-				.cancel('No');
-
-			$mdDialog.show(confirm).then(function () {
-				var req={
-					"customer": invoice.first_name,
-					"guCustomerID": invoice.profileId,
-					"guAccountID": invoice.profileId,
-					"paymentDate": new Date(),
-					"paymentMethod": "Cash",
-					"amount": invoice.invoiceAmount/invoice.rate,
-					"bankCharges": "0",
-					"currency":invoice.currency,
-					"rate":invoice.rate,
-					"note": "note1",
-					"guTranID": "12345",
-					"guInvID":invoice.guInvID
-				}
-				$charge.payment().makePaymentForInvoice(req).success(function (data) {
-					//
-					$scope.paymentPrefix=localStorage.getItem("paymentPrefix");
-					$scope.paymentPrefix=($scope.paymentPrefix!=null)?localStorage.getItem("paymentPrefix"):($scope.paymentPrefix!=undefined)?localStorage.getItem("paymentPrefix"):"";
-					var prefixLengthPayment=localStorage.getItem("paymentPrefixLength");
-					$scope.lenPrefixPayment=prefixLengthPayment!=0? parseInt(prefixLengthPayment):0;
-					var paymentNum=$filter('numberFixedLen')(data.id,$scope.lenPrefixPayment);
-					var referenceNo=$scope.paymentPrefix+paymentNum;
-					$scope.showValidationDialog('info','Your payment has been successfully done. Your payment reference no - ' + referenceNo,'Success Payment')
-					vm.selectedInvoice.invoiceStatus='Paid';
-				}).error(function (data) {
-					$scope.showValidationDialog('info','Unexpected error occurred while make payment.','Error');
-				})
-			}, function () {
-
-			});
-
-
-		}
-
-		/*
-		 Cancel Invoice
-		 */
-		$scope.cancelInvoice= function (invoice) {
-			//
-
-			var confirm = $mdDialog.confirm()
-				.title('Confirmation')
-				.textContent('Do you want to cancel this invoice?')
-				.ariaLabel('Lucky day')
-				.ok('Yes')
-				.cancel('No');
-
-			$mdDialog.show(confirm).then(function () {
-				var stock=[];
-				for(var i=0;i<invoice.invoiceDetails.length;i++)
-				{
-					var productObj=invoice.invoiceDetails[i];
-					if (productObj.sku) {
-						var req={
-							"itemID":productObj.productId ,
-							"itemCode": productObj.code,
-							"qty": productObj.gty,
-							"guTranID": "123456",
-							"UpdateStockType": "Add"
-						}
-						stock.push(req);
-					}
-				}
-				var req={
-					"Stock": stock,
-					"Billing": {
-						"invoiceNo": invoice.code,
-						"isTransaction": true,
-						"guTranId": ""
-					},
-					"isTransaction": true,
-					"guAccountID": invoice.profileId
-				}
-
-				$charge.flowtrans().cancelBilling(req).success(function (data) {
-					//
-					$scope.showValidationDialog('info',data.message,'Success');
-					vm.selectedInvoice.invoiceStatus='void';
-				}).error(function (data) {
-					$scope.showValidationDialog('info',data.message,'Error');
-				})
-			}, function () {
-
-			});
-
-		}
-
-		//newly added code
-		var skipProd=0;
-		var takeProd=10;
-		$scope.loading = true;
-		$scope.more = function(){
-			$scope.isSpinnerShown=true;
-			//
-			$productHandler.getClient().CustomLoadProductByScroll(skipProd,takeProd).onComplete(function(data)
-			{
-				//
-				//if(data.length<takeProd)
-				//  $scope.last=true;
-				if($scope.loading) {
-					for (var i = 0; i < data.length; i++) {
-						$scope.productlist.push(data[i]);
-					}
-				}
-				//
-				$scope.loading = false;
-				skipProd += takeProd;
-				$scope.addNewRow();
-				$scope.isSpinnerShown=false;
-			}).onError(function(data)
-			{
-				$scope.isSpinnerShown=false;
-				$scope.last=true;
-				$scope.addNewRow();
-
-			});
-		};
-		// we call the function twice to populate the list
-		//$scope.more();
-
-
-
-
-		//08-09-2016
-		var skip,take;
-		var tempList;
-		var autoElem = angular.element('#invoice-auto');
-		//$scope.searchMre=false;
-		$scope.loadByKeyword= function (keyword,rows,index,status) {
-			$scope.waitForProductKeyword=keyword;
-			if(!rows[index].searchMre) {
-				//
-				if ($scope.productlist.length == 10) {
-					if (keyword != undefined) {
-						if (keyword.length == 3) {
-							rows[index].isAutoDisabled = true;
-							skip = 0;
-							take = 100;
-							tempList = [];
-							rows[index].productlst = [];
-							$charge.product().filterByKey(keyword, skip, take).success(function (data) {
-								for (var i = 0; i < data.length; i++) {
-									tempList.push(data[i]);
-								}
-								rows[index].productlst = tempList;
-								rows[index].isAutoDisabled = false;
-								var rowId=rows[index].productId;
-								var rowId='#'+rowId;
-								setTimeout(function(){
-									document.querySelector(rowId).focus();
-								},0);
-								//
-
-								if (data.length < take)
-									rows[index].searchMre = true;
-								$timeout.cancel($scope.waitForProduct);
-								//skip += take;
-								//$scope.loadPaging(keyword, rows, index, status, skip, take);
-							}).error(function (data) {
-								rows[index].isAutoDisabled = false;
-								autoElem.empty();
-
-								var rowId=rows[index].productId;
-								var rowId='#'+rowId;
-								setTimeout(function(){
-									document.querySelector(rowId).focus();
-								},0);
-								//
-								//vm.products = [];
-								//vm.selectedProduct = null;
-							});
-						}
-						else if(keyword.length>3)
-						{
-							//
-							skip = 0;
-							take = 100;
-							tempList = [];
-							rows[index].isAutoDisabled = true;
-							rows[index].productlst = [];
-							$charge.product().filterByKey(keyword, skip, take).success(function (data) {
-								for (var i = 0; i < data.length; i++) {
-									tempList.push(data[i]);
-								}
-								rows[index].productlst = tempList;
-								rows[index].isAutoDisabled = false;
-								if (data.length < take)
-									rows[index].searchMre = true;
-								$timeout.cancel($scope.waitForProduct);
-
-								var rowId=rows[index].productId;
-								var rowId='#'+rowId;
-								setTimeout(function(){
-									document.querySelector(rowId).focus();
-								},0);
-							}).error(function (data) {
-								rows[index].isAutoDisabled = false;
-								autoElem.empty();
-								var rowId=rows[index].productId;
-								var rowId='#'+rowId;
-								setTimeout(function(){
-									document.querySelector(rowId).focus();
-								},0);
-							});
-						}
-						else if (keyword.length == 0 || keyword == null) {
-							rows[index].productlst = $scope.productlist;
-							rows[index].searchMre = false;
-						}
-					}
-					else if (keyword == undefined) {
-						rows[index].productlst = $scope.productlist;
-						rows[index].searchMre = false;
-					}
-				}
-			}
-			else if (keyword == undefined || keyword.length == 0) {
-				rows[index].productlst = $scope.productlist;
-				rows[index].searchMre = false;
-			}
-			//else if(keyword.length>3)
-			//{
-			//
-			//  if(!$scope.searchMre)
-			//  {
-			//    $scope.loadByKeyword(keyword,rows,index,status);
-			//  }
-			//}
-		}
-
-		var currencyDetails = [];
-
-		$scope.validateProduct= function (row,index,existingRow) {
-			if(row!=null) {
-				if($scope.issubscriptionappuse){
-					var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guPlanID })[0];
-					//
-					if (existingProduct!=null) {
-
-						notifications.toast("Product has been already taken.", "error");
-						//var itemIndex = $scope.tempProduct.indexOf(existingProduct);
-						self.searchText.splice(index, 1);
-					}
-					else
-					{
-						//
-						//$scope.tempProduct.push({
-						//  productId:row.guPlanID
-						//});
-
-						$scope.tempProduct.splice(index, index, {
-							productId:row.guPlanID
-						});
-
-					}
-				}else{
-					var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guproductID })[0];
-					//
-					if (existingProduct!=null) {
-
-						notifications.toast("Product has been already taken.", "error");
-						//var itemIndex = $scope.tempProduct.indexOf(existingProduct);
-						self.searchText.splice(index, 1);
-					}
-					else
-					{
-						//
-						//$scope.tempProduct.push({
-						//  productId:row.guproductID
-						//});
-
-						$scope.tempProduct.splice(index, index, {
-							productId:row.guproductID
-						});
-
-					}
-				}
-
-				$scope.calcQty(row,index);
-
-			}
-			else
-			{
-
-
-				if(existingRow.qty!=undefined)
-				{
-					var existingProd = currencyDetails[index];
-					//var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId:index })[0];
-					if(existingProd.status=="new") {
-						var val = existingProd.rowAmt;
-						if ($scope.tempTaxArray.length != 0)
-							var taxVal = $scope.tempTaxArray[index] == undefined ? 0 : $scope.tempTaxArray[index].taxAmt;
-						else
-							var taxVal = 0;
-					}
-					else
-					{
-						if(existingProd.status=="initial") {
-							if(existingProd.stockstatus == "initial") {
-								var taxVal = 0;
-								var val = 0;
-							}
-							else
-							{
-								var val = existingProd.rowAmt;
-								if ($scope.tempTaxArray.length != 0)
-									var taxVal = $scope.tempTaxArray[index] == undefined ? 0 : $scope.tempTaxArray[index].taxAmt;
-								else
-									var taxVal = 0;
-							}
-						}
-						else
-						{
-							var val = existingProd.rowAmt;
-							if ($scope.tempTaxArray.length != 0)
-								var taxVal = $scope.tempTaxArray[index] == undefined ? 0 : $scope.tempTaxArray[index].taxAmt;
-							else
-								var taxVal = 0;
-						}
-					}
-					//var taxVal = $scope.tempTaxArray[index].taxAmt;
-					$scope.content.netamt = $scope.content.netamt - (val*existingProd.qty);
-					$scope.content.taxAmt = $scope.content.taxAmt - taxVal;
-					//if(row.product ==null)
-					//$scope.content.PromoAmt = $scope.content.PromoAmt - existingRow.promotion;
-					currencyDetails.splice(index, 1);
-					$scope.tempProduct.splice(index, 1);
-					$scope.tempTaxArray.splice(index, 1);
-					existingRow.qty = 1;
-					existingRow.taxDisplay = 0;
-					existingRow.promotion = 0;
-					existingRow.rowAmtDisplay = "";
-					existingRow.product = null;
-				}
-				else
-				{
-					currencyDetails.splice(index, 1);
-					$scope.tempProduct.splice(index, 1);
-				}
-			}
-
-		}
-
-		$scope.calcQty=function(row,index)
-		{
-
-
-			if($scope.rows[index].product!=null) {
-
-				$scope.rows[index].product.taxAmount = 0;
-
-				if($scope.rows[index].product.rate === undefined)
-				{$scope.rows[index].product.rate = 1;}
-
-				if($scope.rows[index].product.taxID !=undefined) {
-					$charge.billing().calcTax($scope.rows[index].product.taxID, $scope.rows[index].product.unitPrice / $scope.rows[index].product.rate).success(function (data) {
-						$scope.rows[index].product.taxAmount = data.tax;
-						if ($scope.issubscriptionappuse) {
-							$scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
-						} else {
-							$scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.price_of_unit * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
-						}
-					}).error(function (data) {
-						$scope.rows[index].product.taxAmount = 0;
-					});
-				}
-
-				if($scope.issubscriptionappuse)
-				{
-					$scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty)+$scope.rows[index].product.taxAmount;
-				}else {
-					$scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.price_of_unit * $scope.rows[index].qty)+$scope.rows[index].product.taxAmount;
-				}
-			}
-			else
-			{
-				$scope.rows[index].rowAmtDisplay = $scope.rows[index].rowAmtDisplay * $scope.rows[index].qty;
-			}
-		}
-
-
-
-		$scope.calcItemAmt=function(row,index)
-		{
-			row.quotationRowDetailsLoaded = false;
+	function InvoiceController($scope, $document, $timeout, $mdDialog, $mdMedia, $mdSidenav,$charge,$productHandler,$filter,$rootScope,notifications,$state,$http,$azureSearchHandle) {
+    var vm = this;
+
+    vm.appInnerState = "default";
+    vm.pageTitle = "Create New";
+    vm.checked = [];
+    vm.colors = ['blue-bg', 'blue-grey-bg', 'orange-bg', 'pink-bg', 'purple-bg'];
+    vm.showFilters = true;
+    vm.selectedInvoice = {};
+    vm.toggleSidenav = toggleSidenav;
+
+    vm.responsiveReadPane = undefined;
+    vm.activeInvoicePaneIndex = 0;
+    vm.dynamicHeight = false;
+
+    vm.scrollPos = 0;
+    vm.scrollEl = angular.element('#content');
+
+
+    function gst(name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+      }
+      //
+      return null;
+    }
+
+    ///
+    //////////
+    ////////////
+    /////////////
+    $scope.issubscriptionappuse = true; // if subscription module uses this is true else false
+    if (gst("category") === 'invoice') {
+      $scope.issubscriptionappuse = false;//"invoice";
+    }
+    /////////////
+    ///////////
+    //////
+    ////
+
+
+    //vm.invoices = Invoice.data;
+    //console.log(vm.invoices);
+    //invoice data getter !
+    //vm.selectedInvoice = vm.invoices[0];
+    vm.selectedMailShowDetails = false;
+
+
+    // Methods
+    vm.checkAll = checkAll;
+    vm.closeReadPane = closeReadPane;
+    vm.addInvoice = toggleinnerView;
+    vm.isChecked = isChecked;
+    vm.selectInvoice = selectInvoice;
+    vm.toggleStarred = toggleStarred;
+    vm.toggleCheck = toggleCheck;
+    vm.closeInfoPane = closeInfoPane;
+    vm.isAutoDisabled = false;
+    $scope.showInpageReadpane = false;
+
+    //////////
+
+    // Watch screen size to activate responsive read pane
+    $scope.$watch(function () {
+      return $mdMedia('gt-md');
+    }, function (current) {
+      vm.responsiveReadPane = !current;
+    });
+
+    // Watch screen size to activate dynamic height on tabs
+    $scope.$watch(function () {
+      return $mdMedia('xs');
+    }, function (current) {
+      vm.dynamicHeight = current;
+    });
+
+
+    /**
+     * Select product
+     *
+     * @param product
+     */
+
+    function extractEmailTemplate(paymentData, callback) {
+      $scope.currEmailTemplate = $scope.tempSelectedTemplate;
+      //Removing meta data
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('<!doctype html>', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('<html lang="en">', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('<head>', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('<meta name="viewport"', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('<meta http-equiv="X-UA-Compatible" content="ie=edge">', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('<meta charset="UTF-8">', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('<title>Document</title>', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('</head>', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('<body>', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('</body>', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('</html>', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.trim();
+
+      //Adding payment information
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyName%', $scope.content.companyName);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyPhone%', $scope.content.companyPhone);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyEmail%', $scope.content.companyEmail);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyAddress%', $scope.content.companyAddress);
+      if ($scope.emailTemplateName == 'emailTemplate3.html' || $scope.emailTemplateName == 'emailTemplate4.html')
+        $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyLogo%', $scope.content.companyLogo);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%personName%', vm.selectedInvoice.person_name);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%otherName%', '');
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%bill_addr%', vm.selectedInvoice.bill_addr);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%phone%', vm.selectedInvoice.phone);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%email_addr%', vm.selectedInvoice.email_addr);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceNo%', vm.selectedInvoice.invoiceNo);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceDate%', $filter('date')(new Date(vm.selectedInvoice.invoiceDate), 'MMMM d, y', null));
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%dueDate%', vm.selectedInvoice.dueDate);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceDate% - %dueDate%', $filter('date')(new Date(vm.selectedInvoice.invoiceDate), 'yyyy.MM.dd', null) + ' - ' + $filter('date')(new Date(vm.selectedInvoice.dueDate), 'yyyy.MM.dd', null));
+
+      //list
+      var listMarkup = "";
+      angular.forEach(vm.selectedInvoice.invoiceDetails, function (item) {
+        listMarkup += '<div class="list-header" style="padding: 7px 5px;overflow: hidden;"><div style="color: #555;width: 20%;float: left;">' + item.name + '</div><div style="color: #555;width: 20%;float: left;text-align: right">' + item.unitPrice + '</div><div style="width: 2%;float: left;height: 10px;"></div><div style="color: #555;width: 18%;float: left">1</div><div style="color: #555;width: 20%;float: left">' + item.promotion + '</div><div style="color: #555;width: 20%;float: left;text-align: right">' + item.unitPrice + '</div></div>';
+      });
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%listItems%', listMarkup);
+
+      //Sub details
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%additionalcharge%', vm.selectedInvoice.rate);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%discAmt%', vm.selectedInvoice.discAmt);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%discount%', vm.selectedInvoice.discount);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%subTotal%', vm.selectedInvoice.subTotal);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%tax%', vm.selectedInvoice.tax);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceAmount%', vm.selectedInvoice.invoiceAmount);
+
+      //Footer
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%greeting%', $scope.content.greeting);
+      $scope.currEmailTemplate = $scope.currEmailTemplate.replace('%disclaimer%', $scope.content.disclaimer);
+      callback();
+    }
+
+    function selectInvoice(invoice) {
+      // vm.selectedInvoice = invoice;
+      vm.selectedInvoice = $scope.openInvoiceLst(invoice);
+      vm.showFilters = false;
+      $scope.showInpageReadpane = true;
+      // $timeout(function ()
+      // {
+      // 	vm.activeInvoicePaneIndex = 1;
+      //
+      // 	// Store the current scrollPos
+      // 	vm.scrollPos = vm.scrollEl.scrollTop();
+      //
+      // 	// Scroll to the top
+      // 	vm.scrollEl.scrollTop(0);
+      // });
+    }
+
+    function closeInfoPane() {
+      $scope.showInpageReadpane = false;
+    }
+
+    /**
+     * Close read pane
+     */
+    function closeReadPane() {
+      vm.activeInvoicePaneIndex = 0;
+      vm.showFilters = true;
+      $timeout(function () {
+        vm.scrollEl.scrollTop(vm.scrollPos);
+      }, 650);
+    }
+
+    /**
+     * Toggle starred
+     *
+     * @param mail
+     * @param event
+     */
+    function toggleStarred(mail, event) {
+      event.stopPropagation();
+      mail.starred = !mail.starred;
+    }
+
+    /**
+     * Toggle checked status of the mail
+     *
+     * @param invoice
+     * @param event
+     */
+    function toggleCheck(invoice, event) {
+      if (event) {
+        event.stopPropagation();
+      }
+
+      var idx = vm.checked.indexOf(invoice);
+
+      if (idx > -1) {
+        vm.checked.splice(idx, 1);
+      }
+      else {
+        vm.checked.push(invoice);
+      }
+    }
+
+    /**
+     * Return checked status of the invoice
+     *
+     * @param invoice
+     * @returns {boolean}
+     */
+    function isChecked(invoice) {
+      return vm.checked.indexOf(invoice) > -1;
+    }
+
+    /**
+     * Check all
+     */
+    function checkAll() {
+      if (vm.allChecked) {
+        vm.checked = [];
+        vm.allChecked = false;
+      }
+      else {
+        angular.forEach(vm.invoices, function (invoice) {
+          if (!isChecked(invoice)) {
+            toggleCheck(invoice);
+          }
+        });
+
+        vm.allChecked = true;
+      }
+    }
+
+
+    /**
+     * Toggle sidenav
+     *
+     * @param sidenavId
+     */
+    function toggleSidenav(sidenavId) {
+      $mdSidenav(sidenavId).toggle();
+    }
+
+    /**
+     * Toggle innerview
+     *
+     */
+
+    function toggleinnerView() {
+      if (vm.appInnerState === "default") {
+        //vm.appInnerState = "add";
+        vm.pageTitle = "View Invoices";
+        vm.showFilters = false;
+      } else {
+        if (vm.editInvoice != undefined && vm.editInvoice.$dirty) {
+          var confirm = $mdDialog.confirm()
+            .title('Are you sure?')
+            .textContent('Fields have changed and you might have unsaved data. Are you sure you want to leave this page?')
+            .ariaLabel('Are you sure?')
+            .targetEvent()
+            .ok('Yes')
+            .cancel('Stay');
+
+          $mdDialog.show(confirm).then(function () {
+            vm.editInvoice.$pristine = false;
+            vm.editInvoice.$dirty = false;
+            $scope.clearFields();
+            vm.appInnerState = "default";
+            vm.pageTitle = "Create New";
+            vm.showFilters = true;
+          }, function () {
+          });
+        } else {
+          vm.appInnerState = "default";
+          vm.pageTitle = "Create New";
+          vm.showFilters = true;
+        }
+      }
+    }
+
+    //addCtrl
+
+    //var skip=0;
+    //var take=100;
+    $scope.a = {};
+    $scope.content = {};
+    $scope.content = {};
+    $scope.a.amountMod = 0;
+    $scope.a.quantity = 1;
+    $scope.invoicetypes = ['One Time', 'Installment', 'Recurring'];
+    $scope.frequencies = ['Weekly', 'Monthly', 'Daily', 'Yearly'];
+    $scope.categories = ['Customer', 'Supplier', 'Dealer'];
+    $scope.companyLogo = "";
+    var isValid = false;
+    $scope.content = {};
+    $scope.promotionObj = {};
+    $scope.productlist = [];
+    $scope.isBaseCurrency = true;
+    $scope.rows = [];
+    $scope.content.stat = false;
+    $scope.content.invoiceDate = new Date();
+    $scope.content.dueDate = new Date();
+    $scope.content.netamt = 0;
+    $scope.content.invoiceType = 'One Time';
+    if ($scope.content.invoiceType == 'One Time')
+      $scope.content.occurrence = 0;
+    $scope.content.gupromotionid = "";
+    $scope.content.promocode = "";
+    $scope.content.discount = 0;
+    $scope.content.additionalcharge = 0;
+    $scope.content.advance = true;
+
+    $scope.content.PromoAmt = 0;
+    $scope.content.taxAmt = 0;
+    $scope.tempProduct = [];
+    $scope.tempTaxArray = [];
+    $scope.promoLists = [];
+    $scope.content.status = "credit";
+    $scope.paymentMethods = ['Cash', 'Card'];
+    $scope.last = false;
+    var prefixInvoice;
+    var lenPrefix;
+    var lenQuotPrefix;
+    var prefixQuotation;
+    var prefixQLength = 0;
+    $scope.invoiceTerms = [];
+    $scope.content.invoiceTerm = "DueonReceipt";
+
+    var dataInvoice = {};
+    dataInvoice.RecordFieldData = localStorage.getItem("invoicePrefix");
+    invoicePrefix = dataInvoice;
+    prefixInvoice = localStorage.getItem("invoicePrefix");
+
+
+    vm.discountEnabled = true;
+    vm.sendAutoMail = false;
+    vm.allowPartial = false;
+    vm.itemTotal = 0;
+    //$scope.isRowDisabled=true;
+
+
+    var dataInvoice1 = {}
+    dataInvoice1.RecordFieldData = localStorage.getItem("prefixLength");
+    prefixLength = dataInvoice1;
+    lenPrefix = dataInvoice1.RecordFieldData;
+
+
+    $charge.settingsapp().getDuobaseValuesByTableName("CTS_CompanyAttributes").success(function (data) {
+      $scope.CompanyProfile = data;
+      $scope.content.companyName = data[0].RecordFieldData;
+      $scope.content.companyAddress = data[1].RecordFieldData;
+      $scope.content.companyPhone = data[2].RecordFieldData;
+      $scope.content.companyEmail = data[3].RecordFieldData;
+      $scope.content.companyLogo = data[4].RecordFieldData;
+      $scope.content.companyLogo = (data[4].RecordFieldData == "") ? "" : data[4].RecordFieldData == "Array" ? "" : data[4].RecordFieldData;
+    }).error(function (data) {
+      $scope.CompanyProfile = [];
+    })
+
+
+    $charge.settingsapp().getDuobaseValuesByTableName("CTS_FooterAttributes").success(function (data) {
+      $scope.FooterData = data;
+      $scope.content.greeting = data[0].RecordFieldData;
+      $scope.content.disclaimer = data[1].RecordFieldData != "" ? atob(data[1].RecordFieldData) : "";
+    }).error(function (data) {
+    })
+
+    $charge.settingsapp().getDuobaseValuesByTableName("CTS_QuotationAttributes").success(function (data) {
+      //
+      prefixQuotation = data[0].RecordFieldData != "" ? data[0].RecordFieldData : "";
+      prefixQLength = data[1];
+      lenQuotPrefix = prefixQLength != 0 ? parseInt(prefixQLength.RecordFieldData) : 0;
+
+    }).error(function (data) {
+      prefixQuotation = "";
+      lenQuotPrefix = 0;
+    })
+
+    $charge.settingsapp().getDuobaseValuesByTableName("CTS_InvoiceAttributes").success(function (data) {
+      //
+      vm.discountEnabled = data[2].RecordFieldData == "" ? true : data[2].RecordFieldData == "1" ? false : true;
+      vm.sendAutoMail = data[3].RecordFieldData == "" ? false : data[3].RecordFieldData == "1" ? true : false;
+      vm.allowPartial = data[5].RecordFieldData == "" ? false : true;
+      $scope.invoiceTerms = data[8].RecordFieldData != "" ? JSON.parse(data[8].RecordFieldData) : "";
+      $scope.invoiceReminders = data[6].RecordFieldData != "" ? JSON.parse(data[6].RecordFieldData) : [];
+    }).error(function (data) {
+      $scope.invoiceReminders = [];
+    })
+
+
+    var isSubmitValid = true;
+    $scope.showConfirmation = function (ev) {
+      if (document.querySelector('input[name=acQuotation]').innerText != "") {
+        $scope.isInvoiceQuoteEmpty = false;
+      }
+      // Appending dialog to document.body to cover sidenav in docs app
+      //if($scope.content.invoiceType == "One Time" && $scope.content.category!=undefined) {
+      if (vm.editInvoice.$valid == true) {
+
+        for (var i = 0; i < $scope.rows.length; i++) {
+          //
+          if ($scope.rows[i].product == null) {
+            self.searchText[i] = '';
+            isSubmitValid = false;
+            break;
+          }
+        }
+        if (isSubmitValid) {
+          var confirm = $mdDialog.confirm()
+            .title('Would you like to proceed Invoice?')
+            .textContent('You cannot revert this action again for a active Invoice!')
+            .ariaLabel('Lucky day')
+            .targetEvent(ev)
+            .ok('Please do it!')
+            .cancel('No!');
+
+          $mdDialog.show(confirm).then(function () {
+            $scope.submit();
+          }, function () {
+
+          });
+        }
+        else {
+          isSubmitValid = true;
+        }
+      } else {
+        angular.element(document.querySelector('#invoiceForm')).find('.ng-invalid:visible:first').focus();
+      }
+      //}
+      //else
+      //{
+      //  if($scope.content.frequency!=undefined && $scope.content.category!=undefined) {
+      //    var confirm = $mdDialog.confirm()
+      //      .title('Would you like to proceed Invoice?')
+      //      .textContent('You cannot revert this action again for a active Invoice!')
+      //      .ariaLabel('Lucky day')
+      //      .targetEvent(ev)
+      //      .ok('Please do it!')
+      //      .cancel('No!');
+      //
+      //    $mdDialog.show(confirm).then(function () {
+      //      $scope.submit();
+      //    }, function () {
+      //
+      //    });
+      //}
+      //}
+    };
+
+    $scope.paymentMethodHandler = function (selection) {
+      if (selection == 'cash') {
+        vm.editInvoice.paymentMethod = 'cash';
+      } else {
+        vm.editInvoice.paymentMethod = 'credit';
+      }
+    }
+
+    $scope.isInvoiceQuoteEmpty = true;
+
+    $scope.submit = function () {
+
+      $scope.isAdded = false;
+      //if($scope.content.bill_addr!="") {
+      if (vm.editInvoiceForm.$valid == true) {
+        vm.submitted = true;
+        $scope.spinnerInvoice = true;
+        $scope.invoiceDetails = [];
+        $scope.productsDet = [];
+        //if (!isValid) {    // this is to validate promotion if needs
+        //
+        var unitPrice = vm.editInvoice.amount = (vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount);
+        vm.editInvoice.invoiceType = "Manual";
+
+        for (var i = 0; i < $scope.rows.length; i++) {
+          var productObj = $scope.rows[i].product;
+          var totalPrice = $scope.rows[i].rowAmtDisplay;
+
+          var promotion = 0;
+          if ($scope.rows[i].promotion) {
+            promotion = $scope.rows[i].promotion;
+          }
+
+          var promotionId = '';
+          if ($scope.rows[i].promotionId) {
+            promotionId = $scope.rows[i].promotionId;
+          }
+
+          var qty = $scope.rows[i].qty;
+          var unitPrice = $scope.rows[i].rowAmtDisplay;
+          // var unitPrice = calcAmt[i].rowAmt;
+          if (productObj != null) {
+            $scope.invoiceDetails.push({
+              paid: "false",
+              paidAmount: 0,
+              taxAmount: productObj.taxAmount,
+              qty: qty,
+              itemDescription: "",
+              itemType: "",
+              guItemID: productObj.guproductID,
+              lineID: "",
+              totalPrice: totalPrice,
+              unitPrice: unitPrice,
+              discount: promotion,
+              startDate: vm.editInvoice.invoiceDate,
+              uom: "",
+              subTotal: totalPrice,
+              promotionId: promotionId,
+              "code": productObj.code
+            });
+          }
+        }
+
+        if ($scope.rows.length <= 0) {
+
+          notifications.toast("Please add invoice products", "Error");
+          $scope.isAdded = false;
+          vm.submitted = false;
+          return;
+
+        }
+
+
+        if (vm.editInvoice.invoiceOccurence != "Installment") {
+          vm.editInvoice.occurence = -1;
+        }
+
+        if (!vm.editInvoice.promotion) {
+          vm.editInvoice.promotion = '';
+        }
+
+        var accountID = vm.editInvoice.profile.profileId;
+        var invoiceAmount = vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount;
+        var moduleType = $scope.issubscriptionappuse ? 'subscription' : 'invoice';
+
+        if (vm.editInvoice.invoiceInterval === undefined) {
+          vm.editInvoice.invoiceInterval = -1;
+        }
+
+        var req = {
+          "email": vm.editInvoice.profile.email,
+          "products": $scope.invoiceDetails,
+          "note": vm.editInvoice.remarks,
+          "startDate": $filter('date')(new Date(vm.editInvoice.invoiceDate), 'yyyy-MM-dd'),
+          "invoiceType": vm.editInvoice.invoiceOccurence,
+          "invoicePeriod": vm.editInvoice.invoiceingPeriod,
+          "invoiceInterval": vm.editInvoice.invoiceInterval,
+          "occurrence": vm.editInvoice.occurence,
+          "payMethod": vm.editInvoice.paymentMethod,
+          "otherDisc": vm.editInvoice.discount,
+          "miscCharges": vm.editInvoice.additionalcharge,
+          "gupromotionId": vm.editInvoice.gupromotionId,
+          "moduleType": moduleType
+        }
+
+
+        // calculate tax
+        $scope.calculateTax(req); //
+        return;
+
+
+      }
+    }
+
+
+
+    $scope.calculateTax = function(invoice)
+    {
+      var guid = '';
+
+      $http({
+        method:'GET',
+        url:'app/main/invoice/utill/GUID.php?view=getGUID'
+      }).then(function (res) {
+        debugger;
+        guid = res;
+      }, function (res) {
+
+      });
+
+      invoice.guInvoiceId = guid;
+
+      $charge.tax().calcuteTax(invoice).success(function (data) {
+
+        if(data.status) {
+            var i = 0;
+            angular.forEach(data.data.tax, function (taxDetail) {
+              if(taxDetail.Tax && taxDetail.Tax != "" && taxDetail.Tax != null)
+              {
+                  var taxAmount = taxDetail.Tax;
+                  invoice.products[i].taxAmount = taxAmount;
+                  i++;
+              }
+            });
+
+
+          var confirm = $mdDialog.confirm()
+            .title('Confirmation')
+            .textContent('You have additional tax cost of ' + data.data.taxTotal + ' to this invoice, Do you want to procees?')
+            .ariaLabel('Lucky day')
+            .ok('Yes')
+            .cancel('No');
+
+          $mdDialog.show(confirm).then(function () {
+              $scope.saveInvoice(invoice);
+          }, function () {
+            vm.submitted = false;
+          });
+        }
+
+      }).error(function (data) {
+        $scope.saveInvoice(invoice);
+        vm.submitted = false;
+      })
+    }
+
+    $scope.saveInvoice = function(req){
+
+      $charge.invoicing().insert(req).success(function (data) {
+        if (data != null || data != undefined) {
+          notifications.toast("Invoice has been processed", "success");
+          $scope.isAdded = true;
+          $scope.clearFields();
+        }
+        else {
+          $mdDialog.show(
+            $mdDialog.alert()
+              .parent(angular.element(document.querySelector('#invoice')))
+              .clickOutsideToClose(false)
+              .title('Error')
+              .textContent('An error occurred. Please try again in a few minutes.')
+              .ariaLabel('Alert Dialog Demo')
+              .ok('Ok'));
+          $scope.isAdded = false;
+        }
+        vm.submitted = false;
+      }).error(function (data) {
+        notifications.toast("Error while creating invoice", "error");
+        $scope.clearFields();
+        vm.submitted = false;
+      })
+    }
+
+
+    $scope.clearFields = function () {
+      vm.editInvoiceForm.$setPristine();
+      vm.editInvoiceForm.$setUntouched();
+      $scope.rows = [];
+      $scope.promoLists = [];
+      vm.submitted = false;
+      $scope.tempProduct = [];
+      $scope.tempTaxArray = [];
+      $scope.addNewRow();
+      $scope.content.stat = false;
+      $scope.content.invoiceDate = new Date();
+      $scope.content.dueDate = new Date();
+      $scope.content.netamt = 0;
+      $scope.content.invoiceType = 'One Time';
+      if ($scope.content.invoiceType == 'One Time')
+        $scope.content.occurrence = 0;
+      $scope.content.gupromotionid = "";
+      $scope.content.promocode = "";
+      self.searchPromo = null;
+      $scope.content.notes = "";
+      $scope.content.discount = 0;
+      $scope.content.additionalcharge = 0;
+      $scope.content.PromoAmt = 0;
+      $scope.content.taxAmt = 0;
+      $scope.content.category = "Customer";
+      self.searchText = [];
+      self.searchProfile = "";
+      self.searchQuotation = "";
+      $scope.content.bill_addr = "";
+      $scope.filteredUsers = [];
+      $scope.content.payMethod = "";
+      $scope.content.payAmt = "";
+      $scope.content.status = "credit";
+      $scope.content.preferredCurrency = $scope.baseCurrency;
+      $scope.content.invoiceTerm = "Custom";
+      $scope.content.frequency = "";
+      rate = 1;
+      $scope.exchangeRate = "";
+      $scope.divEnabled = true;
+      $scope.requiredStatus = false;
+      insufficientStocks = [];
+      $scope.productsDet = [];
+      $scope.products = [];
+      // $scope.loadAllProducts(0,100);
+      // $scope.loadA
+      $state.go($state.current, {}, {reload: $scope.isAdded});
+
+    };
+
+
+    /*
+     Pay For Invoice
+     */
+
+    $scope.payForInvoice = function (invoice) {
+      //
+      var confirm = $mdDialog.confirm()
+        .title('Confirmation')
+        .textContent('Pay the full payment of ' + invoice.invoiceAmount + ' to this invoice?')
+        .ariaLabel('Lucky day')
+        .ok('Yes')
+        .cancel('No');
+
+      $mdDialog.show(confirm).then(function () {
+        var req = {
+          "customer": invoice.first_name,
+          "guCustomerID": invoice.profileId,
+          "guAccountID": invoice.profileId,
+          "paymentDate": new Date(),
+          "paymentMethod": "Cash",
+          "amount": invoice.invoiceAmount / invoice.rate,
+          "bankCharges": "0",
+          "currency": invoice.currency,
+          "rate": invoice.rate,
+          "note": "note1",
+          "guTranID": "12345",
+          "guInvID": invoice.guInvID
+        }
+        $charge.payment().makePaymentForInvoice(req).success(function (data) {
+          //
+          $scope.paymentPrefix = localStorage.getItem("paymentPrefix");
+          $scope.paymentPrefix = ($scope.paymentPrefix != null) ? localStorage.getItem("paymentPrefix") : ($scope.paymentPrefix != undefined) ? localStorage.getItem("paymentPrefix") : "";
+          var prefixLengthPayment = localStorage.getItem("paymentPrefixLength");
+          $scope.lenPrefixPayment = prefixLengthPayment != 0 ? parseInt(prefixLengthPayment) : 0;
+          var paymentNum = $filter('numberFixedLen')(data.id, $scope.lenPrefixPayment);
+          var referenceNo = $scope.paymentPrefix + paymentNum;
+          $scope.showValidationDialog('info', 'Your payment has been successfully done. Your payment reference no - ' + referenceNo, 'Success Payment')
+          vm.selectedInvoice.invoiceStatus = 'Paid';
+        }).error(function (data) {
+          $scope.showValidationDialog('info', 'Unexpected error occurred while make payment.', 'Error');
+        })
+      }, function () {
+
+      });
+
+
+    }
+
+    /*
+     Cancel Invoice
+     */
+    $scope.cancelInvoice = function (invoice) {
+      //
+
+      var confirm = $mdDialog.confirm()
+        .title('Confirmation')
+        .textContent('Do you want to cancel this invoice?')
+        .ariaLabel('Lucky day')
+        .ok('Yes')
+        .cancel('No');
+
+      $mdDialog.show(confirm).then(function () {
+        var stock = [];
+        for (var i = 0; i < invoice.invoiceDetails.length; i++) {
+          var productObj = invoice.invoiceDetails[i];
+          if (productObj.sku) {
+            var req = {
+              "itemID": productObj.productId,
+              "itemCode": productObj.code,
+              "qty": productObj.gty,
+              "guTranID": "123456",
+              "UpdateStockType": "Add"
+            }
+            stock.push(req);
+          }
+        }
+        var req = {
+          "Stock": stock,
+          "Billing": {
+            "invoiceNo": invoice.code,
+            "isTransaction": true,
+            "guTranId": ""
+          },
+          "isTransaction": true,
+          "guAccountID": invoice.profileId
+        }
+
+        $charge.flowtrans().cancelBilling(req).success(function (data) {
+          //
+          $scope.showValidationDialog('info', data.message, 'Success');
+          vm.selectedInvoice.invoiceStatus = 'void';
+        }).error(function (data) {
+          $scope.showValidationDialog('info', data.message, 'Error');
+        })
+      }, function () {
+
+      });
+
+    }
+
+    //newly added code
+    var skipProd = 0;
+    var takeProd = 10;
+    $scope.loading = true;
+    $scope.more = function () {
+      $scope.isSpinnerShown = true;
+      //
+      $productHandler.getClient().CustomLoadProductByScroll(skipProd, takeProd).onComplete(function (data) {
+        //
+        //if(data.length<takeProd)
+        //  $scope.last=true;
+        if ($scope.loading) {
+          for (var i = 0; i < data.length; i++) {
+            $scope.productlist.push(data[i]);
+          }
+        }
+        //
+        $scope.loading = false;
+        skipProd += takeProd;
+        $scope.addNewRow();
+        $scope.isSpinnerShown = false;
+      }).onError(function (data) {
+        $scope.isSpinnerShown = false;
+        $scope.last = true;
+        $scope.addNewRow();
+
+      });
+    };
+    // we call the function twice to populate the list
+    //$scope.more();
+
+
+    //08-09-2016
+    var skip, take;
+    var tempList;
+    var autoElem = angular.element('#invoice-auto');
+    //$scope.searchMre=false;
+    $scope.loadByKeyword = function (keyword, rows, index, status) {
+      $scope.waitForProductKeyword = keyword;
+      if (!rows[index].searchMre) {
+        //
+        if ($scope.productlist.length == 10) {
+          if (keyword != undefined) {
+            if (keyword.length == 3) {
+              rows[index].isAutoDisabled = true;
+              skip = 0;
+              take = 100;
+              tempList = [];
+              rows[index].productlst = [];
+              $charge.product().filterByKey(keyword, skip, take).success(function (data) {
+                for (var i = 0; i < data.length; i++) {
+                  tempList.push(data[i]);
+                }
+                rows[index].productlst = tempList;
+                rows[index].isAutoDisabled = false;
+                var rowId = rows[index].productId;
+                var rowId = '#' + rowId;
+                setTimeout(function () {
+                  document.querySelector(rowId).focus();
+                }, 0);
+                //
+
+                if (data.length < take)
+                  rows[index].searchMre = true;
+                $timeout.cancel($scope.waitForProduct);
+                //skip += take;
+                //$scope.loadPaging(keyword, rows, index, status, skip, take);
+              }).error(function (data) {
+                rows[index].isAutoDisabled = false;
+                autoElem.empty();
+
+                var rowId = rows[index].productId;
+                var rowId = '#' + rowId;
+                setTimeout(function () {
+                  document.querySelector(rowId).focus();
+                }, 0);
+                //
+                //vm.products = [];
+                //vm.selectedProduct = null;
+              });
+            }
+            else if (keyword.length > 3) {
+              //
+              skip = 0;
+              take = 100;
+              tempList = [];
+              rows[index].isAutoDisabled = true;
+              rows[index].productlst = [];
+              $charge.product().filterByKey(keyword, skip, take).success(function (data) {
+                for (var i = 0; i < data.length; i++) {
+                  tempList.push(data[i]);
+                }
+                rows[index].productlst = tempList;
+                rows[index].isAutoDisabled = false;
+                if (data.length < take)
+                  rows[index].searchMre = true;
+                $timeout.cancel($scope.waitForProduct);
+
+                var rowId = rows[index].productId;
+                var rowId = '#' + rowId;
+                setTimeout(function () {
+                  document.querySelector(rowId).focus();
+                }, 0);
+              }).error(function (data) {
+                rows[index].isAutoDisabled = false;
+                autoElem.empty();
+                var rowId = rows[index].productId;
+                var rowId = '#' + rowId;
+                setTimeout(function () {
+                  document.querySelector(rowId).focus();
+                }, 0);
+              });
+            }
+            else if (keyword.length == 0 || keyword == null) {
+              rows[index].productlst = $scope.productlist;
+              rows[index].searchMre = false;
+            }
+          }
+          else if (keyword == undefined) {
+            rows[index].productlst = $scope.productlist;
+            rows[index].searchMre = false;
+          }
+        }
+      }
+      else if (keyword == undefined || keyword.length == 0) {
+        rows[index].productlst = $scope.productlist;
+        rows[index].searchMre = false;
+      }
+      //else if(keyword.length>3)
+      //{
+      //
+      //  if(!$scope.searchMre)
+      //  {
+      //    $scope.loadByKeyword(keyword,rows,index,status);
+      //  }
+      //}
+    }
+
+    var currencyDetails = [];
+
+    $scope.validateProduct = function (row, index, existingRow) {
+      if (row != null) {
+        if ($scope.issubscriptionappuse) {
+          var existingProduct = $filter('filter')($scope.tempProduct, {productId: row.guPlanID})[0];
+          //
+          if (existingProduct != null) {
+
+            notifications.toast("Product has been already taken.", "error");
+            //var itemIndex = $scope.tempProduct.indexOf(existingProduct);
+            self.searchText.splice(index, 1);
+          }
+          else {
+            //
+            //$scope.tempProduct.push({
+            //  productId:row.guPlanID
+            //});
+
+            $scope.tempProduct.splice(index, index, {
+              productId: row.guPlanID
+            });
+
+          }
+        } else {
+          var existingProduct = $filter('filter')($scope.tempProduct, {productId: row.guproductID})[0];
+          //
+          if (existingProduct != null) {
+
+            notifications.toast("Product has been already taken.", "error");
+            //var itemIndex = $scope.tempProduct.indexOf(existingProduct);
+            self.searchText.splice(index, 1);
+          }
+          else {
+            //
+            //$scope.tempProduct.push({
+            //  productId:row.guproductID
+            //});
+
+            $scope.tempProduct.splice(index, index, {
+              productId: row.guproductID
+            });
+
+          }
+        }
+
+        $scope.calcQty(row, index);
+
+      }
+      else {
+
+
+        if (existingRow.qty != undefined) {
+          var existingProd = currencyDetails[index];
+          //var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId:index })[0];
+          if (existingProd.status == "new") {
+            var val = existingProd.rowAmt;
+            if ($scope.tempTaxArray.length != 0)
+              var taxVal = $scope.tempTaxArray[index] == undefined ? 0 : $scope.tempTaxArray[index].taxAmt;
+            else
+              var taxVal = 0;
+          }
+          else {
+            if (existingProd.status == "initial") {
+              if (existingProd.stockstatus == "initial") {
+                var taxVal = 0;
+                var val = 0;
+              }
+              else {
+                var val = existingProd.rowAmt;
+                if ($scope.tempTaxArray.length != 0)
+                  var taxVal = $scope.tempTaxArray[index] == undefined ? 0 : $scope.tempTaxArray[index].taxAmt;
+                else
+                  var taxVal = 0;
+              }
+            }
+            else {
+              var val = existingProd.rowAmt;
+              if ($scope.tempTaxArray.length != 0)
+                var taxVal = $scope.tempTaxArray[index] == undefined ? 0 : $scope.tempTaxArray[index].taxAmt;
+              else
+                var taxVal = 0;
+            }
+          }
+          //var taxVal = $scope.tempTaxArray[index].taxAmt;
+          $scope.content.netamt = $scope.content.netamt - (val * existingProd.qty);
+          $scope.content.taxAmt = $scope.content.taxAmt - taxVal;
+          //if(row.product ==null)
+          //$scope.content.PromoAmt = $scope.content.PromoAmt - existingRow.promotion;
+          currencyDetails.splice(index, 1);
+          $scope.tempProduct.splice(index, 1);
+          $scope.tempTaxArray.splice(index, 1);
+          existingRow.qty = 1;
+          existingRow.taxDisplay = 0;
+          existingRow.promotion = 0;
+          existingRow.rowAmtDisplay = "";
+          existingRow.product = null;
+        }
+        else {
+          currencyDetails.splice(index, 1);
+          $scope.tempProduct.splice(index, 1);
+        }
+      }
+
+    }
+
+    $scope.calcQty = function (row, index) {
+
+
+      if ($scope.rows[index].product != null) {
+
+        $scope.rows[index].product.taxAmount = 0;
+
+        if ($scope.rows[index].product.rate === undefined) {
+          $scope.rows[index].product.rate = 1;
+        }
+
+        if ($scope.rows[index].product.taxID != undefined) {
+          $charge.billing().calcTax($scope.rows[index].product.taxID, $scope.rows[index].product.unitPrice / $scope.rows[index].product.rate).success(function (data) {
+            $scope.rows[index].product.taxAmount = data.tax;
+            if ($scope.issubscriptionappuse) {
+              $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
+            } else {
+              $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.price_of_unit * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
+            }
+          }).error(function (data) {
+            $scope.rows[index].product.taxAmount = 0;
+          });
+        }
+
+        if ($scope.issubscriptionappuse) {
+          $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
+        } else {
+          $scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.price_of_unit * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
+        }
+      }
+      else {
+        $scope.rows[index].rowAmtDisplay = $scope.rows[index].rowAmtDisplay * $scope.rows[index].qty;
+      }
+    }
+
+
+    $scope.calcItemAmt = function (row, index) {
+      row.quotationRowDetailsLoaded = false;
 //
-			if(row.product.sku!=0) {
-				$charge.stock().getStock(row.product.productId).success(function (data) {
-					stockAvailable = data.qty;
-					if (row.qty <= stockAvailable) {
-						var incrementQtyProd = currencyDetails[index];
-						incrementQtyProd.qty=row.qty;
-						currencyDetails.splice(index,1);
-						currencyDetails.splice(index,index,incrementQtyProd);
-						if(incrementQtyProd.status=="new") {
-							currencyDetails[index]["status"] = "initial";
-							currencyDetails[index]["stockstatus"] = "new";
-						}
-						else if(incrementQtyProd.status=="initial")
-							currencyDetails[index]["status"]="old";
-						//vm.submitted=false;
-						var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId:index })[0];
-						if(insufficientStockDet!=null || insufficientStockDet!=undefined) {
-							var itemIndex = insufficientStocks.indexOf(insufficientStockDet);
-							insufficientStocks.splice(itemIndex);
-						}
-						//
-						if(insufficientStocks.length==0)
-							vm.submitted=false;
-						$scope.calcTotal(row,index);
-						if(row.product.apply_tax!=0) {
-							$scope.spinnerInvoice = true;
-							//
-							$charge.billing().calcTax(row.product.tax, row.product.price_of_unit/rate).success(function (data) {
-								if($scope.content.preferredCurrency!=undefined) {
-									row.tax = rate*data.tax;
-									row.taxDisplay=(Math.round(rate*data.tax * Math.pow(10,parseInt($rootScope.decimalPoint))) / Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
+      if (row.product.sku != 0) {
+        $charge.stock().getStock(row.product.productId).success(function (data) {
+          stockAvailable = data.qty;
+          if (row.qty <= stockAvailable) {
+            var incrementQtyProd = currencyDetails[index];
+            incrementQtyProd.qty = row.qty;
+            currencyDetails.splice(index, 1);
+            currencyDetails.splice(index, index, incrementQtyProd);
+            if (incrementQtyProd.status == "new") {
+              currencyDetails[index]["status"] = "initial";
+              currencyDetails[index]["stockstatus"] = "new";
+            }
+            else if (incrementQtyProd.status == "initial")
+              currencyDetails[index]["status"] = "old";
+            //vm.submitted=false;
+            var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId: index})[0];
+            if (insufficientStockDet != null || insufficientStockDet != undefined) {
+              var itemIndex = insufficientStocks.indexOf(insufficientStockDet);
+              insufficientStocks.splice(itemIndex);
+            }
+            //
+            if (insufficientStocks.length == 0)
+              vm.submitted = false;
+            $scope.calcTotal(row, index);
+            if (row.product.apply_tax != 0) {
+              $scope.spinnerInvoice = true;
+              //
+              $charge.billing().calcTax(row.product.tax, row.product.price_of_unit / rate).success(function (data) {
+                if ($scope.content.preferredCurrency != undefined) {
+                  row.tax = rate * data.tax;
+                  row.taxDisplay = (Math.round(rate * data.tax * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
 
-								}
-								else
-								{
-									row.tax = data.tax;
-									row.taxDisplay=(Math.round(data.tax* Math.pow(10,parseInt($rootScope.decimalPoint)))/ Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
-								}
-								var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex:row.product.productId })[0];
-								if (existingTax==undefined) {
-									//$scope.tempTaxArray.push({
-									//  taxIndex:row.product.productId,
-									//  taxAmt:row.tax,
-									//  taxDisplay:row.taxDisplay,
-									//  baseAmt:data.tax
-									//});
-									$scope.tempTaxArray.splice(index, index, {
-										taxIndex:row.product.productId,
-										taxAmt:row.tax,
-										taxDisplay:row.taxDisplay,
-										baseAmt:data.tax
-									});
-									//
-									row.quotationRowDetailsLoaded = true;
-									$scope.content.taxAmt=0;
-									for(var i=0;i<$scope.tempTaxArray.length;i++)
-									{
-										$scope.content.taxAmt+=$scope.tempTaxArray[i].taxAmt;
-									}
+                }
+                else {
+                  row.tax = data.tax;
+                  row.taxDisplay = (Math.round(data.tax * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
+                }
+                var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex: row.product.productId})[0];
+                if (existingTax == undefined) {
+                  //$scope.tempTaxArray.push({
+                  //  taxIndex:row.product.productId,
+                  //  taxAmt:row.tax,
+                  //  taxDisplay:row.taxDisplay,
+                  //  baseAmt:data.tax
+                  //});
+                  $scope.tempTaxArray.splice(index, index, {
+                    taxIndex: row.product.productId,
+                    taxAmt: row.tax,
+                    taxDisplay: row.taxDisplay,
+                    baseAmt: data.tax
+                  });
+                  //
+                  row.quotationRowDetailsLoaded = true;
+                  $scope.content.taxAmt = 0;
+                  for (var i = 0; i < $scope.tempTaxArray.length; i++) {
+                    $scope.content.taxAmt += $scope.tempTaxArray[i].taxAmt;
+                  }
 
-								}
-								else
-								{
-									//var index=$scope.tempTaxArray.indexOf(existingTax);
-									//$scope.tempTaxArray.splice(index,1);
-									//$scope.tempTaxArray.push({
-									//    taxIndex:row.product.productId,
-									//    taxAmt:row.tax,
-									//    baseAmt:data.tax
-									//});
-									existingTax.taxAmt=row.tax;
-									$scope.content.taxAmt=0;
-									for(var i=0;i<$scope.tempTaxArray.length;i++)
-									{
-										$scope.content.taxAmt+=$scope.tempTaxArray[i].taxAmt;
-									}
-									row.quotationRowDetailsLoaded = true;
-								}
-								$scope.spinnerInvoice = false;
-							}).error(function (data) {
-								//17-10-2016
-								$mdDialog.show(
-									$mdDialog.alert()
-										.parent(angular.element(document.querySelector('#invoice')))
-										.clickOutsideToClose(false)
-										.title('Error')
-										.textContent('Unexpected error occured while calculating tax.')
-										.ariaLabel('Alert Dialog Demo')
-										.ok('Ok')).finally(function() {
-									var rowId=row.qtyId;
-									var rowId='#'+rowId;
-									//setTimeout(function(){
-									document.querySelector(rowId).focus();
-									//},0);
-								});
+                }
+                else {
+                  //var index=$scope.tempTaxArray.indexOf(existingTax);
+                  //$scope.tempTaxArray.splice(index,1);
+                  //$scope.tempTaxArray.push({
+                  //    taxIndex:row.product.productId,
+                  //    taxAmt:row.tax,
+                  //    baseAmt:data.tax
+                  //});
+                  existingTax.taxAmt = row.tax;
+                  $scope.content.taxAmt = 0;
+                  for (var i = 0; i < $scope.tempTaxArray.length; i++) {
+                    $scope.content.taxAmt += $scope.tempTaxArray[i].taxAmt;
+                  }
+                  row.quotationRowDetailsLoaded = true;
+                }
+                $scope.spinnerInvoice = false;
+              }).error(function (data) {
+                //17-10-2016
+                $mdDialog.show(
+                  $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#invoice')))
+                    .clickOutsideToClose(false)
+                    .title('Error')
+                    .textContent('Unexpected error occured while calculating tax.')
+                    .ariaLabel('Alert Dialog Demo')
+                    .ok('Ok')).finally(function () {
+                    var rowId = row.qtyId;
+                    var rowId = '#' + rowId;
+                    //setTimeout(function(){
+                    document.querySelector(rowId).focus();
+                    //},0);
+                  });
 
-								$scope.spinnerInvoice = false;
-								row.tax=0;
-								row.taxDisplay=0;
-								//$scope.tempTaxArray.push({
-								//  taxIndex:row.product.productId,
-								//  taxAmt:row.tax,
-								//  taxDisplay:row.taxDisplay,
-								//  baseAmt:0
-								//});
+                $scope.spinnerInvoice = false;
+                row.tax = 0;
+                row.taxDisplay = 0;
+                //$scope.tempTaxArray.push({
+                //  taxIndex:row.product.productId,
+                //  taxAmt:row.tax,
+                //  taxDisplay:row.taxDisplay,
+                //  baseAmt:0
+                //});
 
-								$scope.tempTaxArray.splice(index, index, {
-									taxIndex:row.product.productId,
-									taxAmt:row.tax,
-									taxDisplay:row.taxDisplay,
-									baseAmt:0
-								});
-								row.quotationRowDetailsLoaded = true;
-							})
-						}
-						else
-						{
-							row.tax=0;
-							row.taxDisplay=0;
-							//$scope.tempTaxArray.push({
-							//  taxIndex:row.product.productId,
-							//  taxAmt:row.tax,
-							//  taxDisplay:row.taxDisplay,
-							//  baseAmt:0
-							//});
+                $scope.tempTaxArray.splice(index, index, {
+                  taxIndex: row.product.productId,
+                  taxAmt: row.tax,
+                  taxDisplay: row.taxDisplay,
+                  baseAmt: 0
+                });
+                row.quotationRowDetailsLoaded = true;
+              })
+            }
+            else {
+              row.tax = 0;
+              row.taxDisplay = 0;
+              //$scope.tempTaxArray.push({
+              //  taxIndex:row.product.productId,
+              //  taxAmt:row.tax,
+              //  taxDisplay:row.taxDisplay,
+              //  baseAmt:0
+              //});
 
-							$scope.tempTaxArray.splice(index, index, {
-								taxIndex:row.product.productId,
-								taxAmt:row.tax,
-								taxDisplay:row.taxDisplay,
-								baseAmt:0
-							});
-							row.quotationRowDetailsLoaded = true;
-						}
-					}
-					else {
-						notifications.toast("Insufficient Stock", "error");
+              $scope.tempTaxArray.splice(index, index, {
+                taxIndex: row.product.productId,
+                taxAmt: row.tax,
+                taxDisplay: row.taxDisplay,
+                baseAmt: 0
+              });
+              row.quotationRowDetailsLoaded = true;
+            }
+          }
+          else {
+            notifications.toast("Insufficient Stock", "error");
 
-						var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId:index })[0];
-						if(insufficientStockDet==null || insufficientStockDet==undefined) {
-							insufficientStocks.push(
-								{
-									"rowId": index,
-									"productId": row.product.productId
-								});
-						}
-						var existingProd = currencyDetails[index];
-						if(existingProd.status=="new") {
-							currencyDetails[index]["status"] = "initial";
-							currencyDetails[index]["stockstatus"] = "initial";
-						}
-						else if(existingProd.status=="initial")
-							currencyDetails[index]["status"]="old";
-						//
-						var val = existingProd.rowAmt;
-						if($scope.tempTaxArray.length!=0)
-							var taxVal = $scope.tempTaxArray[index]==undefined?0:$scope.tempTaxArray[index].taxAmt;
-						else
-							var taxVal=0;
+            var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId: index})[0];
+            if (insufficientStockDet == null || insufficientStockDet == undefined) {
+              insufficientStocks.push(
+                {
+                  "rowId": index,
+                  "productId": row.product.productId
+                });
+            }
+            var existingProd = currencyDetails[index];
+            if (existingProd.status == "new") {
+              currencyDetails[index]["status"] = "initial";
+              currencyDetails[index]["stockstatus"] = "initial";
+            }
+            else if (existingProd.status == "initial")
+              currencyDetails[index]["status"] = "old";
+            //
+            var val = existingProd.rowAmt;
+            if ($scope.tempTaxArray.length != 0)
+              var taxVal = $scope.tempTaxArray[index] == undefined ? 0 : $scope.tempTaxArray[index].taxAmt;
+            else
+              var taxVal = 0;
 
-						row.product = null;
-						//vm.submitted=true;
-						//if(insufficientStocks.length!=0)
-						vm.submitted=true;
-						row.quotationRowDetailsLoaded = true;
-					}
-					if($scope.promoLists.length!=0)
-						$scope.chkClaimedPromo();
-				}).error(function (data) {
-					notifications.toast("Unexpected error while getting stock.", "error");
-					row.qty = 1;
-					//vm.submitted=true;
-					//row.submitted=true;
-					var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId:index })[0];
-					if(insufficientStockDet==null || insufficientStockDet==undefined) {
-						insufficientStocks.push(
-							{
-								"rowId": index,
-								"productId": row.product.productId
-							});
-					}
+            row.product = null;
+            //vm.submitted=true;
+            //if(insufficientStocks.length!=0)
+            vm.submitted = true;
+            row.quotationRowDetailsLoaded = true;
+          }
+          if ($scope.promoLists.length != 0)
+            $scope.chkClaimedPromo();
+        }).error(function (data) {
+          notifications.toast("Unexpected error while getting stock.", "error");
+          row.qty = 1;
+          //vm.submitted=true;
+          //row.submitted=true;
+          var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId: index})[0];
+          if (insufficientStockDet == null || insufficientStockDet == undefined) {
+            insufficientStocks.push(
+              {
+                "rowId": index,
+                "productId": row.product.productId
+              });
+          }
 
-					//if(insufficientStocks.length!=0)
-					vm.submitted=true;
+          //if(insufficientStocks.length!=0)
+          vm.submitted = true;
 
-					row.quotationRowDetailsLoaded = true;
-				})
-			}
-			else
-			{
-				var incrementQtyProd = currencyDetails[index];
-				incrementQtyProd.qty=row.qty;
-				currencyDetails.splice(index,1);
-				currencyDetails.splice(index,index,incrementQtyProd);
-				if(incrementQtyProd.status=="new") {
-					currencyDetails[index]["status"] = "initial";
-					currencyDetails[index]["stockstatus"] = "new";
-				}
-				else if(incrementQtyProd.status=="initial")
-					currencyDetails[index]["status"]="old";
-				var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId:index })[0];
-				if(insufficientStockDet!=null || insufficientStockDet!=undefined) {
-					var itemIndex = insufficientStocks.indexOf(insufficientStockDet);
-					insufficientStocks.splice(itemIndex);
-				}
-				if(insufficientStocks.length==0)
-					vm.submitted=false;
-				$scope.calcTotal(row,index);
-				if(row.product.apply_tax!=0) {
-					$scope.spinnerInvoice = true;
-					$charge.billing().calcTax(row.product.tax, row.product.price_of_unit/rate).success(function (data) {
-						if($scope.content.preferredCurrency!=undefined) {
-							row.tax = rate*data.tax;
-							row.taxDisplay=(Math.round(rate*data.tax * Math.pow(10,parseInt($rootScope.decimalPoint))) / Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
-						}
-						else
-						{
-							row.tax = data.tax;
-							row.taxDisplay=(Math.round(data.tax* Math.pow(10,parseInt($rootScope.decimalPoint)))/ Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
-						}
-						var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex:row.product.productId })[0];
-						if (existingTax==undefined) {
-							//$scope.tempTaxArray.push({
-							//  taxIndex:row.product.productId,
-							//  taxAmt:row.tax,
-							//  taxDisplay:row.taxDisplay,
-							//  baseAmt:data.tax
-							//});
+          row.quotationRowDetailsLoaded = true;
+        })
+      }
+      else {
+        var incrementQtyProd = currencyDetails[index];
+        incrementQtyProd.qty = row.qty;
+        currencyDetails.splice(index, 1);
+        currencyDetails.splice(index, index, incrementQtyProd);
+        if (incrementQtyProd.status == "new") {
+          currencyDetails[index]["status"] = "initial";
+          currencyDetails[index]["stockstatus"] = "new";
+        }
+        else if (incrementQtyProd.status == "initial")
+          currencyDetails[index]["status"] = "old";
+        var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId: index})[0];
+        if (insufficientStockDet != null || insufficientStockDet != undefined) {
+          var itemIndex = insufficientStocks.indexOf(insufficientStockDet);
+          insufficientStocks.splice(itemIndex);
+        }
+        if (insufficientStocks.length == 0)
+          vm.submitted = false;
+        $scope.calcTotal(row, index);
+        if (row.product.apply_tax != 0) {
+          $scope.spinnerInvoice = true;
+          $charge.billing().calcTax(row.product.tax, row.product.price_of_unit / rate).success(function (data) {
+            if ($scope.content.preferredCurrency != undefined) {
+              row.tax = rate * data.tax;
+              row.taxDisplay = (Math.round(rate * data.tax * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
+            }
+            else {
+              row.tax = data.tax;
+              row.taxDisplay = (Math.round(data.tax * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
+            }
+            var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex: row.product.productId})[0];
+            if (existingTax == undefined) {
+              //$scope.tempTaxArray.push({
+              //  taxIndex:row.product.productId,
+              //  taxAmt:row.tax,
+              //  taxDisplay:row.taxDisplay,
+              //  baseAmt:data.tax
+              //});
 
-							$scope.tempTaxArray.splice(index, index, {
-								taxIndex:row.product.productId,
-								taxAmt:row.tax,
-								taxDisplay:row.taxDisplay,
-								baseAmt:data.tax
-							});
-							row.quotationRowDetailsLoaded = true;
-							$scope.content.taxAmt=0;
-							for(var i=0;i<$scope.tempTaxArray.length;i++)
-							{
-								$scope.content.taxAmt+=$scope.tempTaxArray[i].taxAmt;
-							}
+              $scope.tempTaxArray.splice(index, index, {
+                taxIndex: row.product.productId,
+                taxAmt: row.tax,
+                taxDisplay: row.taxDisplay,
+                baseAmt: data.tax
+              });
+              row.quotationRowDetailsLoaded = true;
+              $scope.content.taxAmt = 0;
+              for (var i = 0; i < $scope.tempTaxArray.length; i++) {
+                $scope.content.taxAmt += $scope.tempTaxArray[i].taxAmt;
+              }
 
-						}
-						else
-						{
-							existingTax.taxAmt=row.tax;
-							$scope.content.taxAmt=0;
-							for(i=0;i<$scope.tempTaxArray.length;i++)
-							{
-								$scope.content.taxAmt+=$scope.tempTaxArray[i].taxAmt;
-							}
-							row.quotationRowDetailsLoaded = true;
-						}
-						$scope.spinnerInvoice = false;
-					}).error(function (data) {
-						//17-10-2016
-						$mdDialog.show(
-							$mdDialog.alert()
-								.parent(angular.element(document.querySelector('#invoice')))
-								.clickOutsideToClose(false)
-								.title('Error')
-								.textContent('Unexpected error occured while calculating tax.')
-								.ariaLabel('Alert Dialog Demo')
-								.ok('Ok')).finally(function() {
-							var rowId=row.qtyId;
-							var rowId='#'+rowId;
-							//setTimeout(function(){
-							document.querySelector(rowId).focus();
-							//},0);
-						});
-						$scope.spinnerInvoice = false;
-						row.tax=0;
-						row.taxDisplay=0;
-						//$scope.tempTaxArray.push({
-						//  taxIndex:row.product.productId,
-						//  taxAmt:row.tax,
-						//  taxDisplay:row.taxDisplay,
-						//  baseAmt:0
-						//});
+            }
+            else {
+              existingTax.taxAmt = row.tax;
+              $scope.content.taxAmt = 0;
+              for (i = 0; i < $scope.tempTaxArray.length; i++) {
+                $scope.content.taxAmt += $scope.tempTaxArray[i].taxAmt;
+              }
+              row.quotationRowDetailsLoaded = true;
+            }
+            $scope.spinnerInvoice = false;
+          }).error(function (data) {
+            //17-10-2016
+            $mdDialog.show(
+              $mdDialog.alert()
+                .parent(angular.element(document.querySelector('#invoice')))
+                .clickOutsideToClose(false)
+                .title('Error')
+                .textContent('Unexpected error occured while calculating tax.')
+                .ariaLabel('Alert Dialog Demo')
+                .ok('Ok')).finally(function () {
+                var rowId = row.qtyId;
+                var rowId = '#' + rowId;
+                //setTimeout(function(){
+                document.querySelector(rowId).focus();
+                //},0);
+              });
+            $scope.spinnerInvoice = false;
+            row.tax = 0;
+            row.taxDisplay = 0;
+            //$scope.tempTaxArray.push({
+            //  taxIndex:row.product.productId,
+            //  taxAmt:row.tax,
+            //  taxDisplay:row.taxDisplay,
+            //  baseAmt:0
+            //});
 
-						$scope.tempTaxArray.splice(index, index, {
-							taxIndex:row.product.productId,
-							taxAmt:row.tax,
-							taxDisplay:row.taxDisplay,
-							baseAmt:0
-						});
-						row.quotationRowDetailsLoaded = true;
-					})
-				}
-				else
-				{
-					row.tax=0;
-					row.taxDisplay=0;
-					//$scope.tempTaxArray.push({
-					//  taxIndex:row.product.productId,
-					//  taxAmt:row.tax,
-					//  taxDisplay:row.taxDisplay,
-					//  baseAmt:0
-					//});
+            $scope.tempTaxArray.splice(index, index, {
+              taxIndex: row.product.productId,
+              taxAmt: row.tax,
+              taxDisplay: row.taxDisplay,
+              baseAmt: 0
+            });
+            row.quotationRowDetailsLoaded = true;
+          })
+        }
+        else {
+          row.tax = 0;
+          row.taxDisplay = 0;
+          //$scope.tempTaxArray.push({
+          //  taxIndex:row.product.productId,
+          //  taxAmt:row.tax,
+          //  taxDisplay:row.taxDisplay,
+          //  baseAmt:0
+          //});
 
-					$scope.tempTaxArray.splice(index, index, {
-						taxIndex:row.product.productId,
-						taxAmt:row.tax,
-						taxDisplay:row.taxDisplay,
-						baseAmt:0
-					});
-					row.quotationRowDetailsLoaded = true;
-				}
+          $scope.tempTaxArray.splice(index, index, {
+            taxIndex: row.product.productId,
+            taxAmt: row.tax,
+            taxDisplay: row.taxDisplay,
+            baseAmt: 0
+          });
+          row.quotationRowDetailsLoaded = true;
+        }
 
-				if($scope.promoLists.length!=0)
-					$scope.chkClaimedPromo();
-			}
-			//
-			//if(self.searchPromo!=null)
-			//{
-			//  $scope.showValidationDialog('info','You have to apply promotion again after changes.','Notification');
-			//  self.searchPromo=null;
-			//  $scope.chkPromo(index);
-			//}
-			//
+        if ($scope.promoLists.length != 0)
+          $scope.chkClaimedPromo();
+      }
+      //
+      //if(self.searchPromo!=null)
+      //{
+      //  $scope.showValidationDialog('info','You have to apply promotion again after changes.','Notification');
+      //  self.searchPromo=null;
+      //  $scope.chkPromo(index);
+      //}
+      //
 
-		}
+    }
 
 
-		$scope.calcTotal=function(row,index)
-		{
-			//
-			var calcAmtVal = $filter('filter')(calcAmt, { rowIndex: row.product.productId })[0];
-			if (calcAmtVal== null || calcAmtVal == undefined) {
-				calcAmt.push({
-					rowIndex: row.product.productId,
-					rowAmt: row.product.price_of_unit,
-					rowAmtDisplay:(Math.round(row.product.price_of_unit* Math.pow(10,parseInt($rootScope.decimalPoint)))/ Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint)),
-					rate:rate
-				});
-				var calcAmtVal = $filter('filter')(calcAmt, { rowIndex: row.product.productId })[0];
-			}
-			else {
-			}
-			var unitPrice;
-			if (row.qty == "" || row.qty == undefined) {
-				convertedQty = 0;
-				if(calcAmtVal== null || calcAmtVal == undefined) {
-					unitPrice = calcAmt[index].rowAmt;
-					row.product.price_of_unit = calcAmt[index].rowAmt;
-					row.rowAmtDisplay=calcAmt[index].rowAmtDisplay;
-				}
-				else {
-					row.product.price_of_unit = calcAmtVal.rowAmt;
-					row.rowAmtDisplay=calcAmtVal.rowAmtDisplay;
-					unitPrice=calcAmtVal.rowAmt;
-				}
-			}
-			else
-				convertedQty = parseInt(row.qty);
-			var convertedQty, convertedAmt;
-			var netTotal = 0;
-			var count = 1;
+    $scope.calcTotal = function (row, index) {
+      //
+      var calcAmtVal = $filter('filter')(calcAmt, {rowIndex: row.product.productId})[0];
+      if (calcAmtVal == null || calcAmtVal == undefined) {
+        calcAmt.push({
+          rowIndex: row.product.productId,
+          rowAmt: row.product.price_of_unit,
+          rowAmtDisplay: (Math.round(row.product.price_of_unit * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint)),
+          rate: rate
+        });
+        var calcAmtVal = $filter('filter')(calcAmt, {rowIndex: row.product.productId})[0];
+      }
+      else {
+      }
+      var unitPrice;
+      if (row.qty == "" || row.qty == undefined) {
+        convertedQty = 0;
+        if (calcAmtVal == null || calcAmtVal == undefined) {
+          unitPrice = calcAmt[index].rowAmt;
+          row.product.price_of_unit = calcAmt[index].rowAmt;
+          row.rowAmtDisplay = calcAmt[index].rowAmtDisplay;
+        }
+        else {
+          row.product.price_of_unit = calcAmtVal.rowAmt;
+          row.rowAmtDisplay = calcAmtVal.rowAmtDisplay;
+          unitPrice = calcAmtVal.rowAmt;
+        }
+      }
+      else
+        convertedQty = parseInt(row.qty);
+      var convertedQty, convertedAmt;
+      var netTotal = 0;
+      var count = 1;
 
-			if(calcAmtVal== null || calcAmtVal == undefined) {
-				unitPrice = calcAmt[index].rowAmt;
-			}
-			else {
-				unitPrice=calcAmtVal.rowAmt;
-			}
-			convertedAmt = parseFloat(unitPrice);
+      if (calcAmtVal == null || calcAmtVal == undefined) {
+        unitPrice = calcAmt[index].rowAmt;
+      }
+      else {
+        unitPrice = calcAmtVal.rowAmt;
+      }
+      convertedAmt = parseFloat(unitPrice);
 
-			var totalAmt = convertedAmt * convertedQty;
-			row.product.price_of_unit = totalAmt;
-			row.rowAmtDisplay=(Math.round(row.product.price_of_unit* Math.pow(10,parseInt($rootScope.decimalPoint)))/ Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
-			for (var i = 0; i < $scope.rows.length; i++) {
-				if($scope.rows[i].product!=null || $scope.rows[i].product!= undefined) {
-					var perItem = $scope.rows[i].product.price_of_unit;
-					netTotal += perItem;
-				}
-			}
-			$scope.content.netamt = netTotal;
-		}
-
-
-		$scope.toggleSearchMre= function (rows,ev,index,txt,status) {
-
-			if (ev.keyCode === 8) {
-				$timeout.cancel($scope.waitForProduct);
-				$scope.waitForProduct = $timeout(function myFunction() {
-					rows[index].searchMre = false;
-					if (txt.length == 1) {
-						if (rows[index].qty != undefined) {
-							var existingProd = currencyDetails[index];
-							if(existingProd!=undefined || existingProd !=null)
-								var val = existingProd.rowAmt;
-							else
-								var val=0;
-							if($scope.tempTaxArray.length!=0)
-								var taxVal = $scope.tempTaxArray[index]==undefined?0:$scope.tempTaxArray[index].taxAmt;
-							else
-								var taxVal=0;
-
-							//var taxVal = $scope.tempTaxArray[index].taxAmt;
-							$scope.content.netamt = $scope.content.netamt - val;
-							$scope.content.taxAmt = $scope.content.taxAmt - taxVal;
-							$scope.content.PromoAmt = $scope.content.PromoAmt - rows[index].promotion;
-							currencyDetails.splice(index, 1);
-							$scope.tempProduct.splice(index, 1);
-							$scope.tempTaxArray.splice(index, 1);
-							rows[index].qty = 1;
-							rows[index].taxDisplay = 0;
-							rows[index].promotion = 0;
-							rows[index].rowAmtDisplay = "";
-							rows[index].product = null;
-						}
-						else {
-							currencyDetails.splice(index, 1);
-							$scope.tempProduct.splice(index, 1);
-						}
-					}
-					$scope.loadByKeyword($scope.waitForProductKeyword,rows,index,status);
-				},1000);
-			}
-		}
-
-		//$scope.disableLoader= function (previous,index) {
-		//  if(previous)
-		//}
+      var totalAmt = convertedAmt * convertedQty;
+      row.product.price_of_unit = totalAmt;
+      row.rowAmtDisplay = (Math.round(row.product.price_of_unit * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
+      for (var i = 0; i < $scope.rows.length; i++) {
+        if ($scope.rows[i].product != null || $scope.rows[i].product != undefined) {
+          var perItem = $scope.rows[i].product.price_of_unit;
+          netTotal += perItem;
+        }
+      }
+      $scope.content.netamt = netTotal;
+    }
 
 
+    $scope.toggleSearchMre = function (rows, ev, index, txt, status) {
 
-		$scope.loadPaging= function (keyword,rows,index,status,skip, take) {
-			$charge.product().filterByKey(keyword, skip, take).success(function (data) {
-				for(var i=0;i<data.length;i++)
-				{
-					tempList.push(data[i]);
-				}
-			}).error(function (data) {
-				if(tempList.length>0) {
-					rows[index].productlst = tempList;
-				}
-			});
-		}
-		//newly added code end
+      if (ev.keyCode === 8) {
+        $timeout.cancel($scope.waitForProduct);
+        $scope.waitForProduct = $timeout(function myFunction() {
+          rows[index].searchMre = false;
+          if (txt.length == 1) {
+            if (rows[index].qty != undefined) {
+              var existingProd = currencyDetails[index];
+              if (existingProd != undefined || existingProd != null)
+                var val = existingProd.rowAmt;
+              else
+                var val = 0;
+              if ($scope.tempTaxArray.length != 0)
+                var taxVal = $scope.tempTaxArray[index] == undefined ? 0 : $scope.tempTaxArray[index].taxAmt;
+              else
+                var taxVal = 0;
 
+              //var taxVal = $scope.tempTaxArray[index].taxAmt;
+              $scope.content.netamt = $scope.content.netamt - val;
+              $scope.content.taxAmt = $scope.content.taxAmt - taxVal;
+              $scope.content.PromoAmt = $scope.content.PromoAmt - rows[index].promotion;
+              currencyDetails.splice(index, 1);
+              $scope.tempProduct.splice(index, 1);
+              $scope.tempTaxArray.splice(index, 1);
+              rows[index].qty = 1;
+              rows[index].taxDisplay = 0;
+              rows[index].promotion = 0;
+              rows[index].rowAmtDisplay = "";
+              rows[index].product = null;
+            }
+            else {
+              currencyDetails.splice(index, 1);
+              $scope.tempProduct.splice(index, 1);
+            }
+          }
+          $scope.loadByKeyword($scope.waitForProductKeyword, rows, index, status);
+        }, 1000);
+      }
+    }
 
-		//11-10-2016
-		/*
-		 Due date changes added started
-		 */
-		$scope.changeDueDate= function (ev) {
-			//
-			if(ev!="Custom") {
-				if(ev!="DueonReceipt")
-				{
-					var changedDueDate = moment($scope.content.invoiceDate).add(parseInt(ev.termDays), 'day')._d;
-					$scope.content.dueDate = changedDueDate;
-				}
-				else
-				{
-					$scope.content.dueDate = $scope.content.invoiceDate;
-				}
-			}
-		}
-
-		$scope.getDueDate= function () {
-			//
-			$scope.content.invoiceTerm="Custom";
-			if($scope.content.dueDate<$scope.content.invoiceDate)
-			{
-				notifications.toast("Due date cannot be less than invoice date.", "error");
-				$scope.content.dueDate=$scope.content.invoiceDate;
-			}
-		}
-		/*
-		 Due date changes added finished
-		 */
-
-		//
-		var self = this;
-		//self.searchText=[];
-		//self.searchText.push({searchText:{searchText1:""}},{searchText:{searchText2:""}},{searchText:{searchText3:""}},{searchText:{searchText4:""}},{searchText:{searchText5:""}});
-		//self.tenants        = loadAll();
-		self.selectedItem  = null;
-		self.searchText    = [];
-		//
-		$scope.querySearch =function(query,index) {
-			//
-			//Custom Filter
-			var results=[];
-			if(!isQuotation) {
-				for (var i = 0;i < $scope.rows[index].productlst.length; i++) {
-
-					//console.log($scope.allBanks[i].value.value);
-					//
-					//if($scope.rows[index].productlst[i].product_name.toLowerCase().indexOf(query.toLowerCase()) !=-1)
-					{
-						if ($scope.rows[index].productlst[i].
-							code.toLowerCase().startsWith(query.toLowerCase())) {
-							results.push($scope.rows[index].productlst[i]);
-						}
-
-					}
-				}
-			}
-			//
-			return results;
-		}
+    //$scope.disableLoader= function (previous,index) {
+    //  if(previous)
+    //}
 
 
-		//
+    $scope.loadPaging = function (keyword, rows, index, status, skip, take) {
+      $charge.product().filterByKey(keyword, skip, take).success(function (data) {
+        for (var i = 0; i < data.length; i++) {
+          tempList.push(data[i]);
+        }
+      }).error(function (data) {
+        if (tempList.length > 0) {
+          rows[index].productlst = tempList;
+        }
+      });
+    }
+    //newly added code end
 
 
+    //11-10-2016
+    /*
+     Due date changes added started
+     */
+    $scope.changeDueDate = function (ev) {
+      //
+      if (ev != "Custom") {
+        if (ev != "DueonReceipt") {
+          var changedDueDate = moment($scope.content.invoiceDate).add(parseInt(ev.termDays), 'day')._d;
+          $scope.content.dueDate = changedDueDate;
+        }
+        else {
+          $scope.content.dueDate = $scope.content.invoiceDate;
+        }
+      }
+    }
+
+    $scope.getDueDate = function () {
+      //
+      $scope.content.invoiceTerm = "Custom";
+      if ($scope.content.dueDate < $scope.content.invoiceDate) {
+        notifications.toast("Due date cannot be less than invoice date.", "error");
+        $scope.content.dueDate = $scope.content.invoiceDate;
+      }
+    }
+    /*
+     Due date changes added finished
+     */
+
+    //
+    var self = this;
+    //self.searchText=[];
+    //self.searchText.push({searchText:{searchText1:""}},{searchText:{searchText2:""}},{searchText:{searchText3:""}},{searchText:{searchText4:""}},{searchText:{searchText5:""}});
+    //self.tenants        = loadAll();
+    self.selectedItem = null;
+    self.searchText = [];
+    //
+    $scope.querySearch = function (query, index) {
+      //
+      //Custom Filter
+      var results = [];
+      if (!isQuotation) {
+        for (var i = 0; i < $scope.rows[index].productlst.length; i++) {
+
+          //console.log($scope.allBanks[i].value.value);
+          //
+          //if($scope.rows[index].productlst[i].product_name.toLowerCase().indexOf(query.toLowerCase()) !=-1)
+          {
+            if ($scope.rows[index].productlst[i].
+                code.toLowerCase().startsWith(query.toLowerCase())) {
+              results.push($scope.rows[index].productlst[i]);
+            }
+
+          }
+        }
+      }
+      //
+      return results;
+    }
 
 
-
-		var prodcount=0;
-		$scope.addNewRow=function()
-		{
-			var product={};
-			product.productlst=angular.copy($scope.products);
-			//
-			product.promotion=0;
-			product.taxDisplay=0;
-			product.rowAmtDisplay=0;
-			product.qty=1;
-			product.qtyId='acQty'+prodcount;
-			product.product_name='';
-			product.searchMre=false;
-			product.isAutoDisabled=false;
-			product.quotationRowDetailsLoaded = true;
-			product.productId='acProduct'+ prodcount;
-			//product.submitted=false;
-			//product.newProduct=true;
-			$scope.rows.push(product);
-
-			prodcount++;
-		}
-		//$scope.isRowDisabled=true;
-		$scope.addrow = function () {
-			if($scope.tempProduct.length==$scope.rows.length)
-			{
-				$scope.isRowDisabled=false;
-			}
-			else
-			{
-				angular.element(document.querySelector('.prod-row-wrap')).find('.add-item-row:last').find('md-autocomplete md-input-container').addClass('md-input-invalid');
-				angular.element(document.querySelector('.prod-row-wrap')).find('.add-item-row:last').find('md-autocomplete md-input-container input').focus();
-				//notifications.toast("Please select a valid product.", "error");
-				$scope.isRowDisabled=true;
-			}
-			if(!$scope.isRowDisabled) {
-				if (isQuotation)
-					isQuotation = false;
-				//row.newProduct=false;
-				$scope.addNewRow();
-				//NEWLY ADDED CODE
-				$scope.last = false;
-				//$scope.searchMre=false;
-				skipProd = 0;
-				$scope.isRowDisabled=false;
-			}
-		}
+    //
 
 
-		//$scope.$watch(function ()
-		//{
-		//  vm.submitted = false;
-		//}, function ()
-		//{
-		//  vm.submitted = true;
-		//});
+    var prodcount = 0;
+    $scope.addNewRow = function () {
+      var product = {};
+      product.productlst = angular.copy($scope.products);
+      //
+      product.promotion = 0;
+      product.taxDisplay = 0;
+      product.rowAmtDisplay = 0;
+      product.qty = 1;
+      product.qtyId = 'acQty' + prodcount;
+      product.product_name = '';
+      product.searchMre = false;
+      product.isAutoDisabled = false;
+      product.quotationRowDetailsLoaded = true;
+      product.productId = 'acProduct' + prodcount;
+      //product.submitted=false;
+      //product.newProduct=true;
+      $scope.rows.push(product);
+
+      prodcount++;
+    }
+    //$scope.isRowDisabled=true;
+    $scope.addrow = function () {
+      if ($scope.tempProduct.length == $scope.rows.length) {
+        $scope.isRowDisabled = false;
+      }
+      else {
+        angular.element(document.querySelector('.prod-row-wrap')).find('.add-item-row:last').find('md-autocomplete md-input-container').addClass('md-input-invalid');
+        angular.element(document.querySelector('.prod-row-wrap')).find('.add-item-row:last').find('md-autocomplete md-input-container input').focus();
+        //notifications.toast("Please select a valid product.", "error");
+        $scope.isRowDisabled = true;
+      }
+      if (!$scope.isRowDisabled) {
+        if (isQuotation)
+          isQuotation = false;
+        //row.newProduct=false;
+        $scope.addNewRow();
+        //NEWLY ADDED CODE
+        $scope.last = false;
+        //$scope.searchMre=false;
+        skipProd = 0;
+        $scope.isRowDisabled = false;
+      }
+    }
 
 
-		$scope.removerow = function (index) {
-			//
-			if($scope.rows.length!=1) {
-				if ($scope.rows[index].product != undefined || $scope.rows[index].product != null) {
-					if ($scope.rows[index].qty != undefined) {
-						var val = $scope.rows[index].product.price_of_unit;
-						$scope.content.netamt = $scope.content.netamt - val;
-					}
-					var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex: $scope.rows[index].product.productId})[0];
-					if(existingTax!=undefined) {
-						var itemIndex = $scope.tempTaxArray.indexOf(existingTax);
-						$scope.content.taxAmt -= $scope.tempTaxArray[itemIndex].taxAmt;
-						//
-						$scope.tempTaxArray.splice(itemIndex, 1);
-					}
-					currencyDetails.splice(index, 1);
-				}
-				if($scope.rows[index].promotion!=undefined)
-					$scope.content.PromoAmt -= $scope.rows[index].promotion;
-				//
-				self.searchText.splice(index, 1);
-				$scope.tempProduct.splice(index, 1);
-
-				calcAmt.splice(index, 1);
-				//currencyDetails.splice(index, 1);
-				$scope.rows.splice(index, 1);
-				var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId:index })[0];
-				if(insufficientStockDet!=null || insufficientStockDet!=undefined) {
-					var itemIndex = insufficientStocks.indexOf(insufficientStockDet);
-					insufficientStocks.splice(itemIndex);
-				}
-				if(insufficientStocks.length==0)
-					vm.submitted=false;
-				prodcount--;
-			}
-		}
+    //$scope.$watch(function ()
+    //{
+    //  vm.submitted = false;
+    //}, function ()
+    //{
+    //  vm.submitted = true;
+    //});
 
 
-		$scope.removerows = function () {
-			//
-			for(var i=0; i<$scope.rows.length;i++) {
-				if ($scope.rows[i].product != undefined || $scope.rows[i].product != null) {
-					if ($scope.rows[i].qty != undefined) {
-						var val = $scope.rows[i].product.price_of_unit;
-						$scope.content.netamt = $scope.content.netamt - val;
-					}
-					var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex: $scope.rows[i].product.productId})[0];
-					if (existingTax != undefined) {
-						var itemIndex = $scope.tempTaxArray.indexOf(existingTax);
-						$scope.content.taxAmt -= $scope.tempTaxArray[itemIndex].taxAmt;
-						//
-						$scope.tempTaxArray.splice(itemIndex, 1);
-					}
-				}
-				if ($scope.rows[i].promotion != undefined)
-					$scope.content.PromoAmt -= $scope.rows[i].promotion;
-				//
-				self.searchText.splice(i, 1);
-				$scope.tempProduct.splice(i, 1);
+    $scope.removerow = function (index) {
+      //
+      if ($scope.rows.length != 1) {
+        if ($scope.rows[index].product != undefined || $scope.rows[index].product != null) {
+          if ($scope.rows[index].qty != undefined) {
+            var val = $scope.rows[index].product.price_of_unit;
+            $scope.content.netamt = $scope.content.netamt - val;
+          }
+          var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex: $scope.rows[index].product.productId})[0];
+          if (existingTax != undefined) {
+            var itemIndex = $scope.tempTaxArray.indexOf(existingTax);
+            $scope.content.taxAmt -= $scope.tempTaxArray[itemIndex].taxAmt;
+            //
+            $scope.tempTaxArray.splice(itemIndex, 1);
+          }
+          currencyDetails.splice(index, 1);
+        }
+        if ($scope.rows[index].promotion != undefined)
+          $scope.content.PromoAmt -= $scope.rows[index].promotion;
+        //
+        self.searchText.splice(index, 1);
+        $scope.tempProduct.splice(index, 1);
 
-				calcAmt.splice(i, 1);
-				currencyDetails.splice(i, 1);
-				$scope.rows.splice(i, 1);
-				self.searchQuotation=null;
-				isQuotation=false;
-				prodcount = 0;
-			}
-		}
+        calcAmt.splice(index, 1);
+        //currencyDetails.splice(index, 1);
+        $scope.rows.splice(index, 1);
+        var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId: index})[0];
+        if (insufficientStockDet != null || insufficientStockDet != undefined) {
+          var itemIndex = insufficientStocks.indexOf(insufficientStockDet);
+          insufficientStocks.splice(itemIndex);
+        }
+        if (insufficientStocks.length == 0)
+          vm.submitted = false;
+        prodcount--;
+      }
+    }
 
 
-		$scope.setAmount=function(product,index)
-		{
+    $scope.removerows = function () {
+      //
+      for (var i = 0; i < $scope.rows.length; i++) {
+        if ($scope.rows[i].product != undefined || $scope.rows[i].product != null) {
+          if ($scope.rows[i].qty != undefined) {
+            var val = $scope.rows[i].product.price_of_unit;
+            $scope.content.netamt = $scope.content.netamt - val;
+          }
+          var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex: $scope.rows[i].product.productId})[0];
+          if (existingTax != undefined) {
+            var itemIndex = $scope.tempTaxArray.indexOf(existingTax);
+            $scope.content.taxAmt -= $scope.tempTaxArray[itemIndex].taxAmt;
+            //
+            $scope.tempTaxArray.splice(itemIndex, 1);
+          }
+        }
+        if ($scope.rows[i].promotion != undefined)
+          $scope.content.PromoAmt -= $scope.rows[i].promotion;
+        //
+        self.searchText.splice(i, 1);
+        $scope.tempProduct.splice(i, 1);
 
-			// console.log(product);
-			var amt=product.product.price_of_unit;
-			var prod_name=product.product;
-			$scope.content.amount=amt;
-			$scope.content.qty=1;
-			$scope.content.netamt=amt;
+        calcAmt.splice(i, 1);
+        currencyDetails.splice(i, 1);
+        $scope.rows.splice(i, 1);
+        self.searchQuotation = null;
+        isQuotation = false;
+        prodcount = 0;
+      }
+    }
 
-		}
-		var calcAmt=[];
-		var stockAvailable;
-		var insufficientStocks=[];
-		$scope.calcItemAmt=function(row,index)
-		{
-			row.quotationRowDetailsLoaded = false;
+
+    $scope.setAmount = function (product, index) {
+
+      // console.log(product);
+      var amt = product.product.price_of_unit;
+      var prod_name = product.product;
+      $scope.content.amount = amt;
+      $scope.content.qty = 1;
+      $scope.content.netamt = amt;
+
+    }
+    var calcAmt = [];
+    var stockAvailable;
+    var insufficientStocks = [];
+    $scope.calcItemAmt = function (row, index) {
+      row.quotationRowDetailsLoaded = false;
 //
-			if(row.product.sku!=0) {
-				$charge.stock().getStock(row.product.productId).success(function (data) {
-					stockAvailable = data.qty;
-					if (row.qty <= stockAvailable) {
-						var incrementQtyProd = currencyDetails[index];
-						incrementQtyProd.qty=row.qty;
-						currencyDetails.splice(index,1);
-						currencyDetails.splice(index,index,incrementQtyProd);
-						if(incrementQtyProd.status=="new") {
-							currencyDetails[index]["status"] = "initial";
-							currencyDetails[index]["stockstatus"] = "new";
-						}
-						else if(incrementQtyProd.status=="initial")
-							currencyDetails[index]["status"]="old";
-						//vm.submitted=false;
-						var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId:index })[0];
-						if(insufficientStockDet!=null || insufficientStockDet!=undefined) {
-							var itemIndex = insufficientStocks.indexOf(insufficientStockDet);
-							insufficientStocks.splice(itemIndex);
-						}
-						//
-						if(insufficientStocks.length==0)
-							vm.submitted=false;
-						$scope.calcTotal(row,index);
-						if(row.product.apply_tax!=0) {
-							$scope.spinnerInvoice = true;
-							//
-							$charge.billing().calcTax(row.product.tax, row.product.price_of_unit/rate).success(function (data) {
-								if($scope.content.preferredCurrency!=undefined) {
-									row.tax = rate*data.tax;
-									row.taxDisplay=(Math.round(rate*data.tax * Math.pow(10,parseInt($rootScope.decimalPoint))) / Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
+      if (row.product.sku != 0) {
+        $charge.stock().getStock(row.product.productId).success(function (data) {
+          stockAvailable = data.qty;
+          if (row.qty <= stockAvailable) {
+            var incrementQtyProd = currencyDetails[index];
+            incrementQtyProd.qty = row.qty;
+            currencyDetails.splice(index, 1);
+            currencyDetails.splice(index, index, incrementQtyProd);
+            if (incrementQtyProd.status == "new") {
+              currencyDetails[index]["status"] = "initial";
+              currencyDetails[index]["stockstatus"] = "new";
+            }
+            else if (incrementQtyProd.status == "initial")
+              currencyDetails[index]["status"] = "old";
+            //vm.submitted=false;
+            var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId: index})[0];
+            if (insufficientStockDet != null || insufficientStockDet != undefined) {
+              var itemIndex = insufficientStocks.indexOf(insufficientStockDet);
+              insufficientStocks.splice(itemIndex);
+            }
+            //
+            if (insufficientStocks.length == 0)
+              vm.submitted = false;
+            $scope.calcTotal(row, index);
+            if (row.product.apply_tax != 0) {
+              $scope.spinnerInvoice = true;
+              //
+              $charge.billing().calcTax(row.product.tax, row.product.price_of_unit / rate).success(function (data) {
+                if ($scope.content.preferredCurrency != undefined) {
+                  row.tax = rate * data.tax;
+                  row.taxDisplay = (Math.round(rate * data.tax * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
 
-								}
-								else
-								{
-									row.tax = data.tax;
-									row.taxDisplay=(Math.round(data.tax* Math.pow(10,parseInt($rootScope.decimalPoint)))/ Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
-								}
-								var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex:row.product.productId })[0];
-								if (existingTax==undefined) {
-									//$scope.tempTaxArray.push({
-									//  taxIndex:row.product.productId,
-									//  taxAmt:row.tax,
-									//  taxDisplay:row.taxDisplay,
-									//  baseAmt:data.tax
-									//});
-									$scope.tempTaxArray.splice(index, index, {
-										taxIndex:row.product.productId,
-										taxAmt:row.tax,
-										taxDisplay:row.taxDisplay,
-										baseAmt:data.tax
-									});
-									//
-									row.quotationRowDetailsLoaded = true;
-									$scope.content.taxAmt=0;
-									for(var i=0;i<$scope.tempTaxArray.length;i++)
-									{
-										$scope.content.taxAmt+=$scope.tempTaxArray[i].taxAmt;
-									}
+                }
+                else {
+                  row.tax = data.tax;
+                  row.taxDisplay = (Math.round(data.tax * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
+                }
+                var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex: row.product.productId})[0];
+                if (existingTax == undefined) {
+                  //$scope.tempTaxArray.push({
+                  //  taxIndex:row.product.productId,
+                  //  taxAmt:row.tax,
+                  //  taxDisplay:row.taxDisplay,
+                  //  baseAmt:data.tax
+                  //});
+                  $scope.tempTaxArray.splice(index, index, {
+                    taxIndex: row.product.productId,
+                    taxAmt: row.tax,
+                    taxDisplay: row.taxDisplay,
+                    baseAmt: data.tax
+                  });
+                  //
+                  row.quotationRowDetailsLoaded = true;
+                  $scope.content.taxAmt = 0;
+                  for (var i = 0; i < $scope.tempTaxArray.length; i++) {
+                    $scope.content.taxAmt += $scope.tempTaxArray[i].taxAmt;
+                  }
 
-								}
-								else
-								{
-									//var index=$scope.tempTaxArray.indexOf(existingTax);
-									//$scope.tempTaxArray.splice(index,1);
-									//$scope.tempTaxArray.push({
-									//    taxIndex:row.product.productId,
-									//    taxAmt:row.tax,
-									//    baseAmt:data.tax
-									//});
-									existingTax.taxAmt=row.tax;
-									$scope.content.taxAmt=0;
-									for(var i=0;i<$scope.tempTaxArray.length;i++)
-									{
-										$scope.content.taxAmt+=$scope.tempTaxArray[i].taxAmt;
-									}
-									row.quotationRowDetailsLoaded = true;
-								}
-								$scope.spinnerInvoice = false;
-							}).error(function (data) {
-								//17-10-2016
-								$mdDialog.show(
-									$mdDialog.alert()
-										.parent(angular.element(document.querySelector('#invoice')))
-										.clickOutsideToClose(false)
-										.title('Error')
-										.textContent('Unexpected error occured while calculating tax.')
-										.ariaLabel('Alert Dialog Demo')
-										.ok('Ok')).finally(function() {
-									var rowId=row.qtyId;
-									var rowId='#'+rowId;
-									//setTimeout(function(){
-									document.querySelector(rowId).focus();
-									//},0);
-								});
+                }
+                else {
+                  //var index=$scope.tempTaxArray.indexOf(existingTax);
+                  //$scope.tempTaxArray.splice(index,1);
+                  //$scope.tempTaxArray.push({
+                  //    taxIndex:row.product.productId,
+                  //    taxAmt:row.tax,
+                  //    baseAmt:data.tax
+                  //});
+                  existingTax.taxAmt = row.tax;
+                  $scope.content.taxAmt = 0;
+                  for (var i = 0; i < $scope.tempTaxArray.length; i++) {
+                    $scope.content.taxAmt += $scope.tempTaxArray[i].taxAmt;
+                  }
+                  row.quotationRowDetailsLoaded = true;
+                }
+                $scope.spinnerInvoice = false;
+              }).error(function (data) {
+                //17-10-2016
+                $mdDialog.show(
+                  $mdDialog.alert()
+                    .parent(angular.element(document.querySelector('#invoice')))
+                    .clickOutsideToClose(false)
+                    .title('Error')
+                    .textContent('Unexpected error occured while calculating tax.')
+                    .ariaLabel('Alert Dialog Demo')
+                    .ok('Ok')).finally(function () {
+                    var rowId = row.qtyId;
+                    var rowId = '#' + rowId;
+                    //setTimeout(function(){
+                    document.querySelector(rowId).focus();
+                    //},0);
+                  });
 
-								$scope.spinnerInvoice = false;
-								row.tax=0;
-								row.taxDisplay=0;
-								//$scope.tempTaxArray.push({
-								//  taxIndex:row.product.productId,
-								//  taxAmt:row.tax,
-								//  taxDisplay:row.taxDisplay,
-								//  baseAmt:0
-								//});
+                $scope.spinnerInvoice = false;
+                row.tax = 0;
+                row.taxDisplay = 0;
+                //$scope.tempTaxArray.push({
+                //  taxIndex:row.product.productId,
+                //  taxAmt:row.tax,
+                //  taxDisplay:row.taxDisplay,
+                //  baseAmt:0
+                //});
 
-								$scope.tempTaxArray.splice(index, index, {
-									taxIndex:row.product.productId,
-									taxAmt:row.tax,
-									taxDisplay:row.taxDisplay,
-									baseAmt:0
-								});
-								row.quotationRowDetailsLoaded = true;
-							})
-						}
-						else
-						{
-							row.tax=0;
-							row.taxDisplay=0;
-							//$scope.tempTaxArray.push({
-							//  taxIndex:row.product.productId,
-							//  taxAmt:row.tax,
-							//  taxDisplay:row.taxDisplay,
-							//  baseAmt:0
-							//});
+                $scope.tempTaxArray.splice(index, index, {
+                  taxIndex: row.product.productId,
+                  taxAmt: row.tax,
+                  taxDisplay: row.taxDisplay,
+                  baseAmt: 0
+                });
+                row.quotationRowDetailsLoaded = true;
+              })
+            }
+            else {
+              row.tax = 0;
+              row.taxDisplay = 0;
+              //$scope.tempTaxArray.push({
+              //  taxIndex:row.product.productId,
+              //  taxAmt:row.tax,
+              //  taxDisplay:row.taxDisplay,
+              //  baseAmt:0
+              //});
 
-							$scope.tempTaxArray.splice(index, index, {
-								taxIndex:row.product.productId,
-								taxAmt:row.tax,
-								taxDisplay:row.taxDisplay,
-								baseAmt:0
-							});
-							row.quotationRowDetailsLoaded = true;
-						}
-					}
-					else {
-						notifications.toast("Insufficient Stock", "error");
+              $scope.tempTaxArray.splice(index, index, {
+                taxIndex: row.product.productId,
+                taxAmt: row.tax,
+                taxDisplay: row.taxDisplay,
+                baseAmt: 0
+              });
+              row.quotationRowDetailsLoaded = true;
+            }
+          }
+          else {
+            notifications.toast("Insufficient Stock", "error");
 
-						var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId:index })[0];
-						if(insufficientStockDet==null || insufficientStockDet==undefined) {
-							insufficientStocks.push(
-								{
-									"rowId": index,
-									"productId": row.product.productId
-								});
-						}
-						var existingProd = currencyDetails[index];
-						if(existingProd.status=="new") {
-							currencyDetails[index]["status"] = "initial";
-							currencyDetails[index]["stockstatus"] = "initial";
-						}
-						else if(existingProd.status=="initial")
-							currencyDetails[index]["status"]="old";
-						//
-						var val = existingProd.rowAmt;
-						if($scope.tempTaxArray.length!=0)
-							var taxVal = $scope.tempTaxArray[index]==undefined?0:$scope.tempTaxArray[index].taxAmt;
-						else
-							var taxVal=0;
-						////if($scope.content.netamt!=0)
-						////  $scope.content.netamt = $scope.content.netamt - val;
-						////else
-						////  $scope.content.netamt=0;
-						//$scope.content.taxAmt = $scope.content.taxAmt - taxVal;
-						//$scope.content.PromoAmt = $scope.content.PromoAmt - row.promotion;
-						//currencyDetails.splice(index, 1);
-						//$scope.tempProduct.splice(index, 1);
-						//$scope.tempTaxArray.splice(index, 1);
-						//self.searchText.splice(index, 1);
-						//row.qty = 1;
-						//row.taxDisplay = 0;
-						//row.promotion = 0;
-						//row.rowAmtDisplay = "";
-						row.product = null;
-						//vm.submitted=true;
-						//if(insufficientStocks.length!=0)
-						vm.submitted=true;
-						row.quotationRowDetailsLoaded = true;
-					}
-					if($scope.promoLists.length!=0)
-						$scope.chkClaimedPromo();
-				}).error(function (data) {
-					notifications.toast("Unexpected error while getting stock.", "error");
-					row.qty = 1;
-					//vm.submitted=true;
-					//row.submitted=true;
-					var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId:index })[0];
-					if(insufficientStockDet==null || insufficientStockDet==undefined) {
-						insufficientStocks.push(
-							{
-								"rowId": index,
-								"productId": row.product.productId
-							});
-					}
+            var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId: index})[0];
+            if (insufficientStockDet == null || insufficientStockDet == undefined) {
+              insufficientStocks.push(
+                {
+                  "rowId": index,
+                  "productId": row.product.productId
+                });
+            }
+            var existingProd = currencyDetails[index];
+            if (existingProd.status == "new") {
+              currencyDetails[index]["status"] = "initial";
+              currencyDetails[index]["stockstatus"] = "initial";
+            }
+            else if (existingProd.status == "initial")
+              currencyDetails[index]["status"] = "old";
+            //
+            var val = existingProd.rowAmt;
+            if ($scope.tempTaxArray.length != 0)
+              var taxVal = $scope.tempTaxArray[index] == undefined ? 0 : $scope.tempTaxArray[index].taxAmt;
+            else
+              var taxVal = 0;
+            ////if($scope.content.netamt!=0)
+            ////  $scope.content.netamt = $scope.content.netamt - val;
+            ////else
+            ////  $scope.content.netamt=0;
+            //$scope.content.taxAmt = $scope.content.taxAmt - taxVal;
+            //$scope.content.PromoAmt = $scope.content.PromoAmt - row.promotion;
+            //currencyDetails.splice(index, 1);
+            //$scope.tempProduct.splice(index, 1);
+            //$scope.tempTaxArray.splice(index, 1);
+            //self.searchText.splice(index, 1);
+            //row.qty = 1;
+            //row.taxDisplay = 0;
+            //row.promotion = 0;
+            //row.rowAmtDisplay = "";
+            row.product = null;
+            //vm.submitted=true;
+            //if(insufficientStocks.length!=0)
+            vm.submitted = true;
+            row.quotationRowDetailsLoaded = true;
+          }
+          if ($scope.promoLists.length != 0)
+            $scope.chkClaimedPromo();
+        }).error(function (data) {
+          notifications.toast("Unexpected error while getting stock.", "error");
+          row.qty = 1;
+          //vm.submitted=true;
+          //row.submitted=true;
+          var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId: index})[0];
+          if (insufficientStockDet == null || insufficientStockDet == undefined) {
+            insufficientStocks.push(
+              {
+                "rowId": index,
+                "productId": row.product.productId
+              });
+          }
 
-					//if(insufficientStocks.length!=0)
-					vm.submitted=true;
+          //if(insufficientStocks.length!=0)
+          vm.submitted = true;
 
-					row.quotationRowDetailsLoaded = true;
-				})
-			}
-			else
-			{
-				var incrementQtyProd = currencyDetails[index];
-				incrementQtyProd.qty=row.qty;
-				currencyDetails.splice(index,1);
-				currencyDetails.splice(index,index,incrementQtyProd);
-				if(incrementQtyProd.status=="new") {
-					currencyDetails[index]["status"] = "initial";
-					currencyDetails[index]["stockstatus"] = "new";
-				}
-				else if(incrementQtyProd.status=="initial")
-					currencyDetails[index]["status"]="old";
-				var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId:index })[0];
-				if(insufficientStockDet!=null || insufficientStockDet!=undefined) {
-					var itemIndex = insufficientStocks.indexOf(insufficientStockDet);
-					insufficientStocks.splice(itemIndex);
-				}
-				if(insufficientStocks.length==0)
-					vm.submitted=false;
-				$scope.calcTotal(row,index);
-				if(row.product.apply_tax!=0) {
-					$scope.spinnerInvoice = true;
-					$charge.billing().calcTax(row.product.tax, row.product.price_of_unit/rate).success(function (data) {
-						if($scope.content.preferredCurrency!=undefined) {
-							row.tax = rate*data.tax;
-							row.taxDisplay=(Math.round(rate*data.tax * Math.pow(10,parseInt($rootScope.decimalPoint))) / Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
-						}
-						else
-						{
-							row.tax = data.tax;
-							row.taxDisplay=(Math.round(data.tax* Math.pow(10,parseInt($rootScope.decimalPoint)))/ Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
-						}
-						var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex:row.product.productId })[0];
-						if (existingTax==undefined) {
-							//$scope.tempTaxArray.push({
-							//  taxIndex:row.product.productId,
-							//  taxAmt:row.tax,
-							//  taxDisplay:row.taxDisplay,
-							//  baseAmt:data.tax
-							//});
+          row.quotationRowDetailsLoaded = true;
+        })
+      }
+      else {
+        var incrementQtyProd = currencyDetails[index];
+        incrementQtyProd.qty = row.qty;
+        currencyDetails.splice(index, 1);
+        currencyDetails.splice(index, index, incrementQtyProd);
+        if (incrementQtyProd.status == "new") {
+          currencyDetails[index]["status"] = "initial";
+          currencyDetails[index]["stockstatus"] = "new";
+        }
+        else if (incrementQtyProd.status == "initial")
+          currencyDetails[index]["status"] = "old";
+        var insufficientStockDet = $filter('filter')(insufficientStocks, {rowId: index})[0];
+        if (insufficientStockDet != null || insufficientStockDet != undefined) {
+          var itemIndex = insufficientStocks.indexOf(insufficientStockDet);
+          insufficientStocks.splice(itemIndex);
+        }
+        if (insufficientStocks.length == 0)
+          vm.submitted = false;
+        $scope.calcTotal(row, index);
+        if (row.product.apply_tax != 0) {
+          $scope.spinnerInvoice = true;
+          $charge.billing().calcTax(row.product.tax, row.product.price_of_unit / rate).success(function (data) {
+            if ($scope.content.preferredCurrency != undefined) {
+              row.tax = rate * data.tax;
+              row.taxDisplay = (Math.round(rate * data.tax * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
+            }
+            else {
+              row.tax = data.tax;
+              row.taxDisplay = (Math.round(data.tax * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
+            }
+            var existingTax = $filter('filter')($scope.tempTaxArray, {taxIndex: row.product.productId})[0];
+            if (existingTax == undefined) {
+              //$scope.tempTaxArray.push({
+              //  taxIndex:row.product.productId,
+              //  taxAmt:row.tax,
+              //  taxDisplay:row.taxDisplay,
+              //  baseAmt:data.tax
+              //});
 
-							$scope.tempTaxArray.splice(index, index, {
-								taxIndex:row.product.productId,
-								taxAmt:row.tax,
-								taxDisplay:row.taxDisplay,
-								baseAmt:data.tax
-							});
-							row.quotationRowDetailsLoaded = true;
-							$scope.content.taxAmt=0;
-							for(var i=0;i<$scope.tempTaxArray.length;i++)
-							{
-								$scope.content.taxAmt+=$scope.tempTaxArray[i].taxAmt;
-							}
+              $scope.tempTaxArray.splice(index, index, {
+                taxIndex: row.product.productId,
+                taxAmt: row.tax,
+                taxDisplay: row.taxDisplay,
+                baseAmt: data.tax
+              });
+              row.quotationRowDetailsLoaded = true;
+              $scope.content.taxAmt = 0;
+              for (var i = 0; i < $scope.tempTaxArray.length; i++) {
+                $scope.content.taxAmt += $scope.tempTaxArray[i].taxAmt;
+              }
 
-						}
-						else
-						{
-							existingTax.taxAmt=row.tax;
-							$scope.content.taxAmt=0;
-							for(i=0;i<$scope.tempTaxArray.length;i++)
-							{
-								$scope.content.taxAmt+=$scope.tempTaxArray[i].taxAmt;
-							}
-							row.quotationRowDetailsLoaded = true;
-						}
-						$scope.spinnerInvoice = false;
-					}).error(function (data) {
-						//17-10-2016
-						$mdDialog.show(
-							$mdDialog.alert()
-								.parent(angular.element(document.querySelector('#invoice')))
-								.clickOutsideToClose(false)
-								.title('Error')
-								.textContent('Unexpected error occured while calculating tax.')
-								.ariaLabel('Alert Dialog Demo')
-								.ok('Ok')).finally(function() {
-							var rowId=row.qtyId;
-							var rowId='#'+rowId;
-							//setTimeout(function(){
-							document.querySelector(rowId).focus();
-							//},0);
-						});
-						$scope.spinnerInvoice = false;
-						row.tax=0;
-						row.taxDisplay=0;
-						//$scope.tempTaxArray.push({
-						//  taxIndex:row.product.productId,
-						//  taxAmt:row.tax,
-						//  taxDisplay:row.taxDisplay,
-						//  baseAmt:0
-						//});
+            }
+            else {
+              existingTax.taxAmt = row.tax;
+              $scope.content.taxAmt = 0;
+              for (i = 0; i < $scope.tempTaxArray.length; i++) {
+                $scope.content.taxAmt += $scope.tempTaxArray[i].taxAmt;
+              }
+              row.quotationRowDetailsLoaded = true;
+            }
+            $scope.spinnerInvoice = false;
+          }).error(function (data) {
+            //17-10-2016
+            $mdDialog.show(
+              $mdDialog.alert()
+                .parent(angular.element(document.querySelector('#invoice')))
+                .clickOutsideToClose(false)
+                .title('Error')
+                .textContent('Unexpected error occured while calculating tax.')
+                .ariaLabel('Alert Dialog Demo')
+                .ok('Ok')).finally(function () {
+                var rowId = row.qtyId;
+                var rowId = '#' + rowId;
+                //setTimeout(function(){
+                document.querySelector(rowId).focus();
+                //},0);
+              });
+            $scope.spinnerInvoice = false;
+            row.tax = 0;
+            row.taxDisplay = 0;
+            //$scope.tempTaxArray.push({
+            //  taxIndex:row.product.productId,
+            //  taxAmt:row.tax,
+            //  taxDisplay:row.taxDisplay,
+            //  baseAmt:0
+            //});
 
-						$scope.tempTaxArray.splice(index, index, {
-							taxIndex:row.product.productId,
-							taxAmt:row.tax,
-							taxDisplay:row.taxDisplay,
-							baseAmt:0
-						});
-						row.quotationRowDetailsLoaded = true;
-					})
-				}
-				else
-				{
-					row.tax=0;
-					row.taxDisplay=0;
-					//$scope.tempTaxArray.push({
-					//  taxIndex:row.product.productId,
-					//  taxAmt:row.tax,
-					//  taxDisplay:row.taxDisplay,
-					//  baseAmt:0
-					//});
+            $scope.tempTaxArray.splice(index, index, {
+              taxIndex: row.product.productId,
+              taxAmt: row.tax,
+              taxDisplay: row.taxDisplay,
+              baseAmt: 0
+            });
+            row.quotationRowDetailsLoaded = true;
+          })
+        }
+        else {
+          row.tax = 0;
+          row.taxDisplay = 0;
+          //$scope.tempTaxArray.push({
+          //  taxIndex:row.product.productId,
+          //  taxAmt:row.tax,
+          //  taxDisplay:row.taxDisplay,
+          //  baseAmt:0
+          //});
 
-					$scope.tempTaxArray.splice(index, index, {
-						taxIndex:row.product.productId,
-						taxAmt:row.tax,
-						taxDisplay:row.taxDisplay,
-						baseAmt:0
-					});
-					row.quotationRowDetailsLoaded = true;
-				}
+          $scope.tempTaxArray.splice(index, index, {
+            taxIndex: row.product.productId,
+            taxAmt: row.tax,
+            taxDisplay: row.taxDisplay,
+            baseAmt: 0
+          });
+          row.quotationRowDetailsLoaded = true;
+        }
 
-				if($scope.promoLists.length!=0)
-					$scope.chkClaimedPromo();
-			}
-			//
-			//if(self.searchPromo!=null)
-			//{
-			//  $scope.showValidationDialog('info','You have to apply promotion again after changes.','Notification');
-			//  self.searchPromo=null;
-			//  $scope.chkPromo(index);
-			//}
-			//
+        if ($scope.promoLists.length != 0)
+          $scope.chkClaimedPromo();
+      }
+      //
+      //if(self.searchPromo!=null)
+      //{
+      //  $scope.showValidationDialog('info','You have to apply promotion again after changes.','Notification');
+      //  self.searchPromo=null;
+      //  $scope.chkPromo(index);
+      //}
+      //
 
-		}
+    }
 
 
-		$scope.calcTotalTax= function (row,index) {
-			//
-			$scope.calcItemAmt(row,index);
+    $scope.calcTotalTax = function (row, index) {
+      //
+      $scope.calcItemAmt(row, index);
+
+
+    }
+    $scope.calcTotal = function (row, index) {
+      //
+      var calcAmtVal = $filter('filter')(calcAmt, {rowIndex: row.product.productId})[0];
+      if (calcAmtVal == null || calcAmtVal == undefined) {
+        calcAmt.push({
+          rowIndex: row.product.productId,
+          rowAmt: row.product.price_of_unit,
+          rowAmtDisplay: (Math.round(row.product.price_of_unit * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint)),
+          rate: rate
+        });
+        var calcAmtVal = $filter('filter')(calcAmt, {rowIndex: row.product.productId})[0];
+      }
+      else {
+      }
+      var unitPrice;
+      if (row.qty == "" || row.qty == undefined) {
+        convertedQty = 0;
+        if (calcAmtVal == null || calcAmtVal == undefined) {
+          unitPrice = calcAmt[index].rowAmt;
+          row.product.price_of_unit = calcAmt[index].rowAmt;
+          row.rowAmtDisplay = calcAmt[index].rowAmtDisplay;
+        }
+        else {
+          row.product.price_of_unit = calcAmtVal.rowAmt;
+          row.rowAmtDisplay = calcAmtVal.rowAmtDisplay;
+          unitPrice = calcAmtVal.rowAmt;
+        }
+      }
+      else
+        convertedQty = parseInt(row.qty);
+      var convertedQty, convertedAmt;
+      var netTotal = 0;
+      var count = 1;
+
+      if (calcAmtVal == null || calcAmtVal == undefined) {
+        unitPrice = calcAmt[index].rowAmt;
+      }
+      else {
+        unitPrice = calcAmtVal.rowAmt;
+      }
+      convertedAmt = parseFloat(unitPrice);
+
+      var totalAmt = convertedAmt * convertedQty;
+      row.product.price_of_unit = totalAmt;
+      row.rowAmtDisplay = (Math.round(row.product.price_of_unit * Math.pow(10, parseInt($rootScope.decimalPoint))) / Math.pow(10, parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
+      for (var i = 0; i < $scope.rows.length; i++) {
+        if ($scope.rows[i].product != null || $scope.rows[i].product != undefined) {
+          var perItem = $scope.rows[i].product.price_of_unit;
+          netTotal += perItem;
+        }
+      }
+      $scope.content.netamt = netTotal;
+    }
+
+    $scope.FilterUsers = function (category) {
+      //
+      $scope.filteredUsers = [];
+      $scope.filteredtempUsers = [];
+      self.searchProfile = "";
+      $scope.content.bill_addr = "";
+      var selectedCat = category;
+      $scope.loadUsersByCat(selectedCat, skipUsr, takeUsr);
+    }
+
+
+    $scope.clearText = function () {
+      if ($scope.content.bill_addr == "")
+        self.searchProfile = "";
+    }
+
+    $scope.accountId;
+    $scope.GetAddr = function (name, val) {
+      var selectedProfile = vm.editInvoice.profile;
+      if (name != null && name != "") {
+        var users = $scope.filteredUsers;
+        if (val == 0) {
+          var selectedName = name.profilename;
+          vm.editInvoice.bill_addr = "";
+          for (var i = 0; i < users.length; i++) {
+            var obj = users[i];
+            if (obj.profilename == selectedName) {
+              vm.editInvoice.bill_addr = obj.bill_addr;
+              vm.editInvoice.accountId = obj.profileId;
+              //$scope.getQuotationByUser(obj.profileId);
+            }
+
+          }
+        }
+        else if (val == 1) {
+          //
+          var selectedName = name;
+          vm.editInvoice.bill_addr = "";
+          for (var i = 0; i < users.length; i++) {
+            var obj = users[i];
+            if (obj.profilename == selectedName) {
+              //
+              vm.editInvoice.bill_addr = obj.bill_addr;
+              //$scope.getQuotationByUser(obj.profileId);
+            }
+
+          }
+        }
+
+        $scope.checkCustomerAddress(name.email);
+
+      }
 
 
 
-		}
-		$scope.calcTotal=function(row,index)
-		{
-			//
-			var calcAmtVal = $filter('filter')(calcAmt, { rowIndex: row.product.productId })[0];
-			if (calcAmtVal== null || calcAmtVal == undefined) {
-				calcAmt.push({
-					rowIndex: row.product.productId,
-					rowAmt: row.product.price_of_unit,
-					rowAmtDisplay:(Math.round(row.product.price_of_unit* Math.pow(10,parseInt($rootScope.decimalPoint)))/ Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint)),
-					rate:rate
-				});
-				var calcAmtVal = $filter('filter')(calcAmt, { rowIndex: row.product.productId })[0];
-			}
-			else {
-			}
-			var unitPrice;
-			if (row.qty == "" || row.qty == undefined) {
-				convertedQty = 0;
-				if(calcAmtVal== null || calcAmtVal == undefined) {
-					unitPrice = calcAmt[index].rowAmt;
-					row.product.price_of_unit = calcAmt[index].rowAmt;
-					row.rowAmtDisplay=calcAmt[index].rowAmtDisplay;
-				}
-				else {
-					row.product.price_of_unit = calcAmtVal.rowAmt;
-					row.rowAmtDisplay=calcAmtVal.rowAmtDisplay;
-					unitPrice=calcAmtVal.rowAmt;
-				}
-			}
-			else
-				convertedQty = parseInt(row.qty);
-			var convertedQty, convertedAmt;
-			var netTotal = 0;
-			var count = 1;
 
-			if(calcAmtVal== null || calcAmtVal == undefined) {
-				unitPrice = calcAmt[index].rowAmt;
-			}
-			else {
-				unitPrice=calcAmtVal.rowAmt;
-			}
-			convertedAmt = parseFloat(unitPrice);
+    }
 
-			var totalAmt = convertedAmt * convertedQty;
-			row.product.price_of_unit = totalAmt;
-			row.rowAmtDisplay=(Math.round(row.product.price_of_unit* Math.pow(10,parseInt($rootScope.decimalPoint)))/ Math.pow(10,parseInt($rootScope.decimalPoint))).toFixed(parseInt($rootScope.decimalPoint));
-			for (var i = 0; i < $scope.rows.length; i++) {
-				if($scope.rows[i].product!=null || $scope.rows[i].product!= undefined) {
-					var perItem = $scope.rows[i].product.price_of_unit;
-					netTotal += perItem;
-				}
-			}
-			$scope.content.netamt = netTotal;
-		}
+    //$scope.customerHasValidAddress = true;
+    $scope.checkCustomerAddress = function (email)
+    {
+      vm.submitted = false;
+      $charge.profile().IsCustomerHasValidAddress(email).success(function (data) {
+        if(!data.status){
+          notifications.toast("Selected customer doesn't have valid address" , "error");
+          vm.submitted = true;
+        }else {
+          vm.submitted = false;
+        }
+      }).error(function (data) {
+       // notifications.toast("Selected customer doesn't have valid address" , "error");
+        vm.submitted = false;
+      });
 
-		$scope.FilterUsers=function(category)
-		{
-			//
-			$scope.filteredUsers = [];
-			$scope.filteredtempUsers = [];
-			self.searchProfile = "";
-			$scope.content.bill_addr = "";
-			var selectedCat = category;
-			$scope.loadUsersByCat(selectedCat, skipUsr, takeUsr);
-		}
-
-
-
-
-		$scope.clearText= function () {
-			if($scope.content.bill_addr =="")
-				self.searchProfile="";
-		}
-
-		$scope.accountId;
-		$scope.GetAddr=function(name,val)
-		{
-			var selectedProfile = vm.editInvoice.profile;
-			if (name != "") {
-				var users = $scope.filteredUsers;
-				if (val == 0) {
-					var selectedName = name.profilename;
-					vm.editInvoice.bill_addr = "";
-					for (var i = 0; i < users.length; i++) {
-						var obj = users[i];
-						if (obj.profilename == selectedName) {
-							vm.editInvoice.bill_addr = obj.bill_addr;
-							vm.editInvoice.accountId = obj.profileId;
-							//$scope.getQuotationByUser(obj.profileId);
-						}
-
-					}
-				}
-				else if (val == 1) {
-					//
-					var selectedName = name;
-					vm.editInvoice.bill_addr = "";
-					for (var i = 0; i < users.length; i++) {
-						var obj = users[i];
-						if (obj.profilename == selectedName) {
-							//
-							vm.editInvoice.bill_addr = obj.bill_addr;
-							//$scope.getQuotationByUser(obj.profileId);
-						}
-
-					}
-				}
-			}
-		}
+    }
 
 
 		var skip,take;
@@ -3957,8 +3951,7 @@
 		}
 
 		$scope.GetAddress=function(name)
-		{
-			//
+		{//
 			var users=$scope.users;
 			var addr;
 			var selectedName=name;
