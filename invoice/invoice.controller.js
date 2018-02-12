@@ -523,7 +523,7 @@
 					{
 						promotionId = $scope.rows[i].promotionId;
 					}
-debugger;
+
 					var qty = $scope.rows[i].qty;
 					var unitPrice = $scope.rows[i].rowAmtDisplay;
 					// var unitPrice = calcAmt[i].rowAmt;
@@ -535,7 +535,7 @@ debugger;
 							qty: qty,
 							itemDescription: "",
 							itemType: "",
-							guItemID: productObj.guproductID,
+							guItemID: productObj.guproductID ? productObj.guproductID : productObj.guPlanID,
 							lineID: "",
 							totalPrice: totalPrice,
 							unitPrice: unitPrice,
