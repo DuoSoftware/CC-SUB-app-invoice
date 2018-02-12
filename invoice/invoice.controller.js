@@ -523,7 +523,7 @@
 					{
 						promotionId = $scope.rows[i].promotionId;
 					}
-
+debugger;
 					var qty = $scope.rows[i].qty;
 					var unitPrice = $scope.rows[i].rowAmtDisplay;
 					// var unitPrice = calcAmt[i].rowAmt;
