@@ -535,7 +535,7 @@
 							qty: qty,
 							itemDescription: "",
 							itemType: "",
-							guItemID: productObj.guproductID,
+							guItemID: productObj.guproductID ? productObj.guproductID : productObj.guPlanID,
 							lineID: "",
 							totalPrice: totalPrice,
 							unitPrice: unitPrice,
