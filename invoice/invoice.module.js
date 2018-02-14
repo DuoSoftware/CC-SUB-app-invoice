@@ -1,9 +1,9 @@
 //////////////////////////////////////
 // App : Invoice
 // Owner  : Ishara Gunathilaka
-// Last changed date : 2018/02/13
+// Last changed date : 2018/02/12
 // Version : 6.1.0.21
-// Modified By : Ishara
+// Modified By : Kasun
 /////////////////////////////////
 (function ()
 {

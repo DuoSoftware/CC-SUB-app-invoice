@@ -3546,10 +3546,10 @@
 
 		var skipUsr= 0,takeUsr=1000;
 		$scope.filteredUsers=[];
-    $scope.loadUsersByCat= function (skipUsr,takeUsr) { 
+    $scope.loadUsersByCat= function (skipUsr,takeUsr) {
 
       var jsonData = {
-        "url": "https://cloudcharge.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
+        "url": "https://cloudchargesearch.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
         "searchBy": "*",
         "searchFields": "",
         "take": takeUsr,
