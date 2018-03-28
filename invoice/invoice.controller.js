@@ -125,7 +125,7 @@
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyPhone%', $scope.content.companyPhone);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyEmail%', $scope.content.companyEmail);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyAddress%', $scope.content.companyAddress);
-			if($scope.currentTemplateView == 'emailTemplate3.html' || $scope.currentTemplateView == 'emailTemplate4.html')
+			if($scope.currentTemplateView == 'emailTemplate3' || $scope.currentTemplateView == 'emailTemplate4')
 				$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyLogo%', $scope.content.companyLogo);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%personName%', vm.selectedInvoice.person_name);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%otherName%', '');
