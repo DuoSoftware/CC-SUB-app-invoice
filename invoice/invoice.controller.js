@@ -132,7 +132,7 @@
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%bill_addr%', vm.selectedInvoice.bill_addr);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%phone%', vm.selectedInvoice.phone);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%email_addr%', vm.selectedInvoice.email_addr);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceNo%', vm.selectedInvoice.invoiceNo);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceNo%', $scope.selectedInvoiceNo);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceDate%', $filter('date')(new Date(vm.selectedInvoice.invoiceDate), 'MMMM d, y', null));
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%dueDate%', vm.selectedInvoice.dueDate);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceDate% - %dueDate%', $filter('date')(new Date(vm.selectedInvoice.invoiceDate), 'yyyy.MM.dd', null) +' - '+ $filter('date')(new Date(vm.selectedInvoice.dueDate), 'yyyy.MM.dd', null));
@@ -145,7 +145,7 @@
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%listItems%', listMarkup);
 
 			//Sub details
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%additionalcharge%', vm.selectedInvoice.rate);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%additionalcharge%', vm.selectedInvoice.additionalcharge);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%discAmt%', vm.selectedInvoice.discAmt);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%discount%', vm.selectedInvoice.discount);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%subTotal%', vm.selectedInvoice.subTotal);
@@ -161,6 +161,7 @@
 		function selectInvoice(invoice)
 		{
 			// vm.selectedInvoice = invoice;
+			$scope.selectedInvoiceNo = invoice.invoiceNo;
 			vm.selectedInvoice=$scope.openInvoiceLst(invoice);
 			vm.showFilters=false;
 			$scope.showInpageReadpane = true;
