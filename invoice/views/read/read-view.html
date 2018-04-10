@@ -212,7 +212,7 @@
             <div layout="row" class="p-5">
                 <div flex></div>
                 <div layout="row" layout-align="end center" flex="30">
-                    <h2 class="font-accent">Total : {{vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount | isoCurrency: BaseCurrency:0}}</h2>
+                    <h2 class="font-accent">Total : {{vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount | isoCurrency: BaseCurrency: decimalPoint}}</h2>
                 </div>
                 <div class="w-55"></div>
             </div>

@@ -140,7 +140,7 @@
 			//list
 			var listMarkup = "";
 			angular.forEach(vm.selectedInvoice.invoiceDetails, function (item) {
-				listMarkup += '<div class="list-header" style="padding: 7px 5px;overflow: hidden;"><div style="color: #555;width: 20%;float: left;">'+item.name+'</div><div style="color: #555;width: 20%;float: left;text-align: right">'+item.unitPrice+'</div><div style="width: 2%;float: left;height: 10px;"></div><div style="color: #555;width: 18%;float: left">1</div><div style="color: #555;width: 20%;float: left">'+item.promotion+'</div><div style="color: #555;width: 20%;float: left;text-align: right">'+item.unitPrice+'</div></div>';
+				listMarkup += '<div class="list-header" style="padding: 7px 5px;overflow: hidden;"><div style="color: #555;width: 20%;float: left;">'+item.name+'</div><div style="color: #555;width: 20%;float: left;text-align: right">'+item.unitPrice+'</div><div style="width: 2%;float: left;height: 10px;"></div><div style="color: #555;width: 18%;float: left">'+item.gty+'</div><div style="color: #555;width: 20%;float: left">'+item.promotion+'</div><div style="color: #555;width: 20%;float: left;text-align: right">'+item.totalPrice+'</div></div>';
 			});
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%listItems%', listMarkup);
 
@@ -2697,7 +2697,7 @@
 		$scope.prefferedCurrencies=[];
 		$charge.settingsapp().getDuobaseValuesByTableName("CTS_GeneralAttributes").success(function(data) {
 			//
-			$rootScope.decimalPoint=2;//parseInt(data[6].RecordFieldData);
+			$rootScope.decimalPoint = data[6].RecordFieldData != "" ? parseInt(data[6].RecordFieldData) : 0;//parseInt(data[6].RecordFieldData);
 			$rootScope.step=($rootScope.decimalPoint/$rootScope.decimalPoint)/Math.pow(10,$rootScope.decimalPoint);
 			$scope.baseCurrency=data[0].RecordFieldData;
 			$scope.prefferedCurrencies.push($scope.baseCurrency);
