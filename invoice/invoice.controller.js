@@ -121,9 +121,13 @@
 			$scope.currEmailTemplate = $scope.currEmailTemplate.trim();
 
 			//Adding payment information
+			if($scope.content.companyName != undefined)
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyName%', $scope.content.companyName);
+			if($scope.content.companyPhone != undefined)
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyPhone%', $scope.content.companyPhone);
+			if($scope.content.companyEmail != undefined)
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyEmail%', $scope.content.companyEmail);
+			if($scope.content.companyAddress != undefined)
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyAddress%', $scope.content.companyAddress);
 			if($scope.currentTemplateView == 'emailTemplate3' || $scope.currentTemplateView == 'emailTemplate4')
 				$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%companyLogo%', $scope.content.companyLogo);
