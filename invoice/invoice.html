@@ -48,10 +48,12 @@
                         </div>
                     </div>
 
-				  <div>
-                    <md-button  class="md-raised md-accent main-app-create" layout="row" layout-align="center center" aria-label="compose" ng-disabled="vm.activePlanPaneIndex == 1" ng-click="toggleEdit()" ng-if="!inpageReadPaneEdit"><span class="fs-18 mr-10">+</span> NEW
-                    </md-button>
-                    </div>
+				            <!--<div>-->
+                      <md-button  class="md-raised md-accent main-app-create" layout="row" layout-align="center center" aria-label="compose" ng-disabled="vm.activeInvoicePaneIndex == 1" ng-click="toggleEdit('plan')" ng-if="!inpageReadPaneEdit && issubscriptionappuse"><span class="fs-18 mr-10">+</span> Subscription
+                      </md-button>
+                      <md-button  class="md-raised md-accent main-app-create" layout="row" layout-align="center center" aria-label="compose" ng-disabled="vm.activeInvoicePaneIndex == 1" ng-click="toggleEdit('product')" ng-if="!inpageReadPaneEdit"><span class="fs-18 mr-10">+</span> Physical Goods
+                      </md-button>
+                    <!--</div>-->
                 </div>
                 <!--<md-button class="md-raised main-app-create" layout="row" layout-align="center center" aria-label="compose" ng-disabled="vm.activePlanPaneIndex == 1" ng-click="toggleEdit()" ng-if="!inpageReadPaneEdit"><span class="fs-18 mr-10 fc-accent">+</span> NEW-->
                 <!--</md-button>-->
