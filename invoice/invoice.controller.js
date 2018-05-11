@@ -571,7 +571,8 @@
 
 				var accountID = vm.editInvoice.profile.profileId;
 				var invoiceAmount = vm.itemTotal + vm.editInvoice.additionalcharge - vm.editInvoice.discount;
-				var moduleType = $scope.issubscriptionappuse ? 'subscription' : 'invoice';
+				var moduleType = $scope.issubscriptionappuse ? ((vm.selectedModule=="plan")?'subscription':'invoice') : 'invoice';
+        var invCat = vm.selectedModule=="plan"?"Subscription":"Good and Items";
 
 				if(vm.editInvoice.invoiceInterval === undefined)
 				{
@@ -591,6 +592,7 @@
 					"otherDisc": vm.editInvoice.discount,
 					"miscCharges": vm.editInvoice.additionalcharge,
 					"gupromotionId": vm.editInvoice.gupromotionId,
+          "invoiceCategory":invCat,
 					"moduleType" : moduleType
 				}
 
@@ -599,6 +601,9 @@
 						notifications.toast("Invoice has been processed", "success");
 						$scope.isAdded = true;
 						$scope.clearFields();
+            $scope.invoices=[];
+            $scope.moreInvoice();
+            vm.closeReadPane();
 					}
 					else {
 						$mdDialog.show(
@@ -614,7 +619,7 @@
 					vm.submitted = false;
 				}).error(function (data) {
 					notifications.toast("Error while creating invoice", "error");
-					$scope.clearFields();
+					//$scope.clearFields();
 					vm.submitted = false;
 				})
 			}
@@ -632,6 +637,7 @@
 			$scope.tempProduct=[];
 			$scope.tempTaxArray=[];
 			$scope.addNewRow();
+      vm.editInvoice.profile="";
 			$scope.content.stat=false;
 			$scope.content.invoiceDate = new Date();
 			$scope.content.dueDate=new Date();
@@ -652,7 +658,7 @@
 			self.searchProfile="";
 			self.searchQuotation    = "";
 			$scope.content.bill_addr = "";
-			$scope.filteredUsers=[];
+			//$scope.filteredUsers=[];
 			$scope.content.payMethod="";
 			$scope.content.payAmt="";
 			$scope.content.status="credit";
@@ -668,7 +674,7 @@
 			$scope.products=[];
 			// $scope.loadAllProducts(0,100);
 			// $scope.loadA
-			$state.go($state.current, {}, {reload: $scope.isAdded});
+			//$state.go($state.current, {}, {reload: $scope.isAdded});
 
 		};
 
@@ -921,7 +927,7 @@
 
 		$scope.validateProduct= function (row,index,existingRow) {
 			if(row!=null) {
-				if($scope.issubscriptionappuse){
+				if($scope.issubscriptionappuse && vm.selectedModule=="plan"){
 					var existingProduct = $filter('filter')($scope.tempProduct, { productId: row.guPlanID })[0];
 					//
 					if (existingProduct!=null) {
@@ -1045,7 +1051,7 @@
 				if($scope.rows[index].product.taxID !=undefined) {
 					$charge.billing().calcTax($scope.rows[index].product.taxID, $scope.rows[index].product.unitPrice / $scope.rows[index].product.rate).success(function (data) {
 						$scope.rows[index].product.taxAmount = data.tax;
-						if ($scope.issubscriptionappuse) {
+						if ($scope.issubscriptionappuse && vm.selectedModule=="plan") {
 							$scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
 						} else {
 							$scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.price_of_unit * $scope.rows[index].qty) + $scope.rows[index].product.taxAmount;
@@ -1055,7 +1061,7 @@
 					});
 				}
 
-				if($scope.issubscriptionappuse)
+				if($scope.issubscriptionappuse && vm.selectedModule=="plan")
 				{
 					$scope.rows[index].rowAmtDisplay = ($scope.rows[index].product.unitPrice * $scope.rows[index].qty)+$scope.rows[index].product.taxAmount;
 				}else {
@@ -3119,7 +3125,7 @@
 		//invoice list ctrl functions
 
 		var skip=0;
-		var take=50;
+		var take=100;
 		var invoicePrefix;
 		var invoiceDate;
 		var prefixLength;
@@ -3504,7 +3510,7 @@
 			$scope.isReadLoaded = false;
 			vm.selectedInvoiceList = invoice;
 
-			if($scope.issubscriptionappuse){
+			if($scope.issubscriptionappuse && invoice.invoiceCategory=="Subscription"){
 				$charge.invoice().getByGuinvId(invoice.guInvID).success(function (data) {
 					$scope.loadInvoiceDetail(data);
 				}).error(function (data) {
@@ -3516,9 +3522,12 @@
 			}else {
 
 				$charge.invoice().getByGuinvIdForInvoiceModule(invoice.guInvID).success(function (data) {
+          for(var i=0;i<data[0].invoiceDetails.length;i++){
+            data[0].invoiceDetails[i].name = data[0].invoiceDetails[i].product_name;
+          }
 					$scope.loadInvoiceDetail(data);
 				}).error(function (data) {
-					// console.log(data);
+					// console.log(data);product_name
 					$scope.spinnerInvoice = false;
 					$scope.isReadLoaded = true;
 				});
@@ -3572,11 +3581,6 @@
           data.value[i].createddate = new Date(data.value[i].createddate);
           //tempList.push(data.value[i]);
 
-        }
-
-        if(data.value.length<takeUsr)
-          vm.lastProfile=true;
-        for (var i = 0; i < data.value.length; i++) {
           var obj = data.value[i];
 
           $scope.filteredUsers.push({
@@ -3587,11 +3591,13 @@
             email:obj.email_addr,
             credit_limit:obj.credit_limit
           });
+
         }
 
         if(data.value.length<takeUsr){
           $scope.isdataavailable=false;
           $scope.hideSearchMore=true;
+          vm.lastProfile=true;
           skipUsr = 0;
         }
         else if(data.value.length!=0 && data.value.length>=takeUsr)
@@ -3712,12 +3718,12 @@
 
 
 
-		if($scope.issubscriptionappuse){
-
-			$scope.loadAllPlans(skipDetail, takeDetail);
-		}else {
-			$scope.loadAllProducts(skipDetail, takeDetail);
-		}
+		//if($scope.issubscriptionappuse){
+        //
+		//	$scope.loadAllPlans(skipDetail, takeDetail);
+		//}else {
+		//	$scope.loadAllProducts(skipDetail, takeDetail);
+		//}
 
 
 		var self = this;
@@ -3728,7 +3734,7 @@
 		$scope.queryProfile =function(query,index) {
 			var results=[];
 			var len = $scope.filteredUsers.length;
-			for (i = 0;i<len; ++i){
+			for (var i = 0;i<len; i++){
 
 				//console.log($scope.allBanks[i].value.value);
 				//
@@ -3752,11 +3758,37 @@
 			return results;
 		}
 
-		$scope.toggleEdit = function () {
+    vm.selectedModule="plan";
+
+		$scope.toggleEdit = function (module) {
 
 			$scope.editOff = true;
 			vm.activeInvoicePaneIndex = 1;
 			$scope.showInpageReadpane = false;
+
+      skipDetail= 0;
+      takeDetail=10;
+      //$scope.clearFields();
+      //for(var i=0;i<$scope.rows.length;i++){
+      //  vm.searchText[i]="";
+      //}
+      vm.editInvoiceForm.$setPristine();
+      vm.editInvoiceForm.$setUntouched();
+      vm.editInvoice.profile="";
+      vm.searchText=[];
+      $scope.products=[];
+      $scope.rows=[];
+      $scope.tempProduct=[];
+      if(module=="plan")
+      {
+        vm.selectedModule=module;
+        $scope.loadAllPlans(skipDetail, takeDetail);
+      }
+      else
+      {
+        vm.selectedModule=module;
+        $scope.loadAllProducts(skipDetail, takeDetail);
+      }
 		};
 
 

@@ -27,8 +27,12 @@
             {{invoice.first_name}} {{invoice.last_name}}
         </div>
 
+        <!--<div flex layout="column" layout-align="center start" ng-if="!showInpageReadpane">-->
+            <!--{{invoice.email}}-->
+        <!--</div>-->
+
         <div flex layout="column" layout-align="center start" ng-if="!showInpageReadpane">
-            {{invoice.email}}
+          {{invoice.invoiceCategory}}
         </div>
 
         <div flex layout="column" layout-align="center start" ng-if="!showInpageReadpane">

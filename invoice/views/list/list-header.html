@@ -30,20 +30,36 @@
     </div>
 </div>
 
+<!--<div class="productName" layout="column" layout-align="center start" flex ng-if="!showInpageReadpane">-->
+    <!--<div layout="row">-->
+        <!--<span layout="column" layout-align="center center" class="header-text">Email</span>-->
+        <!--<div layout="column" layout="center center">-->
+            <!--<md-button ng-hide="showEmail" class="sort_btn md-icon-button" layout="column" layout="center center" ng-click="sortBy('email',true,'Email')">-->
+                <!--<md-icon class="sort_btn_icon merged" md-font-icon="icon-chevron-up"></md-icon>-->
+                <!--<md-icon md-font-icon="icon-chevron-down"></md-icon>-->
+            <!--</md-button>-->
+            <!--<md-button ng-show="showEmail" class="sort_btn md-icon-button" layout="column" layout="center center" ng-click="sortBy('email',null,'Email')">-->
+                <!--<md-icon ng-if="reverse==true" class="sort_btn_icon" md-font-icon="icon-chevron-up"></md-icon>-->
+                <!--<md-icon ng-if="reverse==false" md-font-icon="icon-chevron-down"></md-icon>-->
+            <!--</md-button>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
+
 <div class="productName" layout="column" layout-align="center start" flex ng-if="!showInpageReadpane">
-    <div layout="row">
-        <span layout="column" layout-align="center center" class="header-text">Email</span>
-        <div layout="column" layout="center center">
-            <md-button ng-hide="showEmail" class="sort_btn md-icon-button" layout="column" layout="center center" ng-click="sortBy('email',true,'Email')">
-                <md-icon class="sort_btn_icon merged" md-font-icon="icon-chevron-up"></md-icon>
-                <md-icon md-font-icon="icon-chevron-down"></md-icon>
-            </md-button>
-            <md-button ng-show="showEmail" class="sort_btn md-icon-button" layout="column" layout="center center" ng-click="sortBy('email',null,'Email')">
-                <md-icon ng-if="reverse==true" class="sort_btn_icon" md-font-icon="icon-chevron-up"></md-icon>
-                <md-icon ng-if="reverse==false" md-font-icon="icon-chevron-down"></md-icon>
-            </md-button>
-        </div>
+  <div layout="row">
+    <span layout="column" layout-align="center center" class="header-text">Category</span>
+    <div layout="column" layout="center center">
+      <md-button ng-hide="showCategory" class="sort_btn md-icon-button" layout="column" layout="center center" ng-click="sortBy('category',true,'Category')">
+        <md-icon class="sort_btn_icon merged" md-font-icon="icon-chevron-up"></md-icon>
+        <md-icon md-font-icon="icon-chevron-down"></md-icon>
+      </md-button>
+      <md-button ng-show="showEmail" class="sort_btn md-icon-button" layout="column" layout="center center" ng-click="sortBy('category',null,'Category')">
+        <md-icon ng-if="reverse==true" class="sort_btn_icon" md-font-icon="icon-chevron-up"></md-icon>
+        <md-icon ng-if="reverse==false" md-font-icon="icon-chevron-down"></md-icon>
+      </md-button>
     </div>
+  </div>
 </div>
 
 <div class="productName" layout="column" layout-align="center start" flex ng-if="!showInpageReadpane">
