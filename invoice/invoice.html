@@ -492,6 +492,11 @@
                     <!-- / INVOICE -->
 
                     <div class="email-template" style="box-shadow:none!important;float:none;width: 100%;max-width: 700px;min-height: 800px;position:relative">
+                        <div class="state-flag-wrap cat-flag">
+                            <md-icon md-font-icon="icon-bookmark"></md-icon>
+                            <span ng-if="vm.selectedInvoice.invoiceCategory" class="nav-icon nav-icon-{{vm.selectedInvoice.invoiceCategory.toLowerCase() == 'subscription' ? 'subscription' : 'product'}} cat-flag-icon"></span>
+                            <md-tooltip>{{vm.selectedInvoice.invoiceCategory}} invoice</md-tooltip>
+                        </div>
                         <div class="state-flag-wrap">
                             <md-icon md-font-icon="icon-bookmark {{vm.selectedInvoice.invoiceStatus | lowercase}}"></md-icon>
                             <span class="state-flag-text {{vm.selectedInvoice.invoiceStatus | lowercase}}">{{vm.selectedInvoice.invoiceStatus}}</span>
