@@ -113,7 +113,7 @@
                     <div flex="5"></div>
                     <md-input-container class="mb-0" flex="30">
                         <label>Quantity</label>
-                        <input name="InvoiceProdQty" id="{{row.qtyId}}" ng-required="true" ng-pattern="/^-?[0-9][^\.]*$/" type="number" min="1" ng-blur="calcQty(row,$index)" ng-model="row.qty">
+                        <input name="InvoiceProdQty" id="{{row.qtyId}}" ng-required="true" ng-pattern="/^-?[0-9][^\.]*$/" type="number" min="1" ng-blur="checkStockAvailability(row,$index)" ng-model="row.qty">
                         <div ng-messages="vm.editInvoice.InvoiceProdQty.$error">
                             <div ng-message="pattern">Quantity of Unit is invalid</div>
                         </div>
