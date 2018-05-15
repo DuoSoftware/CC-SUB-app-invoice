@@ -1036,6 +1036,39 @@
 			}
 
 		}
+		
+		$scope.checkStockAvailability=function(row,index)
+		{
+		  if(vm.selectedModule!="plan")
+		  {
+			if(row.product.sku!=0) {
+			  $charge.stock().getStock(row.product.guproductID).success(function (data) {
+				var stockAvailable = data.qty;
+				if (row.qty <= stockAvailable) {
+				  $scope.calcQty(row,index);
+				}
+				else {
+				  notifications.toast("Insufficient Stock", "error");
+
+				  row.qty = 0;
+				  //row.product = null;
+				}
+			  }).error(function (data) {
+				notifications.toast("Unexpected error while getting stock.", "error");
+				row.qty = 1;
+
+			  })
+			}
+			else
+			{
+			  $scope.calcQty(row,index);
+			}
+		  }
+		  else
+		  {
+			$scope.calcQty(row,index);
+		  }
+		}
 
 		$scope.calcQty=function(row,index)
 		{
