@@ -968,6 +968,8 @@
 							productId:row.guproductID
 						});
 
+            $scope.checkStockAvailability(existingRow,index);
+
 					}
 				}
 
@@ -1043,7 +1045,11 @@
 		  {
 			if(row.product.sku!=0) {
 			  $charge.stock().getStock(row.product.guproductID).success(function (data) {
-				var stockAvailable = data.qty;
+				var stockAvailable = data.qty-row.product.minimum_stock_level;
+          if(row.qty==undefined)
+          {
+            row.qty=0;
+          }
 				if (row.qty <= stockAvailable) {
 				  $scope.calcQty(row,index);
 				}
@@ -1051,6 +1057,7 @@
 				  notifications.toast("Insufficient Stock", "error");
 
 				  row.qty = 0;
+          $scope.calcQty(row,index);
 				  //row.product = null;
 				}
 			  }).error(function (data) {
@@ -1499,7 +1506,7 @@
 				$timeout.cancel($scope.waitForProduct);
 				$scope.waitForProduct = $timeout(function myFunction() {
 					rows[index].searchMre = false;
-					if (txt.length == 1) {
+					if (txt.length == 0) {
 						if (rows[index].qty != undefined) {
 							var existingProd = currencyDetails[index];
 							if(existingProd!=undefined || existingProd !=null)
@@ -3829,7 +3836,7 @@
       if(module=="plan")
       {
         vm.selectedModule=module;
-        vm.editInvoice.paymentMethod='credit';
+        //vm.editInvoice.paymentMethod='credit';
         $scope.loadAllPlans(skipDetail, takeDetail);
       }
       else

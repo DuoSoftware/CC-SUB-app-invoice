@@ -173,7 +173,7 @@
                     <md-autocomplete flex="30" required class="mb-0" layout="row" layout-align="start center"
                                      md-input-id="{{row.productId}}"
                                      ng-required="false"
-                                     ng-keydown="toggleSearchMre(rows,$event,$index,vm.searchText[$index],'true')"
+                                     ng-keyup="toggleSearchMre(rows,$event,$index,vm.searchText[$index],'true')"
                                      md-select-on-match
                                      ng-keypress="enter($event)"
                                      ng-disabled="row.isAutoDisabled"
@@ -313,8 +313,9 @@
                 <div layout="row" layout-align="start center">
                     <md-input-container flex="30">
                         <md-radio-group ng-model="vm.editInvoice.paymentMethod" ng-init="vm.editInvoice.paymentMethod='cash'" ng-change="paymentMethodHandler(vm.editInvoice.paymentMethod)">
-                            <md-radio-button ng-disabled="vm.selectedModule=='plan'" value="cash" class="md-primary">CASH</md-radio-button>
+                            <md-radio-button value="cash" class="md-primary">CASH</md-radio-button>
                             <md-radio-button value="credit" class="md-primary">CREDIT</md-radio-button>
+                            <md-radio-button value="card" class="md-primary">CREDIT CARD</md-radio-button>
                         </md-radio-group>
                     </md-input-container>
                 </div>
