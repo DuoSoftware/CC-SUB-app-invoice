@@ -487,9 +487,11 @@
 		$scope.paymentMethodHandler =  function (selection){
 			if(selection=='cash'){
 				vm.editInvoice.paymentMethod = 'cash';
-			}else{
+			}else if(selection=='credit'){
 				vm.editInvoice.paymentMethod = 'credit';
-			}
+			}else{
+        vm.editInvoice.paymentMethod = 'card';
+      }
 		}
 
 		$scope.isInvoiceQuoteEmpty = true;
@@ -618,7 +620,7 @@
 					}
 					vm.submitted = false;
 				}).error(function (data) {
-					notifications.toast("Error while creating invoice", "error");
+					notifications.toast(data.message, "error");
 					//$scope.clearFields();
 					vm.submitted = false;
 				})
