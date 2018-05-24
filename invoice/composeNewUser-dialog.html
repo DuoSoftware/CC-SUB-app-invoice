@@ -1,0 +1,262 @@
+<meta name="updatedBy" content="GihanHerath">
+<meta name="modifiedDate" content="06-12-2016">
+<meta name="version" content="6.0.0.12">
+<meta name="app" content="invoice">
+<meta name="view" content="compose-dialog.html">
+
+<md-dialog class="compose-dialog" aria-label="New Message">
+    <form class="md-inline-form" name="vm.editForm" ng-submit="submit()" id="newUserForm" novalidate>
+        <md-toolbar>
+            <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+              <div layout="row" layout-align="start center">
+                <md-icon md-font-icon="icon-account-plus"></md-icon> <h3>New User Details</h3>
+              </div>
+              <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog">
+                  <md-icon md-font-icon="icon-close"></md-icon>
+              </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content ms-scroll>
+
+          <div layout="row" layout-align="center center">
+
+              <div layout="row" layout-align="start center" flex="40" class="state-capsule">
+                <div layout="row">
+                  <span>Category</span>
+                  <span>{{contentuser.category}}</span>
+                </div>
+              </div>
+          </div>
+
+          <div layout="row" layout-align="center center">
+            <md-input-container flex="40">
+              <label>First Name</label>
+              <input ng-model="contentuser.firstName" ng-required="true" ng-minlength="3" ng-maxlength="35" name="first_name" type="text">
+              <div ng-messages="vm.editForm.first_name.$error">
+                <div ng-message="maxlength">First name cannot be longer than 35 characters</div>
+                <div ng-message="minlength">First name cannot be shorter than 3 characters</div>
+              </div>
+            </md-input-container>
+
+            <div flex="5"></div>
+
+            <md-input-container flex="40">
+              <label>Last Name</label>
+              <input ng-model="contentuser.lastName" ng-required="true" ng-minlength="3" ng-maxlength="35" name="last_name" type="text">
+              <div ng-messages="vm.editForm.last_name.$error">
+                <div ng-message="maxlength">Last name cannot be longer than 35 characters</div>
+                <div ng-message="minlength">Last name cannot be shorter than 3 characters</div>
+              </div>
+            </md-input-container>
+          </div>
+
+          <div layout="row" layout-align="center center">
+              <md-input-container flex="40">
+                <label>Email</label>
+                <input ng-model="contentuser.email" ng-required="checkRequired" ng-maxlength="50" name="individualEmail" ng-pattern="/^.+@.+\..+$/" type="text">
+                <div ng-messages="vm.editForm.individualEmail.$error">
+                  <div ng-message="pattern">Invalid Email Address</div>
+                  <div ng-message="maxlength">Email must be between 1-50 characters</div>
+                </div>
+              </md-input-container>
+
+              <div flex="5"></div>
+
+              <md-input-container flex="40">
+                <label>Phone</label>
+                <input ng-model="contentuser.phone" ng-pattern="" ng-required="false" ng-maxlength="35" name="phone" type="text">
+                <div ng-messages="vm.editForm.phone.$error">
+                  <div ng-message="maxlength">Phone number must be between 1-35 characters</div>
+                </div>
+              </md-input-container>
+            </div>
+
+            <div layout="row" layout-align="center center" ng-if="!vm.usingAvalaraTax">
+
+              <md-input-container flex="85">
+                <label>Address</label>
+                <input ng-model="contentuser.billAddress" id="autocomplete" onFocus="geolocate()" placeholder="Enter your Address" ng-required="true" ng-maxlength="200" name="bill_addrIndi" type="text">
+                <div ng-messages="vm.editForm.bill_addrIndi.$error">
+                  <div ng-message="maxlength">Address must be between 1-200 characters</div>
+                </div>
+                <input ng-model="contentuser.bill_city" id="locality" ng-hide="true" type="text">
+                <input ng-model="contentuser.country" id="country" ng-hide="true" type="text">
+                <input ng-model="contentuser.bill_zip_post" id="postal_code" ng-hide="true" type="text">
+              </md-input-container>
+            </div>
+
+            <div layout-align="center center" ng-if="vm.usingAvalaraTax">
+              <div class="title" layout="row">
+                <md-input-container class="md-block mb-0" flex>
+                  <label>Line 1 </label>
+                  <input name="line1" ng-required="true" type="text" ng-model="contentuser.line1" ng-maxlength="30">
+                </md-input-container>
+              </div>
+              <div class="address" layout="row">
+                <md-input-container class="md-block mb-0" flex>
+                  <label>Line 2 </label>
+                  <input name="line2" ng-required="false" type="text" ng-model="contentuser.line2" ng-maxlength="100">
+                </md-input-container>
+              </div>
+              <div class="title" layout="row">
+                <md-input-container class="md-block mb-0" flex>
+                  <label>Line 3</label>
+                  <input name="line3" ng-required="false" type="text" ng-model="contentuser.line3" ng-maxlength="15">
+                </md-input-container>
+              </div>
+              <div class="title" layout="row">
+                <md-input-container class="md-block mb-0" flex>
+                  <label>City</label>
+                  <input name="city" ng-required="true" type="text" ng-model="contentuser.city"  ng-maxlength="30">
+                  <div ng-messages="vm.editForm.city.$error">
+                    <div ng-message="maxlength">City has to be less than 30 characters long</div>
+                  </div>
+                </md-input-container>
+              </div>
+              <div class="title" layout="row">
+                <md-input-container class="md-block mb-0" flex>
+                  <label>Region</label>
+                  <input name="region" ng-required="true" type="text" ng-model="contentuser.region" ng-maxlength="30">
+                  <div ng-messages="vm.editForm.region.$error">
+                    <div ng-message="maxlength">Region has to be less than 30 characters long</div>
+                  </div>
+                </md-input-container>
+              </div>
+              <div class="title" layout="row">
+                <md-input-container class="md-block mb-0" flex>
+                  <label>Country</label>
+                  <input name="country" ng-required="true" type="text" ng-model="contentuser.country" ng-maxlength="30">
+                  <div ng-messages="vm.editForm.country.$error">
+                    <div ng-message="maxlength">Country has to be less than 30 characters long</div>
+                  </div>
+                </md-input-container>
+              </div>
+              <!--<div class="title" layout="row">-->
+              <!--<md-input-container class="md-block mb-0" flex>-->
+              <!--<label>Postal Code</label>-->
+              <!--<input name="postalCode" ng-required="false" type="text" ng-model="createProfile.postalCode" ng-maxlength="15">-->
+              <!--<div ng-messages="vm.addProfileForm.postalCode.$error">-->
+              <!--<div ng-message="maxlength">Postal Code has to be less than 15 characters long</div>-->
+              <!--</div>-->
+              <!--</md-input-container>-->
+              <!--</div>-->
+            </div>
+
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row" layout-align="center center" md-whiteframe="2dp">
+            <div flex></div>
+            <div layout="row">
+              <md-button ng-click="clearNewUserDetails()" aria-label="Delete">Clear</md-button>
+              <md-button type="submit" ng-disabled="vm.submitted" class="send-button md-accent md-raised" aria-label="Create Profile">Create</md-button>
+            </div>
+        </md-dialog-actions>
+    </form>
+</md-dialog>
+
+<script>
+  var placeSearch, autocomplete,autocomplete2;
+  var componentForm = {
+    locality: 'long_name',
+    country: 'long_name',
+    postal_code: 'short_name'
+  };
+
+  function initAutocomplete() {
+    // Create the autocomplete object, restricting the search to geographical
+    // location types.
+    autocomplete = new google.maps.places.Autocomplete(
+      /** @type {!HTMLInputElement} */(document.getElementById('autocomplete')),
+      {types: ['geocode']});
+
+    // When the user selects an address from the dropdown, populate the address
+    // fields in the form.
+    autocomplete.addListener('place_changed', fillInAddress);
+
+    autocomplete2 = new google.maps.places.Autocomplete(
+      /** @type {!HTMLInputElement} */(document.getElementById('autocomplete2')),
+      {types: ['geocode']});
+
+    // When the user selects an address from the dropdown, populate the address
+    // fields in the form.
+    autocomplete2.addListener('place_changed', fillInAddress);
+
+  }
+
+  function fillInAddress() {
+    // Get the place details from the autocomplete object.
+    var place = autocomplete.getPlace();
+    //debugger;
+    for (var component in componentForm) {
+      document.getElementById(component).value = '';
+      //document.getElementById(component).disabled = false;
+    }
+
+    // Get each component of the address from the place details
+    // and fill the corresponding field on the form.
+    for (var i = 0; i < place.address_components.length; i++) {
+      var addressType = place.address_components[i].types[0];
+      if (componentForm[addressType]) {
+        var val = place.address_components[i][componentForm[addressType]];
+        document.getElementById(addressType).value = val;
+        document.getElementById(addressType).focus();
+      }
+      else if(addressType=='administrative_area_level_2')
+      {
+        var val = place.address_components[i]['long_name'];
+        document.getElementById('locality').value = val;
+        document.getElementById('locality').focus();
+      }
+    }
+  }
+
+  function clearaddress(){
+    if(document.getElementById('autocomplete').value==''){
+      for (var component in componentForm) {
+        document.getElementById(component).value = '';
+        //document.getElementById(component).disabled = false;
+      }
+    }
+  }
+
+  // Bias the autocomplete object to the user's geographical location,
+  // as supplied by the browser's 'navigator.geolocation' object.
+  function geolocate() {
+    if (navigator.geolocation) {
+      document.getElementById('autocomplete').focus();
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var geolocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        var circle = new google.maps.Circle({
+          center: geolocation,
+          radius: position.coords.accuracy
+        });
+        autocomplete.setBounds(circle.getBounds());
+      });
+    }
+  }
+
+  // Bias the autocomplete object to the user's geographical location,
+  // as supplied by the browser's 'navigator.geolocation' object.
+  function geolocate2() {
+    if (navigator.geolocation) {
+      document.getElementById('autocomplete2').focus();
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var geolocation2 = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        var circle2 = new google.maps.Circle({
+          center: geolocation2,
+          radius: position.coords.accuracy
+        });
+        autocomplete2.setBounds(circle2.getBounds());
+      });
+    }
+  }
+
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initAutocomplete" async defer></script>

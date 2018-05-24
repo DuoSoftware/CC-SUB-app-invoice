@@ -487,9 +487,11 @@
 		$scope.paymentMethodHandler =  function (selection){
 			if(selection=='cash'){
 				vm.editInvoice.paymentMethod = 'cash';
-			}else{
+			}else if(selection=='credit'){
 				vm.editInvoice.paymentMethod = 'credit';
-			}
+			}else{
+        vm.editInvoice.paymentMethod = 'card';
+      }
 		}
 
 		$scope.isInvoiceQuoteEmpty = true;
@@ -618,7 +620,7 @@
 					}
 					vm.submitted = false;
 				}).error(function (data) {
-					notifications.toast("Error while creating invoice", "error");
+					notifications.toast(data.message, "error");
 					//$scope.clearFields();
 					vm.submitted = false;
 				})
@@ -968,6 +970,8 @@
 							productId:row.guproductID
 						});
 
+            $scope.checkStockAvailability(existingRow,index);
+
 					}
 				}
 
@@ -1036,14 +1040,18 @@
 			}
 
 		}
-		
+
 		$scope.checkStockAvailability=function(row,index)
 		{
 		  if(vm.selectedModule!="plan")
 		  {
 			if(row.product.sku!=0) {
 			  $charge.stock().getStock(row.product.guproductID).success(function (data) {
-				var stockAvailable = data.qty;
+				var stockAvailable = data.qty-row.product.minimum_stock_level;
+          if(row.qty==undefined)
+          {
+            row.qty=0;
+          }
 				if (row.qty <= stockAvailable) {
 				  $scope.calcQty(row,index);
 				}
@@ -1051,6 +1059,7 @@
 				  notifications.toast("Insufficient Stock", "error");
 
 				  row.qty = 0;
+          $scope.calcQty(row,index);
 				  //row.product = null;
 				}
 			  }).error(function (data) {
@@ -1499,7 +1508,7 @@
 				$timeout.cancel($scope.waitForProduct);
 				$scope.waitForProduct = $timeout(function myFunction() {
 					rows[index].searchMre = false;
-					if (txt.length == 1) {
+					if (txt.length == 0) {
 						if (rows[index].qty != undefined) {
 							var existingProd = currencyDetails[index];
 							if(existingProd!=undefined || existingProd !=null)
@@ -2189,6 +2198,12 @@
 				self.searchProfile="";
 		}
 
+    $scope.loadCustomerDetails=function(customer,val)
+    {
+      $scope.GetAddr(customer,val);
+      $scope.getUserInfoByID(customer);
+    }
+
 		$scope.accountId;
 		$scope.GetAddr=function(name,val)
 		{
@@ -2256,7 +2271,8 @@
 											bill_addr:obj.bill_addr,
 											category:obj.category,
 											email:obj.email_addr,
-											credit_limit:obj.credit_limit
+											credit_limit:obj.credit_limit,
+                      stripeCustId:obj.stripeCustId
 										});
 									}
 									else if(obj.profile_type=='Business') {
@@ -2268,7 +2284,8 @@
 											bill_addr:obj.bill_addr,
 											category:obj.category,
 											email:obj.email_addr,
-											credit_limit:obj.credit_limit
+											credit_limit:obj.credit_limit,
+                      stripeCustId:obj.stripeCustId
 
 										});
 									}
@@ -2316,7 +2333,9 @@
 											profile_type : obj.profile_type,
 											bill_addr:obj.bill_addr,
 											category:obj.category,
-											email:obj.email_addr
+											email:obj.email_addr,
+                      credit_limit:obj.credit_limit,
+                      stripeCustId:obj.stripeCustId
 										});
 									}
 									else if(obj.profile_type=='Business') {
@@ -2327,7 +2346,9 @@
 											profile_type : obj.profile_type,
 											bill_addr:obj.bill_addr,
 											category:obj.category,
-											email:obj.email_addr
+											email:obj.email_addr,
+                      credit_limit:obj.credit_limit,
+                      stripeCustId:obj.stripeCustId
 
 										});
 									}
@@ -2384,12 +2405,13 @@
 
 			if(!promoCode || promoCode === '')
 			{
+        $scope.removeCalcPromotion();
 				return;
 			}
 
 			$charge.coupon().getByCode(promoCode).success(function (data) {
 
-				//if(vm.editInvoice.discount)
+				//if(vm.editInvoice.discount)$scope.rows[i].promotion
 				//  vm.editInvoice.discount += data['0'].discountamount;
 				//else
 				//  vm.editInvoice.discount = data['0'].discountamount;
@@ -2401,9 +2423,20 @@
 			}).error(function (error) {
 				vm.editInvoice.promotion = '';
 				vm.editInvoice.gupromotionId = '';
+        $scope.removeCalcPromotion();
 				notifications.toast(error.error, "error");
 			})
 		}
+
+    $scope.removeCalcPromotion= function () {
+      for (var i = 0; i < $scope.rows.length; i++) {
+        if($scope.rows[i].promotion!=0 && $scope.rows[i].promotion!=undefined && $scope.rows[i].promotion!=null){
+          $scope.rows[i].rowAmtDisplay += $scope.rows[i].promotion;
+          $scope.rows[i].promotion = 0;
+          $scope.rows[i].promotionId = "";
+        }
+      }
+    }
 
 		$scope.calcPromotionToProducts= function (data) {
 
@@ -2414,18 +2447,34 @@
 					if(data[0].associateplan === 1) {
 						for (var ii = 0; ii < data.couponDetails.length; ii++) {
 							if (data.couponDetails[ii].guDetailid === ($scope.rows[i].product.guproductID)) {
-								$scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
-								$scope.rows[i].promotionId = data[0].gucouponid;
+                if(data[0].discounttype==0){
+                  $scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
+                  $scope.rows[i].promotionId = data[0].gucouponid;
 
-								$scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+                  $scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+                }
+                else{
+                  $scope.rows[i].promotion = $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+                  $scope.rows[i].promotionId = data[0].gucouponid;
+
+                  $scope.rows[i].rowAmtDisplay -= $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+                }
 							}
 						}
 
 					}else{
-						$scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
-						$scope.rows[i].promotionId = data[0].gucouponid;
+            if(data[0].discounttype==0){
+              $scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
+              $scope.rows[i].promotionId = data[0].gucouponid;
 
-						$scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+              $scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+            }
+            else{
+              $scope.rows[i].promotion = $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+              $scope.rows[i].promotionId = data[0].gucouponid;
+
+              $scope.rows[i].rowAmtDisplay -= $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+            }
 					}
 
 
@@ -3596,7 +3645,8 @@
         "searchFields": "",
         "take": takeUsr,
         "skip": skipUsr,
-        "orderby": "createddate desc"
+        "orderby": "createddate desc",
+        "status" : "category eq 'Customer'"
       }
 
       $charge.searchhelper().searchRequest(jsonData).success(function(data)
@@ -3622,7 +3672,8 @@
             othername : obj.last_name,
             bill_addr:obj.bill_addr,
             email:obj.email_addr,
-            credit_limit:obj.credit_limit
+            credit_limit:obj.credit_limit,
+            stripeCustId:obj.stripeCustId
           });
 
         }
@@ -3815,6 +3866,7 @@
       if(module=="plan")
       {
         vm.selectedModule=module;
+        //vm.editInvoice.paymentMethod='credit';
         $scope.loadAllPlans(skipDetail, takeDetail);
       }
       else
@@ -3856,75 +3908,208 @@
 		/*
 		 Add Customer
 		 */
+    $scope.addNewUser = function(ev)
+    {
+      //console.log("yes");
+      //$scope.content.user = "";
+      $mdDialog.show({
+        controller: 'AddNewSubsUserController',
+        templateUrl: 'app/main/invoice/composeNewUser-dialog.html',
+        controllerAs       : 'vm',
+        locals             : {
+          selectedMail: undefined,
+          category: "Customer"
+        },
+        parent: angular.element($document.body),
+        targetEvent: ev,
+        clickOutsideToClose:true
+      })
+        .then(function(user) {
+          if(user != undefined)
+          {
+            //$scope.filteredUsers.push({
+            //  profilename : user.first_name,
+            //  profileId : user.profileId,
+            //  othername : user.last_name,
+            //  profile_type : user.profile_type,
+            //  bill_addr:user.bill_addr,
+            //  category:user.category,
+            //  email:user.email_addr,
+            //  credit_limit:user.credit_limit
+            //});
+            $scope.filteredUsers.push(user);
+            vm.editInvoice.profile=user;
+            //ctrl.searchProfile=user.profilename;
+          }
+        })
 
-		$scope.addNewUser = function(ev, userCategory)
-		{
-			//console.log("yes");
-			//$scope.content.user = "";
-			$mdDialog.show({
-				controller: 'AddCustomerController',
-				templateUrl: 'app/main/invoice/dialogs/compose/compose-dialog-customer.html',
-				controllerAs       : 'vm',
-				locals             : {
-					selectedMail: undefined,
-					category: userCategory
-				},
-				parent: angular.element($document.body),
-				targetEvent: ev,
-				clickOutsideToClose:true
-			})
-				.then(function(obj) {
-					//
-					if(obj.profile_type=='Individual')
-					{
-						$scope.filteredUsers.push({
-							profilename : obj.first_name,
-							profileId : obj.profileId,
-							othername : obj.last_name,
-							profile_type : obj.profile_type,
-							bill_addr:obj.bill_addr,
-							category:obj.category,
-							email:obj.email_addr,
-							credit_limit:obj.credit_limit
-						});
-						//$scope.filteredtempUsers.push({
-						//  profilename : obj.first_name,
-						//  profileId : obj.profileId,
-						//  othername : obj.last_name,
-						//  profile_type : obj.profile_type,
-						//  bill_addr:obj.bill_addr,
-						//  category:obj.category,
-						//  email:obj.email_addr
-						//});
-						//self.searchProfile=obj.first_name;
-						//$scope.content.bill_addr
-					}
-					else if(obj.profile_type=='Business') {
-						$scope.filteredUsers.push({
-							profilename : obj.business_name,
-							profileId : obj.profileId,
-							othername : obj.business_contact_name,
-							profile_type : obj.profile_type,
-							bill_addr:obj.bill_addr,
-							category:obj.category,
-							email:obj.email_addr,
-							credit_limit:obj.credit_limit
-						});
-						//$scope.filteredtempUsers.push({
-						//  profilename : obj.business_name,
-						//  profileId : obj.profileId,
-						//  othername : obj.business_contact_name,
-						//  profile_type : obj.profile_type,
-						//  bill_addr:obj.bill_addr,
-						//  category:obj.category,
-						//  email:obj.email_addr
-						//
-						//});
-						//self.searchProfile=obj.business_name;
-					}
-				})
+    }
 
-		}
+    vm.userInfo = {};
+    $scope.getUserInfoByID = function(user) {
+      if(user!=undefined && user!="")
+      {
+        try{
+          $charge.profile().getByIDWithStripeKey(user.profileId).success(function(data) {
+            //console.log(data);
+            vm.userInfo=data[0];
+
+            $scope.addUpdateCardDetails(user);
+
+            // $scope.isLoading = false;
+          }).error(function(data) {
+            //console.log(data);
+            vm.userInfo = {};
+          })
+
+        }catch(ex){
+          ex.app = "invoice";
+          //logHelper.error(ex);
+          vm.userInfo = {};
+        }
+      }
+    }
+
+    $scope.cardloadform = "";
+    $scope.cardLastDigits = {};
+    vm.isAddUpdateCardLoading = false;
+
+    $scope.addUpdateCardDetails = function (customer) {
+      if(customer!=undefined && customer!="")
+      {
+        vm.isAddUpdateCardLoading = true;
+        var cardDetails = {};
+        if (vm.userInfo.stripeCustId != null) {
+          $charge.paymentgateway().getPaymentGatewayDetails(customer.profileId).success(function (response) {
+
+            var cardDetailDigits = response.data[0];
+            if (cardDetailDigits) {
+              $scope.cardLastDigits = cardDetailDigits;
+
+            } else {
+              $scope.cardLastDigits = {};
+            }
+
+          }).error(function (data) {
+            var cardloadfail = data;
+
+          });
+
+          cardDetails = {
+            "profileId": customer.profileId,
+            "redirectUrl": "https://app.cloudcharge.com/planEmbededForm/planSubscriptionScript.php/?method=cardFormShellResponse",
+            "action": "update"
+          };
+        }
+        else {
+          $scope.cardLastDigits = {};
+
+          cardDetails = {
+            "profileId": customer.profileId,
+            "redirectUrl": "https://app.cloudcharge.com/planEmbededForm/planSubscriptionScript.php/?method=cardFormShellResponse",
+            "action": "insert"
+          };
+        }
+
+        $charge.paymentgateway().addUpdateCard(cardDetails).success(function (data) {
+          //
+          $scope.cardloadform = data;
+          angular.element("#addUpdateCardSubsId").empty();
+
+          var iframe = document.getElementById('addUpdateCardSubsId');
+          // iframe.append($scope.cardloadform);
+          iframe = iframe.contentWindow || (iframe.contentDocument.document || iframe.contentDocument);
+
+          iframe.document.open();
+          iframe.document.write($scope.cardloadform);
+          iframe.document.close();
+
+          // angular.element("#addUpdateCardId").append($scope.cardloadform);
+
+          vm.isAddUpdateCardLoading = false;
+          //$scope.showMoreUserInfo=false;
+
+        }).error(function (data) {
+          //console.log(dataErrorInvoice);
+          //$scope.orderScheduledList.push(objOrderSchedule);
+          vm.isAddUpdateCardLoading = false;
+
+          //$scope.infoJson = {};
+          //$scope.infoJson.message = JSON.stringify(data);
+          //$scope.infoJson.app = '360';
+          //logHelper.error($scope.infoJson);
+        })
+      }
+    }
+
+		//$scope.addNewUser = function(ev, userCategory)
+		//{
+		//	//console.log("yes");
+		//	//$scope.content.user = "";
+		//	$mdDialog.show({
+		//		controller: 'AddCustomerController',
+		//		templateUrl: 'app/main/invoice/dialogs/compose/compose-dialog-customer.html',
+		//		controllerAs       : 'vm',
+		//		locals             : {
+		//			selectedMail: undefined,
+		//			category: userCategory
+		//		},
+		//		parent: angular.element($document.body),
+		//		targetEvent: ev,
+		//		clickOutsideToClose:true
+		//	})
+		//		.then(function(obj) {
+		//			//
+		//			if(obj.profile_type=='Individual')
+		//			{
+		//				$scope.filteredUsers.push({
+		//					profilename : obj.first_name,
+		//					profileId : obj.profileId,
+		//					othername : obj.last_name,
+		//					profile_type : obj.profile_type,
+		//					bill_addr:obj.bill_addr,
+		//					category:obj.category,
+		//					email:obj.email_addr,
+		//					credit_limit:obj.credit_limit
+		//				});
+		//				//$scope.filteredtempUsers.push({
+		//				//  profilename : obj.first_name,
+		//				//  profileId : obj.profileId,
+		//				//  othername : obj.last_name,
+		//				//  profile_type : obj.profile_type,
+		//				//  bill_addr:obj.bill_addr,
+		//				//  category:obj.category,
+		//				//  email:obj.email_addr
+		//				//});
+		//				//self.searchProfile=obj.first_name;
+		//				//$scope.content.bill_addr
+		//			}
+		//			else if(obj.profile_type=='Business') {
+		//				$scope.filteredUsers.push({
+		//					profilename : obj.business_name,
+		//					profileId : obj.profileId,
+		//					othername : obj.business_contact_name,
+		//					profile_type : obj.profile_type,
+		//					bill_addr:obj.bill_addr,
+		//					category:obj.category,
+		//					email:obj.email_addr,
+		//					credit_limit:obj.credit_limit
+		//				});
+		//				//$scope.filteredtempUsers.push({
+		//				//  profilename : obj.business_name,
+		//				//  profileId : obj.profileId,
+		//				//  othername : obj.business_contact_name,
+		//				//  profile_type : obj.profile_type,
+		//				//  bill_addr:obj.bill_addr,
+		//				//  category:obj.category,
+		//				//  email:obj.email_addr
+		//				//
+		//				//});
+		//				//self.searchProfile=obj.business_name;
+		//			}
+		//		})
+        //
+		//}
 
 		$scope.addNewProduct = function(ev)
 		{

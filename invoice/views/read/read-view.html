@@ -8,7 +8,8 @@
         </md-card-title>
         <md-card-content>
             <div layout="row">
-                <md-autocomplete flex="30"
+              <md-input-container flex="30">
+                <md-autocomplete
                                  ng-required="true"
                                  md-select-on-match
                                  ng-keypress="enter($event)"
@@ -17,17 +18,107 @@
                                  md-no-cache="ctrl.noCache"
                                  md-selected-item="vm.editInvoice.profile"
                                  md-search-text="ctrl.searchProfile"
-                                 md-selected-item-change="GetAddr(vm.editInvoice.profile,0)"
+                                 md-selected-item-change="loadCustomerDetails(vm.editInvoice.profile,0)"
                                  md-items="item in queryProfile(ctrl.searchProfile)"
                                  md-item-text="item.profilename"
                                  md-floating-label="Customer"
                                  md-min-length="" style="height: 55px;">
-                    <md-not-found>No items.</md-not-found>
-                    <md-item-template>
-                        <span md-highlight-text="ctrl.searchText">{{item.profilename+" "+item.othername}}</span>
-                    </md-item-template>
+                  <md-not-found>No items.</md-not-found>
+                  <md-item-template>
+                    <span md-highlight-text="ctrl.searchText">{{item.profilename+" "+item.othername}}</span>
+                  </md-item-template>
                 </md-autocomplete>
-                <span>{{vm.editInvoice.bill_addr}}</span>
+              </md-input-container>
+              <md-input-container>
+                <md-button ng-click="addNewUser($event)" class="md-icon-button md-accent"><md-icon md-font-icon="icon-plus-circle"></md-icon><md-tooltip>Add new customer</md-tooltip> </md-button>
+              </md-input-container>
+              <span>{{vm.editInvoice.bill_addr}}</span>
+            </div>
+
+            <div ng-if="vm.editInvoice.profile != ''">
+              <div layout="row" class="pos-rel">
+                <div class="preloader-input-block animate-fade-in-out" layout="column" layout-align="space-around" ng-if="vm.isAddUpdateCardLoading">
+                  <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                </div>
+                <div flex md-whiteframe="1dp" class="colored-iconed-card">
+                  <div layout="row" class="p-10 colored-header">
+                    <div layout="row" layout-align="start center" flex class="user">
+                      <i class="material-icons mr-10">face</i>
+                      <span class="title">{{vm.userInfo.first_name}} {{vm.userInfo.last_name}}</span>
+                    </div>
+                  </div>
+                  <div layout="row" flex class="p-10">
+                    <div layout="column" flex>
+                      <div layout="row">
+                        <div layout="row" layout-align="start center" class="info-grid-row bordered" flex>
+                          <div class="iconed-label" layout="row" layout-align="start center" flex="30">
+                            <md-icon md-font-icon="icon-account-location"></md-icon> <span flex>User type</span>
+                          </div>
+                          <div flex class="text-capitalize">{{vm.userInfo.category}}</div>
+                        </div>
+                      </div>
+                      <div layout="row">
+                        <div layout="row" layout-align="start center" class="info-grid-row bordered" flex>
+                          <div class="iconed-label" layout="row" layout-align="start center" flex="30">
+                            <md-icon md-font-icon="icon-email"></md-icon> <span flex>Email</span>
+                          </div>
+                          <div flex class="">{{vm.userInfo.email_addr}}</div>
+                        </div>
+                      </div>
+                      <div layout="row">
+                        <div layout="row" layout-align="start center" class="info-grid-row bordered" flex>
+                          <div class="iconed-label" layout="row" layout-align="start center" flex="30">
+                            <md-icon md-font-icon="icon-google-maps"></md-icon> <span flex>Country</span>
+                          </div>
+                          <div flex class="">{{vm.userInfo.bill_country}}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div flex="5"></div>
+                    <div layout="column" flex>
+                      <div layout="column" layout-align="center start" class="info-grid-row bordered">
+                        <div id="cardBody" class="iconed-label bordered" layout="row" layout-align="start center" fill-width>
+                          <md-icon md-font-icon="icon-credit-card"></md-icon> <span flex>Card</span>
+                        </div>
+                        <div layout="column" layout-align="center center" style="width: 100%;" class="mt-10">
+                          <!--<div flex layout="row" layout-align="center center" class="msg-empty-list m-0" ng-if="vm.userInfo.stripeCustId == null">-->
+                          <!--<span><md-icon md-font-icon="icon-information-outline"></md-icon> No card has been added yet</span>-->
+                          <!--</div>-->
+
+                          <div layout="row" fill-width class="list-item" modal-animation-class="mt-20" ng-if="vm.userInfo.stripeCustId != null">
+                            <div layout="row" layout-align="start center" class="info-grid-row" flex>
+                              <div class="iconed-label" layout="row" layout-align="start center" flex>
+                                <i class="material-icons">local_atm</i>
+                                <span flex>Payment gateway</span>
+                              </div>
+                              <div flex>
+                                <!--{{customer_supplier.profile.gatewayType}}-->
+                                <div class="online_{{vm.userInfo.gatewayType | lowercase}} scale-down-5" style="margin-left: -40px"></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div layout="row" fill-width class="list-item" modal-animation-class="mt-20">
+                            <div layout="row" layout-align="start center" class="info-grid-row" flex ng-if="vm.userInfo.stripeCustId != null">
+                              <div class="iconed-label" layout="row" layout-align="start center" flex>
+                                <i class="material-icons">local_atm</i>
+                                <!--<span flex>Card details</span>-->
+                                <div flex class="op-5"><i>XXXX-XXXX-XXXX-{{cardLastDigits.last4}}</i></div>
+                              </div>
+                            </div>
+                            <!--<div layout="row" layout-align="start center" class="info-grid-row" id="addUpdateCardSubsId" flex>-->
+                            <!--</div>-->
+                          </div>
+                          <div layout="row" fill-width class="list-item" modal-animation-class="mt-20">
+                            <iframe class="iframe-auto-height" fill-width onLoad="updateCardDone(this)" id="addUpdateCardSubsId" style="border: none">
+                            </iframe>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div layout="row">
@@ -82,7 +173,7 @@
                     <md-autocomplete flex="30" required class="mb-0" layout="row" layout-align="start center"
                                      md-input-id="{{row.productId}}"
                                      ng-required="false"
-                                     ng-keydown="toggleSearchMre(rows,$event,$index,vm.searchText[$index],'true')"
+                                     ng-keyup="toggleSearchMre(rows,$event,$index,vm.searchText[$index],'true')"
                                      md-select-on-match
                                      ng-keypress="enter($event)"
                                      ng-disabled="row.isAutoDisabled"
@@ -224,9 +315,11 @@
                         <md-radio-group ng-model="vm.editInvoice.paymentMethod" ng-init="vm.editInvoice.paymentMethod='cash'" ng-change="paymentMethodHandler(vm.editInvoice.paymentMethod)">
                             <md-radio-button value="cash" class="md-primary">CASH</md-radio-button>
                             <md-radio-button value="credit" class="md-primary">CREDIT</md-radio-button>
+                            <md-radio-button value="card" class="md-primary">CREDIT CARD</md-radio-button>
                         </md-radio-group>
                     </md-input-container>
                 </div>
+
             </div>
 
         </md-card-content>
