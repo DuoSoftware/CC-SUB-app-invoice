@@ -2405,12 +2405,13 @@
 
 			if(!promoCode || promoCode === '')
 			{
+        $scope.removeCalcPromotion();
 				return;
 			}
 
 			$charge.coupon().getByCode(promoCode).success(function (data) {
 
-				//if(vm.editInvoice.discount)
+				//if(vm.editInvoice.discount)$scope.rows[i].promotion
 				//  vm.editInvoice.discount += data['0'].discountamount;
 				//else
 				//  vm.editInvoice.discount = data['0'].discountamount;
@@ -2422,9 +2423,20 @@
 			}).error(function (error) {
 				vm.editInvoice.promotion = '';
 				vm.editInvoice.gupromotionId = '';
+        $scope.removeCalcPromotion();
 				notifications.toast(error.error, "error");
 			})
 		}
+
+    $scope.removeCalcPromotion= function () {
+      for (var i = 0; i < $scope.rows.length; i++) {
+        if($scope.rows[i].promotion!=0 && $scope.rows[i].promotion!=undefined && $scope.rows[i].promotion!=null){
+          $scope.rows[i].rowAmtDisplay += $scope.rows[i].promotion;
+          $scope.rows[i].promotion = 0;
+          $scope.rows[i].promotionId = "";
+        }
+      }
+    }
 
 		$scope.calcPromotionToProducts= function (data) {
 
@@ -2435,18 +2447,34 @@
 					if(data[0].associateplan === 1) {
 						for (var ii = 0; ii < data.couponDetails.length; ii++) {
 							if (data.couponDetails[ii].guDetailid === ($scope.rows[i].product.guproductID)) {
-								$scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
-								$scope.rows[i].promotionId = data[0].gucouponid;
+                if(data[0].discounttype==0){
+                  $scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
+                  $scope.rows[i].promotionId = data[0].gucouponid;
 
-								$scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+                  $scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+                }
+                else{
+                  $scope.rows[i].promotion = $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+                  $scope.rows[i].promotionId = data[0].gucouponid;
+
+                  $scope.rows[i].rowAmtDisplay -= $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+                }
 							}
 						}
 
 					}else{
-						$scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
-						$scope.rows[i].promotionId = data[0].gucouponid;
+            if(data[0].discounttype==0){
+              $scope.rows[i].promotion = data[0].discountamount * $scope.rows[i].qty;
+              $scope.rows[i].promotionId = data[0].gucouponid;
 
-						$scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+              $scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
+            }
+            else{
+              $scope.rows[i].promotion = $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+              $scope.rows[i].promotionId = data[0].gucouponid;
+
+              $scope.rows[i].rowAmtDisplay -= $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+            }
 					}
 
 
