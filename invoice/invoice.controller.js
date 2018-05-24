@@ -2450,6 +2450,14 @@
 
 				for (var i = 0; i < $scope.rows.length; i++) {
 
+          var unitPrice = 0;
+          if(vm.selectedModule=="plan"){
+            unitPrice = $scope.rows[i].product.unitPrice;
+          }
+          else{
+            unitPrice = $scope.rows[i].product.price_of_unit;
+          }
+
 					if(data[0].associateplan === 1) {
 						for (var ii = 0; ii < data.couponDetails.length; ii++) {
 							if (data.couponDetails[ii].guDetailid === ($scope.rows[i].product.guproductID)) {
@@ -2460,10 +2468,10 @@
                   $scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
                 }
                 else{
-                  $scope.rows[i].promotion = $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+                  $scope.rows[i].promotion = unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
                   $scope.rows[i].promotionId = data[0].gucouponid;
 
-                  $scope.rows[i].rowAmtDisplay -= $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+                  $scope.rows[i].rowAmtDisplay -= unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
                 }
 							}
 						}
@@ -2476,10 +2484,10 @@
               $scope.rows[i].rowAmtDisplay -= data[0].discountamount * $scope.rows[i].qty;
             }
             else{
-              $scope.rows[i].promotion = $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+              $scope.rows[i].promotion = unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
               $scope.rows[i].promotionId = data[0].gucouponid;
 
-              $scope.rows[i].rowAmtDisplay -= $scope.rows[i].product.unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
+              $scope.rows[i].rowAmtDisplay -= unitPrice*(data[0].discountamount/100) * $scope.rows[i].qty;
             }
 					}
 
