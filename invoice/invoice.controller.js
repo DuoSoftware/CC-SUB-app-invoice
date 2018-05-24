@@ -2405,6 +2405,8 @@
 
 			if(!promoCode || promoCode === '')
 			{
+        vm.editInvoice.promotion = '';
+        vm.editInvoice.gupromotionId = '';
         $scope.removeCalcPromotion();
 				return;
 			}
@@ -2416,9 +2418,13 @@
 				//else
 				//  vm.editInvoice.discount = data['0'].discountamount;
 
-				vm.editInvoice.gupromotionId = data[0].gucouponid;
+        if(vm.editInvoice.gupromotionId != data[0].gucouponid)
+        {
+          $scope.removeCalcPromotion();
+          vm.editInvoice.gupromotionId = data[0].gucouponid;
 
-				$scope.calcPromotionToProducts(data);
+          $scope.calcPromotionToProducts(data);
+        }
 
 			}).error(function (error) {
 				vm.editInvoice.promotion = '';
