@@ -35,7 +35,7 @@
               <span>{{vm.editInvoice.bill_addr}}</span>
             </div>
 
-            <div ng-if="vm.editInvoice.profile != ''">
+            <div ng-if="vm.editInvoice.profile != '' && vm.editInvoice.profile != null">
               <div layout="row" class="pos-rel">
                 <div class="preloader-input-block animate-fade-in-out" layout="column" layout-align="space-around" ng-if="vm.isAddUpdateCardLoading">
                   <md-progress-circular md-mode="indeterminate"></md-progress-circular>

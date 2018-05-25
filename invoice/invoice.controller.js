@@ -2200,7 +2200,7 @@
 
     $scope.loadCustomerDetails=function(customer,val)
     {
-      $scope.GetAddr(customer,val);
+      //$scope.GetAddr(customer,val);
       $scope.getUserInfoByID(customer);
     }
 
@@ -3653,32 +3653,13 @@
 		$scope.filteredUsers=[];
     $scope.loadUsersByCat= function (skipUsr,takeUsr) {
 
-      var jsonData = {
-        "url": "https://cloudchargesearch.search.windows.net/indexes/profiles/docs/search?api-version=2016-09-01",
-        "searchBy": "*",
-        "searchFields": "",
-        "take": takeUsr,
-        "skip": skipUsr,
-        "orderby": "createddate desc",
-        "status" : "category eq 'Customer'"
-      }
-
-      $charge.searchhelper().searchRequest(jsonData).success(function(data)
+      $azureSearchHandle.getClient().SearchRequest("profile",skipUsr,takeUsr,'desc',"category eq 'Customer'").onComplete(function(Response)
       {
         skipUsr += takeUsr;
-        for (var i = 0; i < data.value.length; i++) {
-          if(data.value[i].status==0)
-          {
-            data.value[i].status=false;
-          }
-          else
-          {
-            data.value[i].status=true;
-          }
-          data.value[i].createddate = new Date(data.value[i].createddate);
+        for (var i = 0; i < Response.length; i++) {
           //tempList.push(data.value[i]);
 
-          var obj = data.value[i];
+          var obj = Response[i];
 
           $scope.filteredUsers.push({
             profilename : obj.first_name,
@@ -3692,23 +3673,24 @@
 
         }
 
-        if(data.value.length<takeUsr){
+        if(Response.length<takeUsr){
           $scope.isdataavailable=false;
           $scope.hideSearchMore=true;
           vm.lastProfile=true;
           skipUsr = 0;
         }
-        else if(data.value.length!=0 && data.value.length>=takeUsr)
+        else if(Response.length!=0 && Response.length>=takeUsr)
         {
           //skipUsr+=takeUsr;
           $scope.loadUsersByCat(skipUsr,takeUsr);
         }
 
-      }).error(function(data)
+      }).onError(function(data)
       {
+        //console.log(data);
         $scope.isloadDone = true;
         skipUsr = 0;
-      })
+      });
 
     }
 
