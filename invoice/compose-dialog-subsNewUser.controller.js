@@ -12,10 +12,10 @@
 
   angular
     .module('app.invoice')
-    .controller('AddNewSubsUserController', AddNewSubsUserController);
+    .controller('AddNewInvoiceUserController', AddNewInvoiceUserController);
 
   /** @ngInject */
-  function AddNewSubsUserController($mdDialog, selectedMail, category, $scope, $mdToast, notifications, $charge)
+  function AddNewInvoiceUserController($mdDialog, selectedMail, category, $scope, $mdToast, notifications, $charge)
   {
     var vm = this;
 

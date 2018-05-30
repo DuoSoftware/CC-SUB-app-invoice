@@ -3909,7 +3909,7 @@
       //console.log("yes");
       //$scope.content.user = "";
       $mdDialog.show({
-        controller: 'AddNewSubsUserController',
+        controller: 'AddNewInvoiceUserController',
         templateUrl: 'app/main/invoice/composeNewUser-dialog.html',
         controllerAs       : 'vm',
         locals             : {
