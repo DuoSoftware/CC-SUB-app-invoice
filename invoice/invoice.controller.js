@@ -485,12 +485,12 @@
 		};
 
 		$scope.paymentMethodHandler =  function (selection){
-			if(selection=='cash'){
-				vm.editInvoice.paymentMethod = 'cash';
-			}else if(selection=='credit'){
-				vm.editInvoice.paymentMethod = 'credit';
+			if(selection=='Cash'){
+				vm.editInvoice.paymentMethod = 'Cash';
+			}else if(selection=='Credit'){
+				vm.editInvoice.paymentMethod = 'Credit';
 			}else{
-        vm.editInvoice.paymentMethod = 'card';
+        vm.editInvoice.paymentMethod = 'Card';
       }
 		}
 
@@ -620,7 +620,13 @@
 					}
 					vm.submitted = false;
 				}).error(function (data) {
-					notifications.toast(data.message, "error");
+					// notifications.toast(data.message, "error");
+          var errorMsg = "Creating invoice failed";
+          for (key in data.error) {
+            errorMsg = data.error[key][0];
+            break;
+          }
+          notifications.toast(errorMsg, "error");
 					//$scope.clearFields();
 					vm.submitted = false;
 				})
@@ -640,6 +646,10 @@
 			$scope.tempTaxArray=[];
 			$scope.addNewRow();
       vm.editInvoice.profile="";
+      vm.editInvoice.promotion="";
+      vm.editInvoice.discount="";
+      vm.editInvoice.additionalcharge="";
+      vm.editInvoice.remarks="";
 			$scope.content.stat=false;
 			$scope.content.invoiceDate = new Date();
 			$scope.content.dueDate=new Date();
@@ -4622,7 +4632,7 @@
 			$scope.currentTemplateView='emailTemplate1';
 			$http({
 				method:'GET',
-				url:'https://ccresourcegrpdisks974.blob.core.windows.net/email-templates/emailTemplate1.html'
+				url:'https://ccresourcegrpdisks974.blob.core.windows.net/email-templates/Templates/emailTemplate1.html'
 			}).then(function (res) {
 				$scope.tempSelectedTemplate = angular.copy(res.data);
 				$scope.currEmailTemplate = res.data;
