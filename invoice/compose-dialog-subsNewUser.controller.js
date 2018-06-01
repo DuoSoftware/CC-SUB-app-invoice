@@ -50,6 +50,19 @@
     $scope.cancel = function() {
       $mdDialog.cancel();
     };
+	
+	vm.creditLimit = -1;
+    $scope.getCreditLimit = function (){
+      $charge.settingsapp().getDuobaseFieldDetailsByTableNameAndFieldName("CTS_InvoiceAttributes", "CreditLimit").success(function (data) {
+        vm.creditLimit = parseFloat(data[0].RecordFieldData);
+        //
+        //
+      }).error(function (data) {
+        //console.log(data);
+        vm.creditLimit = -1;
+      });
+    }
+    $scope.getCreditLimit();
 
     vm.usingAvalaraTax = false;
 
@@ -88,6 +101,8 @@
         {
           $scope.contentuser.billAddress = $scope.contentuser.line1+"|"+$scope.contentuser.city+"|"+$scope.contentuser.region+"|"+$scope.contentuser.country;
         }
+		
+		$scope.contentuser.creditLimit = vm.creditLimit;
 
         var userObj = $scope.contentuser;
 
