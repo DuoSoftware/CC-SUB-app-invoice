@@ -145,7 +145,7 @@
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%listItems%', listMarkup);
 
 			//Sub details
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%additionalcharge%', vm.selectedInvoice.rate);
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%additionalcharge%', vm.selectedInvoice.additionalcharge);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%discAmt%', vm.selectedInvoice.discAmt);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%discount%', vm.selectedInvoice.discount);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%subTotal%', vm.selectedInvoice.subTotal);
