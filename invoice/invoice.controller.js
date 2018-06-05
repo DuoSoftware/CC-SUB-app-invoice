@@ -3879,6 +3879,7 @@
       {
         vm.selectedModule=module;
         $scope.loadAllProducts(skipDetail, takeDetail);
+		vm.editInvoice.invoiceOccurence="One Time";
       }
 		};
 
