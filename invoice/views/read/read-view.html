@@ -124,7 +124,7 @@
             <div layout="row">
                 <md-input-container flex="30">
                     <label>Type</label>
-                    <md-select ng-required="true" flex ng-model="vm.editInvoice.invoiceOccurence">
+                    <md-select ng-required="true" ng-disabled="vm.selectedModule=='product'" flex ng-model="vm.editInvoice.invoiceOccurence">
                         <md-option value="One Time" selected>One Time</md-option>
                         <md-option value="Recurring">Recurring</md-option>
                         <md-option value="Installment">Installment</md-option>
