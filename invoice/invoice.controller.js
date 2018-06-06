@@ -3600,7 +3600,7 @@
 			invoice.isDialogLoading = false;
 
       var docinfo = {
-        type : 'adjustment',
+        type : 'invoice',
         company : {
           companyName : $scope.content.companyName,
           companyPhone : $scope.content.companyPhone,
