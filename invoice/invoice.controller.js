@@ -7,7 +7,7 @@
 		.controller('InvoiceController', InvoiceController);
 
 	/** @ngInject */
-	function InvoiceController($scope, $document, $timeout, $mdDialog, $mdMedia, $mdSidenav,$charge,$productHandler,$filter,$rootScope,notifications,$state,$http,$azureSearchHandle)
+	function InvoiceController($scope, $document, $timeout, $mdDialog, $mdMedia, $mdSidenav,$charge,$productHandler,$filter,$rootScope,notifications,$state,$http,$azureSearchHandle, transactionTemplateGenerator)
 	{
 		var vm = this;
 
@@ -3599,12 +3599,47 @@
 			//$scope.showAdvancedInvoice(ev,vm.selectedInvoice);
 			invoice.isDialogLoading = false;
 
-			extractEmailTemplate(vm.selectedInvoice, function () {
-				var preview = $('#print-content');
-				preview.children().remove();
-				preview.append($scope.currEmailTemplate);
-				$scope.isReadLoaded = true;
-			});
+      var docinfo = {
+        type : 'invoice',
+        company : {
+          companyName : $scope.content.companyName,
+          companyPhone : $scope.content.companyPhone,
+          companyEmail : $scope.content.companyEmail,
+          companyAddress : $scope.content.companyAddress,
+          companyLogo : $scope.content.companyLogo
+        },
+        client : {
+          clientName : vm.selectedInvoice.person_name,
+          clientPhone : vm.selectedInvoice.phone,
+          clientAddress : vm.selectedInvoice.bill_addr,
+          clientEmail : vm.selectedInvoice.email_addr
+        },
+        transaction : {
+          invoiceNo : vm.selectedInvoice.invoiceNo,
+          invoiceDate : vm.selectedInvoice.invoiceDate,
+          dueDate : vm.selectedInvoice.dueDate,
+          additionalcharge : vm.selectedInvoice.additionalcharge,
+          discAmt : vm.selectedInvoice.discAmt,
+          discount : vm.selectedInvoice.discount,
+          subTotal : vm.selectedInvoice.subTotal,
+          tax : vm.selectedInvoice.tax,
+          invoiceAmount : vm.selectedInvoice.invoiceAmount,
+          invoiceDetails : vm.selectedInvoice.invoiceDetails
+        }
+      };
+
+			var t = transactionTemplateGenerator(docinfo);
+      var preview = $('#print-content');
+      preview.children().remove();
+      preview.append(t);
+      $scope.isReadLoaded = true;
+
+			// extractEmailTemplate(vm.selectedInvoice, function () {
+			// 	var preview = $('#print-content');
+			// 	preview.children().remove();
+			// 	preview.append($scope.currEmailTemplate);
+			// 	$scope.isReadLoaded = true;
+			// });
 
 		}
 
