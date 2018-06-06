@@ -495,7 +495,7 @@
                         </div>
                         <div class="state-flag-wrap">
                             <md-icon md-font-icon="icon-bookmark {{vm.selectedInvoice.invoiceStatus | lowercase}}"></md-icon>
-                            <span class="state-flag-text {{vm.selectedInvoice.invoiceStatus | lowercase}}">{{vm.selectedInvoice.invoiceStatus}}</span>
+                            <span class="state-flag-text {{vm.selectedInvoice.invoiceStatus | lowercase}}">{{vm.selectedInvoice.invoiceStatus.toLowerCase() == "partially paid" ? "Partial Paid" : vm.selectedInvoice.invoiceStatus}}</span>
                         </div>
                         <div id="print-content" style="border: solid 1px #ddd;min-height: 800px;position:relative;margin-bottom: 20px"></div>
                     </div>
