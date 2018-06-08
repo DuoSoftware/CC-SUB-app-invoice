@@ -683,7 +683,7 @@
 			$scope.requiredStatus =false;
 			insufficientStocks=[];
 			$scope.productsDet=[];
-			$scope.products=[];
+			//$scope.products=[];
 			// $scope.loadAllProducts(0,100);
 			// $scope.loadA
 			//$state.go($state.current, {}, {reload: $scope.isAdded});
