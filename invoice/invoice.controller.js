@@ -135,7 +135,7 @@
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceNo%', vm.selectedInvoice.invoiceNo);
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceDate%', $filter('date')(new Date(vm.selectedInvoice.invoiceDate), 'MMMM d, y', null));
 			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%dueDate%', vm.selectedInvoice.dueDate);
-			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceDate% - %dueDate%', $filter('date')(new Date(vm.selectedInvoice.invoiceDate), 'yyyy.MM.dd', null) +' - '+ $filter('date')(new Date(vm.selectedInvoice.dueDate), 'yyyy.MM.dd', null));
+			$scope.currEmailTemplate = $scope.currEmailTemplate.replace('%invoiceDate% - %dueDate%', $filter('date')(new Date(vm.selectedInvoice.periodStartDate), 'yyyy.MM.dd', null) +' - '+ $filter('date')(new Date(vm.selectedInvoice.periodEndDate), 'yyyy.MM.dd', null));
 
 			//list
 			var listMarkup = "";
